@@ -1,24 +1,108 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, ListOrdered, Share2, Shuffle, Trophy } from "lucide-react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import { SiteHeader } from "@/components/site-header";
+import { Button } from "@/components/ui/button";
+import heroCourt from "@/assets/hero-court.jpg";
+
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Rally — Padel Americano & Mexicano tournament app" },
+      {
+        name: "description",
+        content:
+          "Set up a padel Americano or Mexicano in under a minute: add players, auto-generate the rounds, tap in scores and share live standings with a link.",
+      },
+      { property: "og:title", content: "Rally — Padel Americano & Mexicano tournament app" },
+      {
+        name: "og:description",
+        content: "Auto-generated rounds, live standings and a share link for every padel session.",
+      },
+    ],
+  }),
+  component: Landing,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+const features = [
+  {
+    icon: Shuffle,
+    title: "Rounds that build themselves",
+    body: "Americano rotates partners every round. Mexicano re-seeds from the current standings so the top players meet.",
+  },
+  {
+    icon: ListOrdered,
+    title: "Scores in two taps",
+    body: "Fixed points per match, big number inputs and instant validation. No paper, no arguments.",
+  },
+  {
+    icon: Share2,
+    title: "One link for everyone",
+    body: "Players follow the schedule and the leaderboard live from their phones. No account needed to watch.",
+  },
+];
+
+function Landing() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen">
+      <SiteHeader />
+
+      <section className="relative overflow-hidden">
+        <img
+          src={heroCourt}
+          alt="Floodlit padel court at night"
+          width={1600}
+          height={1008}
+          className="absolute inset-0 size-full object-cover opacity-45"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+        <div className="court-grid absolute inset-0 opacity-70" />
+
+        <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+            Americano · Mexicano
+          </p>
+          <h1 className="mt-5 max-w-2xl text-4xl font-bold leading-[1.05] sm:text-6xl">
+            Run the whole padel night from your phone.
+          </h1>
+          <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
+            Drop in the players, pick a format and Rally handles the pairings, the courts and the
+            leaderboard. Share one link and everyone follows along.
+          </p>
+          <div className="mt-8">
+            <Button asChild size="lg">
+              <Link to="/auth">
+                Start a tournament
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 pb-24">
+        <div className="grid gap-4 sm:grid-cols-3">
+          {features.map((f) => (
+            <div key={f.title} className="panel p-6">
+              <f.icon className="size-5 text-primary" />
+              <h2 className="mt-4 text-lg font-semibold">{f.title}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="panel mt-4 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <Trophy className="size-5 text-primary" />
+            <p className="text-sm text-muted-foreground">
+              8, 12 or 16 players, one to four courts — the schedule always fits.
+            </p>
+          </div>
+          <Button asChild variant="outline">
+            <Link to="/auth">Create your first event</Link>
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }
