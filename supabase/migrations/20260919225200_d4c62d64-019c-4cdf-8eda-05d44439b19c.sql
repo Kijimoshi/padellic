@@ -35,7 +35,7 @@ CREATE TABLE public.tournaments (
   courts INTEGER NOT NULL DEFAULT 1,
   points_per_match INTEGER NOT NULL DEFAULT 24,
   total_rounds INTEGER NOT NULL DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'setup' CHECK (status IN ('setup','live','finished')),
+  status TEXT NOT NULL DEFAULT 'setup',
   share_code TEXT NOT NULL UNIQUE DEFAULT lower(substr(replace(gen_random_uuid()::text,'-',''),1,8)),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
