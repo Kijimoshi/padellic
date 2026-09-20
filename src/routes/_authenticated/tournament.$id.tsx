@@ -33,6 +33,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 export const Route = createFileRoute("/_authenticated/tournament/$id")({
   head: () => ({
     meta: [
@@ -115,6 +123,21 @@ function TournamentPage() {
     onError: () => toast.error("Remove that player's matches first."),
   });
 
+  const updateTournament = useMutation({
+    mutationFn: async (updates: { name: string; courts: number; format: "americano" | "mexicano" }) => {
+      const { error } = await supabase
+        .from("tournaments")
+        .update(updates)
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success("Tournament settings saved");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save settings"),
+  });    
+  
   const insertMatches = async (planned: PlannedMatch[]) => {
     if (planned.length === 0) throw new Error("Not enough players for a full court (need 4).");
     const { error } = await supabase
@@ -225,6 +248,7 @@ function TournamentPage() {
             <TabsTrigger value="rounds">Rounds</TabsTrigger>
             <TabsTrigger value="standings">Standings</TabsTrigger>
             <TabsTrigger value="players">Players</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
           <TabsContent value="rounds" className="mt-6 space-y-4">
@@ -364,6 +388,15 @@ function TournamentPage() {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="settings" className="mt-6">
+            <SettingsForm
+              tournament={tournament}
+              onSave={(updates) => updateTournament.mutate(updates)}
+              isPending={updateTournament.isPending}
+            />
+          </TabsContent>
+          
         </Tabs>
       </main>
     </div>
@@ -517,6 +550,69 @@ function ScoreRow({
           Save
         </Button>
       </div>
+    </div>
+  );
+}
+
+function SettingsForm({
+  tournament,
+  onSave,
+  isPending,
+}: {
+  tournament: any;
+  onSave: (updates: { name: string; courts: number; format: "americano" | "mexicano" }) => void;
+  isPending: boolean;
+}) {
+  const [name, setName] = useState(tournament.name);
+  const [courts, setCourts] = useState(String(tournament.courts));
+  const [format, setFormat] = useState<"americano" | "mexicano">(tournament.format);
+
+  const handleSave = () => {
+    const numCourts = parseInt(courts, 10);
+    if (!name.trim() || isNaN(numCourts) || numCourts < 1) return;
+    onSave({ name: name.trim(), courts: numCourts, format });
+  };
+
+  return (
+    <div className="panel max-w-lg space-y-5 p-5">
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Tournament Name</label>
+        <Input 
+          value={name} 
+          onChange={(e) => setName(e.target.value)} 
+          placeholder="New Tournament name" 
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Number of Courts</label>
+        <Input 
+          type="number" 
+          min="1" 
+          value={courts} 
+          onChange={(e) => setCourts(e.target.value)} 
+        />
+      </div>
+      
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Tournament Format</label>
+        <Select value={format} onValueChange={(val: "americano" | "mexicano") => setFormat(val)}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="americano">Americano — partners rotate</SelectItem>
+            <SelectItem value="mexicano">Mexicano — seeded by standings</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Button 
+        onClick={handleSave}
+        disabled={isPending || !name.trim() || parseInt(courts, 10) < 1}
+      >
+        Save changes
+      </Button>
     </div>
   );
 }
