@@ -1,5 +1,4 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 export type PublicTournamentPayload = {
@@ -28,13 +27,10 @@ export type PublicTournamentPayload = {
 } | null;
 
 export const getPublicTournament = createServerFn({ method: "GET" })
-  .inputValidator((data) => z.object({ code: z.string().min(1).max(64) }).parse(data))
+  .inputValidator((data) => z.object({ code: z.string().regex(/^[a-z0-9]{4,64}$/) }).parse(data))
   .handler(async ({ data }): Promise<PublicTournamentPayload> => {
-    const client = createClient(
-      process.env["SUPABASE_URL"]!,
-      process.env["SUPABASE_PUBLISHABLE_KEY"]!,
-      { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
-    );
+    // Share codes are unguessable secrets; the lookup is scoped to one exact code.
+    const { supabaseAdmin: client } = await import("@/integrations/supabase/client.server");
 
     const { data: tournament, error } = await client
       .from("tournaments")
