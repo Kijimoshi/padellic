@@ -40,7 +40,7 @@ function Dashboard() {
   const [name, setName] = useState("");
   const [format, setFormat] = useState<Format>("americano");
   const [courts, setCourts] = useState("2");
-  const [points, setPoints] = useState("24");
+  const [points, setPoints] = useState("21");
 
   const create = useMutation({
     mutationFn: async () => {
