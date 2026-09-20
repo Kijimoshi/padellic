@@ -12,12 +12,12 @@ import { lovable } from "@/integrations/lovable/index";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Rally padel tournaments" },
+      { title: "Sign in — Padellic padel tournaments" },
       {
         name: "description",
         content: "Sign in to create padel Americano and Mexicano tournaments and share live standings.",
       },
-      { property: "og:title", content: "Sign in — Rally padel tournaments" },
+      { property: "og:title", content: "Sign in — Padellic padel tournaments" },
       {
         property: "og:description",
         content: "Sign in to create padel tournaments and share live standings.",

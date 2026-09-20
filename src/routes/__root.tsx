@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Rally — Padel Americano & Mexicano tournaments" },
+      { title: "Padellic — Padel Americano & Mexicano tournaments" },
       {
         name: "description",
         content:
           "Run padel Americano and Mexicano tournaments: add players, auto-generate rounds, enter scores and share live standings.",
       },
-      { property: "og:title", content: "Rally — Padel Americano & Mexicano tournaments" },
+      { property: "og:title", content: "Padellic — Padel Americano & Mexicano tournaments" },
       {
         property: "og:description",
         content: "Auto-generated rounds, live standings and a share link for every padel session.",

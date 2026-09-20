@@ -8,13 +8,13 @@ import heroCourt from "@/assets/hero-court.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Rally — Padel Americano & Mexicano tournament app" },
+      { title: "Padellic — Padel Americano & Mexicano tournament app" },
       {
         name: "description",
         content:
           "Set up a padel Americano or Mexicano in under a minute: add players, auto-generate the rounds, tap in scores and share live standings with a link.",
       },
-      { property: "og:title", content: "Rally — Padel Americano & Mexicano tournament app" },
+      { property: "og:title", content: "Padellic — Padel Americano & Mexicano tournament app" },
       {
         name: "og:description",
         content: "Auto-generated rounds, live standings and a share link for every padel session.",

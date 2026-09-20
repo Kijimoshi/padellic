@@ -23,9 +23,9 @@ import type { Format } from "@/lib/padel";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "My tournaments — Rally" },
+      { title: "My tournaments — Padellic" },
       { name: "description", content: "Create and manage your padel Americano and Mexicano tournaments." },
-      { property: "og:title", content: "My tournaments — Rally" },
+      { property: "og:title", content: "My tournaments — Padellic" },
       { property: "og:description", content: "Create and manage your padel tournaments." },
     ],
   }),
