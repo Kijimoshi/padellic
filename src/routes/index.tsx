@@ -63,8 +63,7 @@ function Landing() {
              AMERICANO · MEXICANO · TROLOLOLO · POZDRO =]
           </p>
           <h1 className="mt-5 max-w-2xl text-4xl font-bold leading-[1.05] sm:text-6xl">
-             Less admin,
-             more smashes.
+             {"Less admin,\nmore smashes."}
           </h1>
           <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
               Pick a format, drop in the players, and Padellic handles the pairings, the courts and the
