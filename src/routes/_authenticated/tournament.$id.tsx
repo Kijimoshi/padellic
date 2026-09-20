@@ -21,6 +21,18 @@ import {
   type PlannedMatch,
 } from "@/lib/padel";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 export const Route = createFileRoute("/_authenticated/tournament/$id")({
   head: () => ({
     meta: [
@@ -221,14 +233,47 @@ function TournamentPage() {
                    ? "Generates the full tournament with rotating partners."
                   : "Mexicano builds one round at a time from the live standings."}
               </p>
+              
               <div className="flex gap-2">
-                <Button
-                  onClick={() => generateSchedule.mutate()}
-                  disabled={players.length < 4 || generateSchedule.isPending}
-                >
-                  <Shuffle className="size-4" />
-                  {matches.length > 0 ? "Rebuild schedule" : "Generate schedule"}
-                </Button>
+                {matches.length > 0 ? (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        disabled={players.length < 4 || generateSchedule.isPending}
+                      >
+                        <Shuffle className="size-4" />
+                        Rebuild schedule
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure you want to rebuild the schedule?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action will delete all existing matches and entered scores for this tournament. This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={() => generateSchedule.mutate()}
+                        >
+                          Yes, rebuild schedule
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                ) : (
+                  <Button
+                    onClick={() => generateSchedule.mutate()}
+                    disabled={players.length < 4 || generateSchedule.isPending}
+                  >
+                    <Shuffle className="size-4" />
+                    Generate schedule
+                  </Button>
+                )}
+              
                 {tournament.format === "mexicano" && matches.length > 0 && (
                   <Button
                     variant="outline"
@@ -240,6 +285,7 @@ function TournamentPage() {
                   </Button>
                 )}
               </div>
+              
             </div>
 
             {players.length < 4 && (
