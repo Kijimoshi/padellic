@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ListOrdered, Share2, Shuffle, Trophy } from "lucide-react";
+import { ArrowRight, ListOrdered, Share2, Shuffle, Trophy, UserGroup } from "lucide-react";
 
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
@@ -60,7 +60,7 @@ function Landing() {
 
         <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-             AMERICANO · MEXICANO · TROLOLOLO · POZDRO =]
+             AMERICANO&nbsp;·&nbsp;MEXICANO · TROLOLOLO&nbsp;·&nbsp;POZDRO =]
           </p>
           <h1 className="mt-5 max-w-2xl whitespace-pre-line text-4xl font-bold leading-[1.05] sm:text-6xl">
              {"Less admin,\nmore smashes."}
@@ -93,7 +93,7 @@ function Landing() {
 
         <div className="panel mt-4 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <Trophy className="size-5 text-primary" />
+            <UserGroup className="size-5 text-primary" />
             <p className="text-sm text-muted-foreground">
                No limits on number of players or courts — the schedule always fits.
             </p>
