@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X } from "lucide-react";
+import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, Settings2, Play, Trophy, Archive } from "lucide-react";
 
 import { SiteHeader } from "@/components/site-header";
 import { StandingsTable } from "@/components/standings-table";
@@ -137,6 +137,21 @@ function TournamentPage() {
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save settings"),
   });    
+
+  const updateStatus = useMutation({
+    mutationFn: async (status: string) => {
+      const { error } = await supabase
+        .from("tournaments")
+        .update({ status })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      invalidate();
+      toast.success("Tournament status updated");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update status"),
+  });
   
   const insertMatches = async (planned: PlannedMatch[]) => {
     if (planned.length === 0) throw new Error("Not enough players for a full court (need 4).");
@@ -389,7 +404,16 @@ function TournamentPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="settings" className="mt-6">
+          <TabsContent value="settings" className="mt-6 space-y-6">
+            <div className="panel max-w-lg p-5">
+              <h2 className="mb-6 text-sm font-medium">Tournament Status</h2>
+              <TournamentStatusBar 
+                currentStatus={tournament.status} 
+                onStatusChange={(newStatus) => updateStatus.mutate(newStatus)}
+                isPending={updateStatus.isPending}
+              />
+            </div>
+
             <SettingsForm
               tournament={tournament}
               onSave={(updates) => updateTournament.mutate(updates)}
@@ -641,6 +665,74 @@ function SettingsForm({
       >
         Save changes
       </Button>
+    </div>
+  );
+}
+
+const STATUSES = [
+  { id: "setup", label: "Setup", icon: Settings2 },
+  { id: "live", label: "Live", icon: Play },
+  { id: "completed", label: "Completed", icon: Trophy },
+  { id: "archived", label: "Archived", icon: Archive },
+] as const;
+
+function TournamentStatusBar({
+  currentStatus,
+  onStatusChange,
+  isPending,
+}: {
+  currentStatus: string;
+  onStatusChange: (status: string) => void;
+  isPending: boolean;
+}) {
+  // Fallback to 0 (setup) if status is null or missing
+  const safeIndex = Math.max(0, STATUSES.findIndex((s) => s.id === (currentStatus || "setup")));
+
+  return (
+    <div className="flex w-full items-center px-2">
+      {STATUSES.map((status, index) => {
+        const Icon = status.icon;
+        const isPast = index < safeIndex;
+        const isCurrent = index === safeIndex;
+        const isLast = index === STATUSES.length - 1;
+
+        return (
+          <div key={status.id} className={`flex items-center ${isLast ? "" : "flex-1"}`}>
+            <button
+              onClick={() => onStatusChange(status.id)}
+              disabled={isPending}
+              className="group relative flex flex-col items-center outline-none"
+            >
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-200 ${
+                  isCurrent
+                    ? "border-primary bg-primary text-primary-foreground shadow-md ring-4 ring-primary/10"
+                    : isPast
+                    ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
+                    : "border-muted bg-background text-muted-foreground hover:border-primary/50 hover:text-primary/70"
+                }`}
+              >
+                <Icon className="size-4" />
+              </div>
+              <span
+                className={`absolute -bottom-6 text-xs font-semibold tracking-wide transition-colors ${
+                  isCurrent ? "text-primary" : isPast ? "text-foreground" : "text-muted-foreground"
+                }`}
+              >
+                {status.label}
+              </span>
+            </button>
+            
+            {!isLast && (
+              <div
+                className={`mx-2 h-[2px] flex-1 transition-colors duration-300 sm:mx-4 ${
+                  isPast ? "bg-primary" : "bg-border"
+                }`}
+              />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
