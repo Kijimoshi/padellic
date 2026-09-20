@@ -60,13 +60,13 @@ function Landing() {
 
         <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-            Americano · Mexicano
+             AMERICANO · MEXICANO · TROLOLOLO · POZDRO
           </p>
           <h1 className="mt-5 max-w-2xl text-4xl font-bold leading-[1.05] sm:text-6xl">
             Run the whole padel night from your phone.
           </h1>
           <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
-            Drop in the players, pick a format and Rally handles the pairings, the courts and the
+             Drop in the players, pick a format and Padellic handles the pairings, the courts and the
             leaderboard. Share one link and everyone follows along.
           </p>
           <div className="mt-8">

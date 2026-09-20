@@ -39,7 +39,7 @@ export function SiteHeader() {
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Activity className="size-4" />
           </span>
-          <span className="font-display text-lg font-bold tracking-tight">Rally</span>
+           <span className="font-display text-lg font-bold tracking-tight">Padellic</span>
         </Link>
 
         <div className="flex items-center gap-2">
