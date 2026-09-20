@@ -62,7 +62,7 @@ function Landing() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
              AMERICANO · MEXICANO · TROLOLOLO · POZDRO =]
           </p>
-          <h1 className="mt-5 max-w-2xl text-4xl font-bold leading-[1.05] sm:text-6xl">
+          <h1 className="mt-5 max-w-2xl whitespace-pre-line text-4xl font-bold leading-[1.05] sm:text-6xl">
              {"Less admin,\nmore smashes."}
           </h1>
           <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
