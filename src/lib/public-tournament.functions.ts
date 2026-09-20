@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 export type PublicTournamentPayload = {
@@ -29,36 +30,19 @@ export type PublicTournamentPayload = {
 export const getPublicTournament = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ code: z.string().regex(/^[a-z0-9]{4,64}$/) }).parse(data))
   .handler(async ({ data }): Promise<PublicTournamentPayload> => {
-    // Share codes are unguessable secrets; the lookup is scoped to one exact code.
-    const { supabaseAdmin: client } = await import("@/integrations/supabase/client.server");
+    // Share codes are unguessable secrets. The database function returns exactly one
+    // tournament for one code; the tables themselves stay unreadable to anon.
+    const url = process.env["SUPABASE_URL"];
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
+    if (!url || !key) throw new Error("Supabase server environment is not configured");
 
-    const { data: tournament, error } = await client
-      .from("tournaments")
-      .select("id, name, format, courts, points_per_match, status, share_code")
-      .eq("share_code", data.code)
-      .maybeSingle();
+    const client = createClient(url, key, {
+      auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
+    });
+
+    const { data: payload, error } = await client.rpc("get_public_tournament", {
+      _code: data.code,
+    });
     if (error) throw error;
-    if (!tournament) return null;
-
-    const [{ data: players }, { data: matches }] = await Promise.all([
-      client
-        .from("players")
-        .select("id, name")
-        .eq("tournament_id", tournament.id)
-        .order("sort_order", { ascending: true }),
-      client
-        .from("matches")
-        .select("id, round, court, a1, a2, b1, b2, score_a, score_b, completed")
-        .eq("tournament_id", tournament.id)
-        .order("round", { ascending: true })
-        .order("court", { ascending: true }),
-    ]);
-
-    return {
-      tournament: tournament as PublicTournamentPayload extends null
-        ? never
-        : NonNullable<PublicTournamentPayload>["tournament"],
-      players: (players ?? []) as { id: string; name: string }[],
-      matches: (matches ?? []) as NonNullable<PublicTournamentPayload>["matches"],
-    };
+    return (payload ?? null) as PublicTournamentPayload;
   });
