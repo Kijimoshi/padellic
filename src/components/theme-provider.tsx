@@ -26,14 +26,17 @@ export function ThemeProvider({
   storageKey = "padellic-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+  // FIX: Safely check for 'window' to prevent 500 crashes during SSR
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+    }
+    return defaultTheme;
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
     
-    // Zawsze zaczynamy od czystego konta
     root.classList.remove("light");
 
     if (theme === "system") {
@@ -47,10 +50,8 @@ export function ThemeProvider({
         }
       };
 
-      // Zastosuj motyw systemowy na start
       applySystemTheme(mediaQuery);
       
-      // Nasłuchuj zmian systemowych (np. gdy użytkownik zmieni tryb w ustawieniach OS)
       mediaQuery.addEventListener("change", applySystemTheme);
       return () => mediaQuery.removeEventListener("change", applySystemTheme);
     }
@@ -63,7 +64,9 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(storageKey, theme);
+      }
       setTheme(theme);
     },
   };
