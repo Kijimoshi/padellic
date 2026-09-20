@@ -528,14 +528,42 @@ function ScoreRow({
         <div className="flex items-center gap-2">
           <Input
             value={a}
-            onChange={(e) => setA(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setA(val);
+              
+              const parsed = Number(val);
+              if (val !== "" && Number.isFinite(parsed) && parsed >= 0 && parsed <= maxPoints) {
+                setB(String(maxPoints - parsed));
+              }
+            }}
+            onFocus={() => {
+              if (a === "0") setA("");
+            }}
+            onBlur={() => {
+              if (a === "") setA("0");
+            }}
             inputMode="numeric"
             className="h-10 w-14 text-center text-base tabular"
           />
           <span className="text-muted-foreground">:</span>
           <Input
             value={b}
-            onChange={(e) => setB(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setB(val);
+              
+              const parsed = Number(val);
+              if (val !== "" && Number.isFinite(parsed) && parsed >= 0 && parsed <= maxPoints) {
+                setA(String(maxPoints - parsed));
+              }
+            }}
+            onFocus={() => {
+              if (b === "0") setB("");
+            }}
+            onBlur={() => {
+              if (b === "") setB("0");
+            }}
             inputMode="numeric"
             className="h-10 w-14 text-center text-base tabular"
           />
