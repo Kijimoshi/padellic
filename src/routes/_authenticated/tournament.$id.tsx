@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Plus, Shuffle, Trash2, X } from "lucide-react";
+import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X } from "lucide-react";
 
 import { SiteHeader } from "@/components/site-header";
 import { StandingsTable } from "@/components/standings-table";
@@ -81,6 +81,18 @@ function TournamentPage() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not add the player"),
   });
 
+  const updatePlayer = useMutation({
+    mutationFn: async ({ playerId, name }: { playerId: string; name: string }) => {
+      const { error } = await supabase
+        .from("players")
+        .update({ name })
+        .eq("id", playerId);
+      if (error) throw error;
+    },
+    onSuccess: invalidate,
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update the player"),
+  });
+  
   const removePlayer = useMutation({
     mutationFn: async (playerId: string) => {
       const { error } = await supabase.from("players").delete().eq("id", playerId);
@@ -285,25 +297,104 @@ function TournamentPage() {
                 <p className="p-5 text-sm text-muted-foreground">No players yet.</p>
               )}
               {players.map((p, i) => (
-                <div key={p.id} className="flex items-center justify-between px-5 py-3">
-                  <span className="flex items-center gap-3">
-                    <span className="tabular text-xs text-muted-foreground">{i + 1}</span>
-                    <span className="font-medium">{p.name}</span>
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removePlayer.mutate(p.id)}
-                    aria-label={`Remove ${p.name}`}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                </div>
+                <PlayerItem
+                  key={p.id}
+                  player={p}
+                  index={i}
+                  onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p.id, name })}
+                  onRemove={() => removePlayer.mutate(p.id)}
+                />
               ))}
             </div>
           </TabsContent>
         </Tabs>
       </main>
+    </div>
+  );
+}
+
+function PlayerItem({
+  player,
+  index,
+  onUpdate,
+  onRemove,
+}: {
+  player: { id: string; name: string };
+  index: number;
+  onUpdate: (name: string) => Promise<void>;
+  onRemove: () => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState(player.name);
+
+  const handleSave = async () => {
+    const trimmed = name.trim();
+    if (!trimmed || trimmed === player.name) {
+      setIsEditing(false);
+      setName(player.name);
+      return;
+    }
+    await onUpdate(trimmed);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="flex items-center justify-between px-5 py-3 gap-3">
+      <span className="tabular text-xs text-muted-foreground min-w-[1.25rem]">{index + 1}</span>
+      
+      {isEditing ? (
+        <div className="flex items-center flex-1 gap-2">
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="h-8 text-sm"
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSave();
+              if (e.key === "Escape") {
+                setIsEditing(false);
+                setName(player.name);
+              }
+            }}
+          />
+          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={handleSave}>
+            <Check className="size-4" />
+          </Button>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="h-8 w-8"
+            onClick={() => {
+              setIsEditing(false);
+              setName(player.name);
+            }}
+          >
+            <X className="size-4" />
+          </Button>
+        </div>
+      ) : (
+        <>
+          <span className="font-medium flex-1">{player.name}</span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsEditing(true)}
+              aria-label={`Edit ${player.name}`}
+            >
+              <Pencil className="size-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onRemove}
+              aria-label={`Remove ${player.name}`}
+            >
+              <Trash2 className="size-4" />
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
