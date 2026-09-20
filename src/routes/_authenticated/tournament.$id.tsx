@@ -62,7 +62,8 @@ function TournamentPage() {
   const [newPlayer, setNewPlayer] = useState("");
   const standings = useMemo(() => computeStandings(players, matches), [players, matches]);
   const nameOf = (pid: string) => players.find((p) => p.id === pid)?.name ?? "—";
-
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
   const rounds = useMemo(() => {
     const map = new Map<number, MatchRow[]>();
     for (const m of matches) {
@@ -479,7 +480,7 @@ function ScoreRow({
         <span>Court {match.court}</span>
         {match.completed ? (
           <span className="flex items-center gap-1 text-primary">
-            <Check className="size-3.5" /> Final
+            <Check className="size-3.5" /> Finished
           </span>
         ) : (
           <span className="flex items-center gap-1">
