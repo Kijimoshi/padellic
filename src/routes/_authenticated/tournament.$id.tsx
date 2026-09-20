@@ -685,51 +685,52 @@ function TournamentStatusBar({
   onStatusChange: (status: string) => void;
   isPending: boolean;
 }) {
-  // Fallback to 0 (setup) if status is null or missing
   const safeIndex = Math.max(0, STATUSES.findIndex((s) => s.id === (currentStatus || "setup")));
 
   return (
-    <div className="flex w-full items-center px-2">
+    <div className="relative flex w-full justify-between pb-8 pt-2">
+      {/* Background Track Line */}
+      <div className="absolute left-[20px] right-[20px] top-[28px] h-[2px] -translate-y-1/2 bg-border">
+        {/* Active Progress Line */}
+        <div
+          className="h-full bg-primary transition-all duration-500 ease-out"
+          style={{ width: `${(safeIndex / (STATUSES.length - 1)) * 100}%` }}
+        />
+      </div>
+
       {STATUSES.map((status, index) => {
         const Icon = status.icon;
         const isPast = index < safeIndex;
         const isCurrent = index === safeIndex;
-        const isLast = index === STATUSES.length - 1;
 
         return (
-          <div key={status.id} className={`flex items-center ${isLast ? "" : "flex-1"}`}>
+          <div key={status.id} className="relative z-10 flex flex-col items-center">
             <button
+              type="button"
               onClick={() => onStatusChange(status.id)}
               disabled={isPending}
               className="group relative flex flex-col items-center outline-none"
             >
+              {/* Added bg-background to perfectly mask the track line behind it */}
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-200 ${
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background transition-all duration-200 ${
                   isCurrent
-                    ? "border-primary bg-primary text-primary-foreground shadow-md ring-4 ring-primary/10"
+                    ? "border-primary bg-primary text-primary-foreground shadow-md ring-4 ring-primary/20"
                     : isPast
                     ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
-                    : "border-muted bg-background text-muted-foreground hover:border-primary/50 hover:text-primary/70"
+                    : "border-muted text-muted-foreground hover:border-primary/50 hover:text-primary/70"
                 }`}
               >
                 <Icon className="size-4" />
               </div>
               <span
-                className={`absolute -bottom-6 text-xs font-semibold tracking-wide transition-colors ${
+                className={`absolute -bottom-7 whitespace-nowrap text-xs font-semibold tracking-wide transition-colors ${
                   isCurrent ? "text-primary" : isPast ? "text-foreground" : "text-muted-foreground"
                 }`}
               >
                 {status.label}
               </span>
             </button>
-            
-            {!isLast && (
-              <div
-                className={`mx-2 h-[2px] flex-1 transition-colors duration-300 sm:mx-4 ${
-                  isPast ? "bg-primary" : "bg-border"
-                }`}
-              />
-            )}
           </div>
         );
       })}
