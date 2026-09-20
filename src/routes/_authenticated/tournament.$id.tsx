@@ -233,19 +233,23 @@ function TournamentPage() {
                    ? "Generates the full tournament with rotating partners."
                   : "Mexicano builds one round at a time from the live standings."}
               </p>
-              
+
               <div className="flex gap-2">
-                {matches.length > 0 ? (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button
-                        variant="destructive"
-                        disabled={players.length < 4 || generateSchedule.isPending}
-                      >
-                        <Shuffle className="size-4" />
-                        Rebuild schedule
-                      </Button>
-                    </AlertDialogTrigger>
+              {matches.length > 0 ? (
+                <>
+                  {/* standard manual button */}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => setIsDialogOpen(true)}
+                    disabled={players.length < 4 || generateSchedule.isPending}
+                  >
+                    <Shuffle className="size-4" />
+                    Rebuild schedule
+                  </Button>
+            
+                  {/* AlertDialog open + onOpenChange */}
+                  <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure you want to rebuild the schedule?</AlertDialogTitle>
@@ -254,28 +258,35 @@ function TournamentPage() {
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel onClick={() => setIsDialogOpen(false)}>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                           className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          onClick={() => generateSchedule.mutate()}
+                          onClick={() => {
+                            generateSchedule.mutate();
+                            setIsDialogOpen(false);
+                          }}
                         >
                           Yes, rebuild schedule
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
-                ) : (
-                  <Button
-                    onClick={() => generateSchedule.mutate()}
-                    disabled={players.length < 4 || generateSchedule.isPending}
-                  >
-                    <Shuffle className="size-4" />
-                    Generate schedule
-                  </Button>
-                )}
-              
+                </>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() => generateSchedule.mutate()}
+                  disabled={players.length < 4 || generateSchedule.isPending}
+                >
+                  <Shuffle className="size-4" />
+                  Generate schedule
+                </Button>
+              )}
+
+                {/* "NEXT ROUND" (MEXICANO) */}
                 {tournament.format === "mexicano" && matches.length > 0 && (
                   <Button
+                    type="button"
                     variant="outline"
                     onClick={() => nextMexicanoRound.mutate()}
                     disabled={nextMexicanoRound.isPending}
@@ -285,7 +296,6 @@ function TournamentPage() {
                   </Button>
                 )}
               </div>
-              
             </div>
 
             {players.length < 4 && (
