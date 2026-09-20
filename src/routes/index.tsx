@@ -96,7 +96,7 @@ function Landing() {
           <div className="flex items-center gap-3">
             <Trophy className="size-5 text-primary" />
             <p className="text-sm text-muted-foreground">
-               8 - 24 players, one to four courts — the schedule always fits.
+               No limits on number of players or courts — the schedule always fits.
             </p>
           </div>
           <Button asChild variant="outline">
