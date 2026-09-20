@@ -16,7 +16,7 @@ export const Route = createFileRoute("/t/$code")({
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Tournament unavailable — Rally" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: "Tournament unavailable — Padellic" }, { name: "robots", content: "noindex" }],
       };
     }
     const title = `${loaderData.tournament.name} — live standings`;
@@ -68,7 +68,7 @@ function PublicTournament() {
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
             <Activity className="size-4" />
           </span>
-          <span className="font-display text-lg font-bold">Rally</span>
+          <span className="font-display text-lg font-bold">Padellic</span>
         </div>
       </header>
 

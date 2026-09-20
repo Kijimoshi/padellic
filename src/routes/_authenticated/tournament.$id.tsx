@@ -24,12 +24,12 @@ import {
 export const Route = createFileRoute("/_authenticated/tournament/$id")({
   head: () => ({
     meta: [
-      { title: "Tournament control — Rally" },
+      { title: "Tournament control — Padellic" },
       {
         name: "description",
         content: "Manage players, generate rounds and enter scores for your padel tournament.",
       },
-      { property: "og:title", content: "Tournament control — Rally" },
+      { property: "og:title", content: "Tournament control — Padellic" },
       {
         property: "og:description",
         content: "Manage players, generate rounds and enter scores for your padel tournament.",
