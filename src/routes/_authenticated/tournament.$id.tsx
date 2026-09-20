@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, Settings2, Play, Trophy, Archive } from "lucide-react";
 
@@ -280,7 +280,8 @@ function TournamentPage() {
                   {/* standard manual button */}
                   <Button
                     type="button"
-                    variant="destructive"
+                    variant="outline"
+                    className="border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
                     onClick={() => setIsDialogOpen(true)}
                     disabled={players.length < 4 || generateSchedule.isPending}
                   >
@@ -526,10 +527,46 @@ function ScoreRow({
 }) {
   const [a, setA] = useState(String(match.score_a));
   const [b, setB] = useState(String(match.score_b));
+
+  const handleAChange = (val: string) => {
+    setA(val);
+    const num = parseInt(val, 10);
+    if (!isNaN(num) && num >= 0 && num <= maxPoints) {
+      setB(String(maxPoints - num));
+    } else if (val === "") {
+      setB("");
+    }
+  };
+
+  const handleBChange = (val: string) => {
+    setB(val);
+    const num = parseInt(val, 10);
+    if (!isNaN(num) && num >= 0 && num <= maxPoints) {
+      setA(String(maxPoints - num));
+    } else if (val === "") {
+      setA("");
+    }
+  };
+
   const numA = Number(a);
   const numB = Number(b);
   const valid =
-    Number.isFinite(numA) && Number.isFinite(numB) && numA >= 0 && numB >= 0 && numA + numB === maxPoints;
+    a !== "" && b !== "" && Number.isFinite(numA) && Number.isFinite(numB) && numA >= 0 && numB >= 0 && numA + numB === maxPoints;
+
+  // Check if the current inputs are different from the saved database values
+  const hasChanged = numA !== match.score_a || numB !== match.score_b;
+
+  // Auto-save logic
+  useEffect(() => {
+    if (valid && hasChanged) {
+      const timer = setTimeout(() => {
+        onSave(numA, numB);
+      }, 2000);
+
+      // Cleanup function clears the timer if the user types again before 2 seconds pass
+      return () => clearTimeout(timer);
+    }
+  }, [numA, numB, valid, hasChanged]);
 
   return (
     <div className="rounded-lg border border-border/80 bg-background/40 p-3">
@@ -545,60 +582,34 @@ function ScoreRow({
           </span>
         )}
       </div>
-      <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-        <p className="text-sm font-medium">
-          {nameOf(match.a1)} <span className="text-muted-foreground">&amp;</span> {nameOf(match.a2)}
+      
+      <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
+        <p className="text-base font-semibold">
+          {nameOf(match.a1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.a2)}
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 text-xl font-bold">
           <Input
             value={a}
-            onChange={(e) => {
-              const val = e.target.value;
-              setA(val);
-              
-              const parsed = Number(val);
-              if (val !== "" && Number.isFinite(parsed) && parsed >= 0 && parsed <= maxPoints) {
-                setB(String(maxPoints - parsed));
-              }
-            }}
-            onFocus={() => {
-              if (a === "0") setA("");
-            }}
-            onBlur={() => {
-              if (a === "") setA("0");
-            }}
+            onChange={(e) => handleAChange(e.target.value)}
             inputMode="numeric"
-            className="h-10 w-14 text-center text-base tabular"
+            className="h-12 w-16 text-center text-xl font-bold tabular-nums"
           />
-          <span className="text-muted-foreground">:</span>
+          <span className="text-muted-foreground pb-1">:</span>
           <Input
             value={b}
-            onChange={(e) => {
-              const val = e.target.value;
-              setB(val);
-              
-              const parsed = Number(val);
-              if (val !== "" && Number.isFinite(parsed) && parsed >= 0 && parsed <= maxPoints) {
-                setA(String(maxPoints - parsed));
-              }
-            }}
-            onFocus={() => {
-              if (b === "0") setB("");
-            }}
-            onBlur={() => {
-              if (b === "") setB("0");
-            }}
+            onChange={(e) => handleBChange(e.target.value)}
             inputMode="numeric"
-            className="h-10 w-14 text-center text-base tabular"
+            className="h-12 w-16 text-center text-xl font-bold tabular-nums"
           />
         </div>
-        <p className="text-right text-sm font-medium">
-          {nameOf(match.b1)} <span className="text-muted-foreground">&amp;</span> {nameOf(match.b2)}
+        <p className="text-right text-base font-semibold">
+          {nameOf(match.b1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.b2)}
         </p>
       </div>
-      <div className="mt-2 flex items-center justify-between">
+
+      <div className="mt-3 flex items-center justify-between">
         <p className="text-xs text-muted-foreground">Scores must add up to {maxPoints}.</p>
-        <Button size="sm" variant="outline" disabled={!valid} onClick={() => onSave(numA, numB)}>
+        <Button size="sm" variant="outline" disabled={!valid || !hasChanged} onClick={() => onSave(numA, numB)}>
           Save
         </Button>
       </div>
