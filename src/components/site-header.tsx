@@ -5,6 +5,7 @@ import { LogOut, Trophy, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function SiteHeader() {
   const [email, setEmail] = useState<string | null>(null);
@@ -43,6 +44,9 @@ export function SiteHeader() {
         </Link>
 
         <div className="flex items-center gap-2">
+          {/* Theme toggle inserted here */}
+          <ThemeToggle />
+          
           {email ? (
             <>
               <Button asChild variant="ghost" size="sm">
