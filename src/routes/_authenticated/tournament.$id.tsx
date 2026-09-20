@@ -206,7 +206,7 @@ function TournamentPage() {
             <div className="panel flex flex-wrap items-center justify-between gap-3 p-4">
               <p className="text-sm text-muted-foreground">
                 {tournament.format === "americano"
-                  ? "Generates the full night with rotating partners."
+                   ? "Generates the full tournament with rotating partners."
                   : "Mexicano builds one round at a time from the live standings."}
               </p>
               <div className="flex gap-2">
