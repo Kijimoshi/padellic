@@ -561,7 +561,7 @@ function ScoreRow({
     if (valid && hasChanged) {
       const timer = setTimeout(() => {
         onSave(numA, numB);
-      }, 2000);
+      }, 1000);
 
       // Cleanup function clears the timer if the user types again before 2 seconds pass
       return () => clearTimeout(timer);
@@ -591,6 +591,12 @@ function ScoreRow({
           <Input
             value={a}
             onChange={(e) => handleAChange(e.target.value)}
+            onFocus={() => {
+              if (a === "0") setA("");
+            }}
+            onBlur={() => {
+              if (a === "") setA("0");
+            }}
             inputMode="numeric"
             className="h-12 w-16 text-center text-xl font-bold tabular-nums"
           />
@@ -598,6 +604,12 @@ function ScoreRow({
           <Input
             value={b}
             onChange={(e) => handleBChange(e.target.value)}
+            onFocus={() => {
+              if (b === "0") setB("");
+            }}
+            onBlur={() => {
+              if (b === "") setB("0");
+            }}
             inputMode="numeric"
             className="h-12 w-16 text-center text-xl font-bold tabular-nums"
           />
