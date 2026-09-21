@@ -52,6 +52,12 @@ export function SiteHeader() {
               <Button asChild variant="ghost" size="sm">
                 <Link to="/dashboard">My tournaments</Link>
               </Button>
+              
+              {/* Display user email here */}
+              <span className="hidden px-2 text-sm text-muted-foreground sm:inline-block">
+                {email}
+              </span>
+
               <Button variant="outline" size="sm" onClick={signOut}>
                 <LogOut className="size-4" />
                 <span className="hidden sm:inline">Sign out</span>
