@@ -345,24 +345,43 @@ function TournamentPage() {
               </p>
             )}
 
-            {rounds.map(([round, list]) => (
-              <div key={round} className="panel p-5">
-                <h3 className="font-display text-sm font-bold uppercase tracking-widest text-primary">
-                  Round {round}
-                </h3>
-                <div className="mt-4 space-y-3">
-                  {list.map((m) => (
-                    <ScoreRow
-                      key={m.id}
-                      match={m}
-                      nameOf={nameOf}
-                      maxPoints={tournament.points_per_match}
-                      onSave={(a, b) => saveScore.mutate({ matchId: m.id, a, b })}
-                    />
-                  ))}
+            {rounds.map(([round, list]) => {
+              // Gather IDs of all players playing in this round
+              const playingIds = new Set(
+                list.flatMap((m) => [m.a1, m.a2, m.b1, m.b2])
+              );
+              
+              // Filter the main players list to find those who are NOT in playingIds
+              const restingPlayers = players.filter((p) => !playingIds.has(p.id));
+
+              return (
+                <div key={round} className="panel p-5">
+                  <h3 className="font-display text-sm font-bold uppercase tracking-widest text-primary">
+                    Round {round}
+                  </h3>
+                  <div className="mt-4 space-y-3">
+                    {list.map((m) => (
+                      <ScoreRow
+                        key={m.id}
+                        match={m}
+                        nameOf={nameOf}
+                        maxPoints={tournament.points_per_match}
+                        onSave={(a, b) => saveScore.mutate({ matchId: m.id, a, b })}
+                      />
+                    ))}
+                  </div>
+                  
+                  {/* Resting players section */}
+                  {restingPlayers.length > 0 && (
+                    <div className="mt-4 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground">Resting:</span>{" "}
+                      {restingPlayers.map((p) => p.name).join(", ")}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
+
           </TabsContent>
 
           <TabsContent value="standings" className="mt-6">
