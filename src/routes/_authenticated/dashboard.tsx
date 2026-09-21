@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -32,6 +33,8 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
+const statuses = ["setup", "live", "completed", "archived"];
+
 function Dashboard() {
   const { data: tournaments = [], isLoading } = useQuery(tournamentsQuery());
   const queryClient = useQueryClient();
@@ -41,6 +44,17 @@ function Dashboard() {
   const [format, setFormat] = useState<Format>("americano");
   const [courts, setCourts] = useState("2");
   const [points, setPoints] = useState("21");
+
+  // State for status filtering
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(statuses);
+
+  const toggleStatus = (status: string) => {
+    setSelectedStatuses((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status]
+    );
+  };
 
   const create = useMutation({
     mutationFn: async () => {
@@ -69,6 +83,11 @@ function Dashboard() {
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Could not create the tournament"),
   });
+
+  // Filter the tournaments list based on checked statuses
+  const filteredTournaments = tournaments.filter((t: Tournament) =>
+    selectedStatuses.includes(t.status)
+  );
 
   return (
     <div className="min-h-screen">
@@ -139,38 +158,58 @@ function Dashboard() {
             </Button>
           </form>
 
-          <div className="space-y-3">
-            {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
-            {!isLoading && tournaments.length === 0 && (
-              <div className="panel p-8 text-center">
-                <Trophy className="mx-auto size-6 text-primary" />
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Nothing here yet. Create your first tournament on the left.
-                </p>
-              </div>
-            )}
-            {tournaments.map((t: Tournament) => (
-              <Link
-                key={t.id}
-                to="/tournament/$id"
-                params={{ id: t.id }}
-                className="panel flex items-center justify-between gap-4 p-5 transition-colors hover:border-primary/60"
-              >
-                <div>
-                  <p className="font-display text-lg font-semibold">{t.name}</p>
-                  <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
-                    <Users className="size-3.5" />
-                    {t.courts} court{t.courts > 1 ? "s" : ""} · {t.points_per_match} points
+          <div className="space-y-4">
+            {/* Filter Checkboxes */}
+            <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border/80 bg-background/40 p-4">
+              <span className="text-sm font-medium text-muted-foreground">Filter:</span>
+              {statuses.map((status) => (
+                <div key={status} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`filter-${status}`}
+                    checked={selectedStatuses.includes(status)}
+                    onCheckedChange={() => toggleStatus(status)}
+                  />
+                  <Label htmlFor={`filter-${status}`} className="cursor-pointer capitalize text-sm">
+                    {status}
+                  </Label>
+                </div>
+              ))}
+            </div>
+
+            {/* Tournament List */}
+            <div className="space-y-3">
+              {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
+              {!isLoading && filteredTournaments.length === 0 && (
+                <div className="panel p-8 text-center">
+                  <Trophy className="mx-auto size-6 text-primary" />
+                  <p className="mt-3 text-sm text-muted-foreground">
+                    No tournaments match your filter.
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  <Badge variant="secondary" className="capitalize">
-                    {t.format}
-                  </Badge>
-                  <span className="text-xs capitalize text-muted-foreground">{t.status}</span>
-                </div>
-              </Link>
-            ))}
+              )}
+              {filteredTournaments.map((t: Tournament) => (
+                <Link
+                  key={t.id}
+                  to="/tournament/$id"
+                  params={{ id: t.id }}
+                  className="panel flex items-center justify-between gap-4 p-5 transition-colors hover:border-primary/60"
+                >
+                  <div>
+                    <p className="font-display text-lg font-semibold">{t.name}</p>
+                    <p className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                      <Users className="size-3.5" />
+                      {t.courts} court{t.courts > 1 ? "s" : ""} · {t.points_per_match} points
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <Badge variant="secondary" className="capitalize">
+                      {t.format}
+                    </Badge>
+                    <span className="text-xs capitalize text-muted-foreground">{t.status}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </main>
