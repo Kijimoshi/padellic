@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { Activity } from "lucide-react";
+import { Activity, Trophy } from "lucide-react";
 
 import { StandingsTable } from "@/components/standings-table";
 import { Badge } from "@/components/ui/badge";
@@ -64,12 +64,12 @@ function PublicTournament() {
   return (
     <div className="min-h-screen">
       <header className="border-b border-border/70">
-        <div className="mx-auto flex h-16 max-w-3xl items-center gap-2 px-4">
+        <Link to="/" className="mx-auto flex h-16 max-w-3xl items-center gap-2 px-4 transition-opacity hover:opacity-80">
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Activity className="size-4" />
+            <Trophy className="size-4" />
           </span>
           <span className="font-display text-lg font-bold">Padellic</span>
-        </div>
+        </Link>
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-10">
