@@ -546,6 +546,7 @@ function ScoreRow({
 }) {
   const [a, setA] = useState(String(match.score_a));
   const [b, setB] = useState(String(match.score_b));
+  const [justSaved, setJustSaved] = useState(false);
 
   const handleAChange = (val: string) => {
     setA(val);
@@ -580,20 +581,37 @@ function ScoreRow({
     if (valid && hasChanged) {
       const timer = setTimeout(() => {
         onSave(numA, numB);
+        setJustSaved(true);
       }, 1000);
 
-      // Cleanup function clears the timer if the user types again before 2 seconds pass
+      // Cleanup function clears the timer if the user types again before 1 second passes
       return () => clearTimeout(timer);
     }
-  }, [numA, numB, valid, hasChanged]);
+  }, [numA, numB, valid, hasChanged, onSave]);
+
+  // Handle the 3-second highlight reset
+  useEffect(() => {
+    if (justSaved) {
+      const timer = setTimeout(() => {
+        setJustSaved(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [justSaved]);
 
   return (
     <div className="rounded-lg border border-border/80 bg-background/40 p-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Court {match.court}</span>
-        {match.completed ? (
-          <span className="flex items-center gap-1 text-primary">
-            <Check className="size-3.5" /> Finished
+        {match.completed || justSaved ? (
+          <span
+            className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${
+              justSaved
+                ? "bg-green-500/20 text-green-600 dark:text-green-400 font-bold scale-105"
+                : "text-primary"
+            }`}
+          >
+            <Check className="size-3.5" /> Saved
           </span>
         ) : (
           <span className="flex items-center gap-1">
@@ -602,15 +620,16 @@ function ScoreRow({
         )}
       </div>
       
-      <div className="mt-3 flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium text-muted-foreground">Team A</p>
-          <p className="text-base font-semibold">
+      <div className="mt-4 flex flex-col items-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4">
+        {/* Team A */}
+        <div className="flex flex-col items-center gap-1 md:items-start">
+          <p className="text-center text-base font-semibold md:text-left">
             {nameOf(match.a1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.a2)}
           </p>
         </div>
-        <div className="flex items-center justify-between gap-2 md:flex-col md:gap-0">
-          <span className="text-xs font-medium text-muted-foreground md:hidden">Score</span>
+
+        {/* Score */}
+        <div className="flex flex-col items-center gap-1">
           <div className="flex items-center gap-2 text-xl font-bold">
             <Input
               value={a}
@@ -639,19 +658,17 @@ function ScoreRow({
             />
           </div>
         </div>
-        <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium text-muted-foreground">Team B</p>
-          <p className="text-right text-base font-semibold md:text-left">
+
+        {/* Team B */}
+        <div className="flex flex-col items-center gap-1 md:items-end">
+          <p className="text-center text-base font-semibold md:text-right">
             {nameOf(match.b1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.b2)}
           </p>
         </div>
       </div>
 
-      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-4 flex flex-col items-center text-center">
         <p className="text-xs text-muted-foreground">Scores must add up to {maxPoints}.</p>
-        <Button size="sm" variant="outline" disabled={!valid || !hasChanged} onClick={() => onSave(numA, numB)}>
-          Save
-        </Button>
       </div>
     </div>
   );
