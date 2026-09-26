@@ -620,10 +620,10 @@ function ScoreRow({
         )}
       </div>
       
-      <div className="mt-4 flex flex-col items-center gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4">
+      <div className="mt-4 flex flex-col items-stretch gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4">
         {/* Team A */}
-        <div className="flex flex-col items-center gap-1 md:items-start">
-          <p className="text-center text-base font-semibold md:text-left">
+        <div className="flex flex-col items-start gap-1">
+          <p className="text-left text-base font-semibold">
             {nameOf(match.a1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.a2)}
           </p>
         </div>
@@ -660,8 +660,8 @@ function ScoreRow({
         </div>
 
         {/* Team B */}
-        <div className="flex flex-col items-center gap-1 md:items-end">
-          <p className="text-center text-base font-semibold md:text-right">
+        <div className="flex flex-col items-end gap-1">
+          <p className="text-right text-base font-semibold">
             {nameOf(match.b1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.b2)}
           </p>
         </div>
