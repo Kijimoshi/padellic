@@ -602,43 +602,52 @@ function ScoreRow({
         )}
       </div>
       
-      <div className="mt-3 grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-        <p className="text-base font-semibold">
-          {nameOf(match.a1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.a2)}
-        </p>
-        <div className="flex items-center gap-2 text-xl font-bold">
-          <Input
-            value={a}
-            onChange={(e) => handleAChange(e.target.value)}
-            onFocus={() => {
-              if (a === "0") setA("");
-            }}
-            onBlur={() => {
-              if (a === "") setA("0");
-            }}
-            inputMode="numeric"
-            className="h-12 w-16 text-center text-xl font-bold tabular-nums"
-          />
-          <span className="text-muted-foreground pb-1">:</span>
-          <Input
-            value={b}
-            onChange={(e) => handleBChange(e.target.value)}
-            onFocus={() => {
-              if (b === "0") setB("");
-            }}
-            onBlur={() => {
-              if (b === "") setB("0");
-            }}
-            inputMode="numeric"
-            className="h-12 w-16 text-center text-xl font-bold tabular-nums"
-          />
+      <div className="mt-3 flex flex-col gap-3 md:grid md:grid-cols-[1fr_auto_1fr] md:items-center md:gap-4">
+        <div className="flex flex-col gap-1">
+          <p className="text-xs font-medium text-muted-foreground">Team A</p>
+          <p className="text-base font-semibold">
+            {nameOf(match.a1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.a2)}
+          </p>
         </div>
-        <p className="text-right text-base font-semibold">
-          {nameOf(match.b1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.b2)}
-        </p>
+        <div className="flex items-center justify-between gap-2 md:flex-col md:gap-0">
+          <span className="text-xs font-medium text-muted-foreground md:hidden">Score</span>
+          <div className="flex items-center gap-2 text-xl font-bold">
+            <Input
+              value={a}
+              onChange={(e) => handleAChange(e.target.value)}
+              onFocus={() => {
+                if (a === "0") setA("");
+              }}
+              onBlur={() => {
+                if (a === "") setA("0");
+              }}
+              inputMode="numeric"
+              className="h-12 w-16 text-center text-xl font-bold tabular-nums"
+            />
+            <span className="text-muted-foreground pb-1">:</span>
+            <Input
+              value={b}
+              onChange={(e) => handleBChange(e.target.value)}
+              onFocus={() => {
+                if (b === "0") setB("");
+              }}
+              onBlur={() => {
+                if (b === "") setB("0");
+              }}
+              inputMode="numeric"
+              className="h-12 w-16 text-center text-xl font-bold tabular-nums"
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <p className="text-xs font-medium text-muted-foreground">Team B</p>
+          <p className="text-right text-base font-semibold md:text-left">
+            {nameOf(match.b1)} <span className="text-sm font-normal text-muted-foreground">&amp;</span> {nameOf(match.b2)}
+          </p>
+        </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
+      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-xs text-muted-foreground">Scores must add up to {maxPoints}.</p>
         <Button size="sm" variant="outline" disabled={!valid || !hasChanged} onClick={() => onSave(numA, numB)}>
           Save
