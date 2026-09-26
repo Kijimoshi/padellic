@@ -666,10 +666,7 @@ function ScoreRow({
           </p>
         </div>
       </div>
-
-      <div className="mt-4 flex flex-col items-center text-center">
-        <p className="text-xs text-muted-foreground">Scores must add up to {maxPoints}.</p>
-      </div>
+      
     </div>
   );
 }
