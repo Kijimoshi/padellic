@@ -83,7 +83,7 @@ function TournamentPage() {
 
   
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0); // <-- Add this line
-  
+  const maxGeneratedRound = rounds.length > 0 ? Math.max(...rounds.map(([r]) => r)) : 1;
   
   const rounds = useMemo(() => {
     const map = new Map<number, MatchRow[]>();
@@ -311,9 +311,9 @@ function TournamentPage() {
           </TabsList>
 
           <TabsContent value="rounds" className="mt-6 space-y-4">
-            <div className="panel flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
-              {matches.length === 0 ? (
-                <>
+              {matches.length === 0 && (
+                <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                  {/* 1. TOP BUTTON: Only shows when NO matches exist */}
                   <p className="text-sm text-muted-foreground">
                     {tournament.format === "americano"
                       ? "Generates the full tournament with rotating partners."
@@ -322,27 +322,18 @@ function TournamentPage() {
                   <Button
                     onClick={() => generateSchedule.mutate()}
                     disabled={players.length < 4 || generateSchedule.isPending}
+                    className="w-full sm:w-auto"
                   >
                     <Shuffle className="size-4" />
                     Generate schedule
                   </Button>
-                </>
+                </div>
+              )}
               ) : (
                 <>
                   <p className="text-sm text-muted-foreground">
                     Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
                   </p>
-                  {/* "NEXT ROUND" (MEXICANO) */}
-                  {tournament.format === "mexicano" && (
-                    <Button
-                      variant="outline"
-                      onClick={() => nextMexicanoRound.mutate()}
-                      disabled={nextMexicanoRound.isPending}
-                    >
-                      <Plus className="size-4" />
-                      Next round
-                    </Button>
-                  )}
                 </>
               )}
             </div>
@@ -353,6 +344,7 @@ function TournamentPage() {
               </p>
             )}
 
+            
             {/* DISPLAY ONLY THE CURRENT ACTIVE ROUND */}
             {rounds.length > 0 && (() => {
               const safeIndex = Math.min(currentRoundIndex, rounds.length - 1);
@@ -393,32 +385,66 @@ function TournamentPage() {
                       </div>
                     )}
                   </div>
-            
-                  {/* Navigation controls directly below the panel */}
-                  <div className="panel flex items-center justify-between p-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={safeIndex === 0}
-                      onClick={() => setCurrentRoundIndex((prev) => Math.max(0, prev - 1))}
-                    >
-                      Previous round
-                    </Button>
-            
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {/* Round {safeIndex + 1} of {rounds.length} */}
-                      Round {safeIndex + 1} 
-                    </span>
-            
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={safeIndex >= rounds.length - 1}
-                      onClick={() => setCurrentRoundIndex((prev) => Math.min(rounds.length - 1, prev + 1))}
-                    >
-                      Next round
-                    </Button>
-                  </div>
+
+                  {/* BOTTOM: Round Navigation Only */}
+                  {rounds.length > 0 && (
+                    <div className="mt-8 flex items-center justify-between gap-2">
+                      
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setCurrentRoundIndex((prev) => prev - 1)}
+                        disabled={currentRoundIndex === 0}
+                      >
+                        Prev round
+                      </Button>
+                  
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Round {currentRoundIndex + 1} of {tournament.format === "americano" ? tournament.total_rounds : rounds.length}
+                        {/*  Round {currentRoundIndex + 1} of {tournament.format === "americano" ? tournament.total_rounds : rounds.length} */}
+                      </span>
+                  
+                      {/* If we are not on the last generated round, show standard Next button */}
+                      {currentRoundIndex < rounds.length - 1 ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setCurrentRoundIndex((prev) => prev + 1)}
+                        >
+                          Next round
+                        </Button>
+                      ) : tournament.format === "mexicano" ? (
+                        {/* If we ARE on the last generated round and it's Mexicano, show Generate */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            nextMexicanoRound.mutate(undefined, {
+                              onSuccess: () => {
+                                // Automatically move to the new round when generated successfully
+                                setCurrentRoundIndex((prev) => prev + 1);
+                              }
+                            });
+                          }}
+                          disabled={nextMexicanoRound.isPending || matches.some((m) => !m.completed)}
+                        >
+                          <Plus className="mr-1 size-4" />
+                          Generate next round
+                        </Button>
+                      ) : (
+                        {/* If it's Americano and we are on the very last round, disable Next */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled={true}
+                        >
+                          Next round
+                        </Button>
+                      )}
+                  
+                    </div>
+                  )}
+                  
                 </div>
               );
             })()}
