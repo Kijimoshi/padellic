@@ -311,32 +311,28 @@ function TournamentPage() {
           </TabsList>
 
           <TabsContent value="rounds" className="mt-6 space-y-4">
-              {matches.length === 0 && (
-                <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
-                  {/* 1. TOP BUTTON: Only shows when NO matches exist */}
-                  <p className="text-sm text-muted-foreground">
-                    {tournament.format === "americano"
-                      ? "Generates the full tournament with rotating partners."
-                      : "Mexicano builds one round at a time from the live standings."}
-                  </p>
-                  <Button
-                    onClick={() => generateSchedule.mutate()}
-                    disabled={players.length < 4 || generateSchedule.isPending}
-                    className="w-full sm:w-auto"
-                  >
-                    <Shuffle className="size-4" />
-                    Generate schedule
-                  </Button>
-                </div>
-              )}
-              ) : (
-                <>
-                  <p className="text-sm text-muted-foreground">
-                    Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
-                  </p>
-                </>
-              )}
-            </div>
+            {matches.length === 0 ? (
+              <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                {/* 1. TOP BUTTON: Only shows when NO matches exist */}
+                <p className="text-sm text-muted-foreground">
+                  {tournament.format === "americano"
+                    ? "Generates the full tournament with rotating partners."
+                    : "Mexicano builds one round at a time from the live standings."}
+                </p>
+                <Button
+                  onClick={() => generateSchedule.mutate()}
+                  disabled={players.length < 4 || generateSchedule.isPending}
+                  className="w-full sm:w-auto"
+                >
+                  <Shuffle className="size-4" />
+                  Generate schedule
+                </Button>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
+              </p>
+            )}
 
             {players.length < 4 && (
               <p className="text-sm text-muted-foreground">
@@ -344,7 +340,6 @@ function TournamentPage() {
               </p>
             )}
 
-            
             {/* DISPLAY ONLY THE CURRENT ACTIVE ROUND */}
             {rounds.length > 0 && (() => {
               const safeIndex = Math.min(currentRoundIndex, rounds.length - 1);
@@ -387,68 +382,58 @@ function TournamentPage() {
                   </div>
 
                   {/* BOTTOM: Round Navigation Only */}
-                  {rounds.length > 0 && (
-                    <div className="mt-8 flex items-center justify-between gap-2">
-                      
+                  <div className="mt-8 flex items-center justify-between gap-2">
+                    
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCurrentRoundIndex((prev) => prev - 1)}
+                      disabled={currentRoundIndex === 0}
+                    >
+                      Prev round
+                    </Button>
+                
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Round {currentRoundIndex + 1} of {tournament.format === "americano" ? tournament.total_rounds : rounds.length}
+                    </span>
+                
+                    {currentRoundIndex < rounds.length - 1 ? (
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setCurrentRoundIndex((prev) => prev - 1)}
-                        disabled={currentRoundIndex === 0}
+                        onClick={() => setCurrentRoundIndex((prev) => prev + 1)}
                       >
-                        Prev round
+                        Next round
                       </Button>
-                  
-                      <span className="text-sm font-medium text-muted-foreground">
-                        Round {currentRoundIndex + 1} of {tournament.format === "americano" ? tournament.total_rounds : rounds.length}
-                        {/*  Round {currentRoundIndex + 1} of {tournament.format === "americano" ? tournament.total_rounds : rounds.length} */}
-                      </span>
-                  
-                      {/* If we are not on the last generated round, show standard Next button */}
-                      {currentRoundIndex < rounds.length - 1 ? (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setCurrentRoundIndex((prev) => prev + 1)}
-                        >
-                          Next round
-                        </Button>
-                      ) : tournament.format === "mexicano" ? (
-                        {/* If we ARE on the last generated round and it's Mexicano, show Generate */}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            nextMexicanoRound.mutate(undefined, {
-                              onSuccess: () => {
-                                // Automatically move to the new round when generated successfully
-                                setCurrentRoundIndex((prev) => prev + 1);
-                              }
-                            });
-                          }}
-                          disabled={nextMexicanoRound.isPending || matches.some((m) => !m.completed)}
-                        >
-                          <Plus className="mr-1 size-4" />
-                          Generate next round
-                        </Button>
-                      ) : (
-                        {/* If it's Americano and we are on the very last round, disable Next */}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          disabled={true}
-                        >
-                          Next round
-                        </Button>
-                      )}
-                  
-                    </div>
-                  )}
-                  
+                    ) : tournament.format === "mexicano" ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          nextMexicanoRound.mutate(undefined, {
+                            onSuccess: () => {
+                              setCurrentRoundIndex((prev) => prev + 1);
+                            }
+                          });
+                        }}
+                        disabled={nextMexicanoRound.isPending || matches.some((m) => !m.completed)}
+                      >
+                        <Plus className="mr-1 size-4" />
+                        Generate next round
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        disabled={true}
+                      >
+                        Next round
+                      </Button>
+                    )}
+                  </div>
                 </div>
               );
             })()}
-
           </TabsContent>
 
           <TabsContent value="standings" className="mt-6">
