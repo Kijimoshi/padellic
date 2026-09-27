@@ -1,23 +1,26 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { Trash2, AlertTriangle, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
+export const Route = createFileRoute('/admin')({
+  component: AdminPanel,
+});
+
 const ADMIN_EMAIL = "igor.krolak@gmail.com";
 
-export function AdminPanel() {
+function AdminPanel() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
-  // 0. Verify Admin Access
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user?.email === ADMIN_EMAIL) {
@@ -28,7 +31,6 @@ export function AdminPanel() {
     });
   }, []);
 
-  // 1. Fetch Draft/Archived Tournaments (Only runs if admin)
   const { data: tournaments, isLoading: loadingTourneys } = useQuery({
     queryKey: ["admin", "tournaments"],
     queryFn: async () => {
@@ -43,7 +45,6 @@ export function AdminPanel() {
     enabled: isAdmin === true,
   });
 
-  // 2. Fetch Users (Only runs if admin)
   const { data: users, isLoading: loadingUsers } = useQuery({
     queryKey: ["admin", "users"],
     queryFn: async () => {
@@ -57,7 +58,6 @@ export function AdminPanel() {
     enabled: isAdmin === true,
   });
 
-  // 3. Delete Mutations
   const deleteTournament = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("tournaments").delete().eq("id", id);
@@ -82,12 +82,10 @@ export function AdminPanel() {
     onError: (e) => toast.error(e.message),
   });
 
-  // Block rendering until auth is verified
   if (isAdmin === null) {
     return <div className="p-10 text-center text-muted-foreground">Verifying access...</div>;
   }
 
-  // Show unauthorized error for everyone else
   if (isAdmin === false) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
@@ -116,7 +114,7 @@ export function AdminPanel() {
           <div className="rounded-lg border border-border/70 bg-surface p-4">
             <div className="mb-4 flex items-center gap-2 text-sm text-amber-500">
               <AlertTriangle className="size-4" />
-              <span>Deleting a tournament will permanently remove all associated matches and scores.</span>
+              <span>Deleting a tournament permanently removes all associated matches (cascade deletion).</span>
             </div>
 
             {loadingTourneys ? (
@@ -160,7 +158,7 @@ export function AdminPanel() {
           <div className="rounded-lg border border-border/70 bg-surface p-4">
             <div className="mb-4 flex items-center gap-2 text-sm text-amber-500">
               <AlertTriangle className="size-4" />
-              <span>This only deletes the public profile. To completely remove authentication access, delete the user in the Supabase Dashboard.</span>
+              <span>Only deletes public profile. Delete user in Supabase Auth to revoke access entirely.</span>
             </div>
 
             {loadingUsers ? (
