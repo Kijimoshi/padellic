@@ -273,14 +273,13 @@ function TournamentPage() {
 
           <TabsContent value="rounds" className="mt-6 space-y-4">
             <div className="panel flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-muted-foreground">
-                {tournament.format === "americano"
-                  ? "Generates the full tournament with rotating partners."
-                  : "Mexicano builds one round at a time from the live standings."}
-              </p>
-              
-              <div className="flex flex-col items-end gap-2">
-                {matches.length === 0 ? (
+              {matches.length === 0 ? (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    {tournament.format === "americano"
+                      ? "Generates the full tournament with rotating partners."
+                      : "Mexicano builds one round at a time from the live standings."}
+                  </p>
                   <Button
                     onClick={() => generateSchedule.mutate()}
                     disabled={players.length < 4 || generateSchedule.isPending}
@@ -288,25 +287,25 @@ function TournamentPage() {
                     <Shuffle className="size-4" />
                     Generate schedule
                   </Button>
-                ) : (
-                  <div className="flex flex-col items-end gap-2 text-right">
-                    {/* "NEXT ROUND" (MEXICANO) */}
-                    {tournament.format === "mexicano" && (
-                      <Button
-                        variant="outline"
-                        onClick={() => nextMexicanoRound.mutate()}
-                        disabled={nextMexicanoRound.isPending}
-                      >
-                        <Plus className="size-4" />
-                        Next round
-                      </Button>
-                    )}
-                    <span className="text-xs text-muted-foreground">
-                      Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
-                    </span>
-                  </div>
-                )}
-              </div>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
+                  </p>
+                  {/* "NEXT ROUND" (MEXICANO) */}
+                  {tournament.format === "mexicano" && (
+                    <Button
+                      variant="outline"
+                      onClick={() => nextMexicanoRound.mutate()}
+                      disabled={nextMexicanoRound.isPending}
+                    >
+                      <Plus className="size-4" />
+                      Next round
+                    </Button>
+                  )}
+                </>
+              )}
             </div>
 
             {players.length < 4 && (
