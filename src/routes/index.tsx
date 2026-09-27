@@ -28,7 +28,7 @@ const features = [
   {
     icon: Shuffle,
     title: "Rounds that build themselves",
-    body: "Americano: Randomly rotates partners every round for maximum variety. Mexicano: re-seeds from the current standings so the top players meet. Swiss-system: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.",
+    body: "Americano: smart scheduling - partners rotate randomly every round, with the Padellic algorithm actively prioritizing unique pairings for maximum variety. \n Mexicano: re-seeds from the current standings so the top players meet. \n Swiss-system: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.",
   },
   {
     icon: ListOrdered,
@@ -60,7 +60,7 @@ function Landing() {
 
         <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-             AMERICANO · MEXICANO · and soon also SWISS
+             AMERICANO · MEXICANO · and soon SWISS
           </p>
           <h1 className="mt-5 max-w-2xl whitespace-pre-line text-4xl font-bold leading-[1.05] sm:text-6xl">
              {"Less admin,\nmore smashes."}
