@@ -69,19 +69,25 @@ function partnerRounds(ids: string[]): string[][][] {
  */
 export function buildAmericano(playerIds: string[], rounds: number, courts: number): PlannedMatch[] {
   if (playerIds.length < 4 || courts < 1) return [];
-  // Randomize player order before building the schedule.
-  const shuffledIds = shuffle(playerIds);
-  const schedule = partnerRounds(shuffledIds);
+  const schedule = partnerRounds(shuffle(playerIds));
   const out: PlannedMatch[] = [];
+  const maxPairs = courts * 2;
 
   for (let r = 0; r < rounds; r++) {
-    const pairs = schedule[r % schedule.length]!.filter((p) => !p.includes(GHOST));
-    // Rotate the starting offset on repeat cycles so opponents vary.
-    const offset = Math.floor(r / schedule.length) % Math.max(pairs.length, 1);
-    const ordered = [...pairs.slice(offset), ...pairs.slice(0, offset)];
-    // One match uses one court and two pairs. Do not schedule more matches
-    // than the tournament has courts; any remaining players rest this round.
-    const playablePairs = ordered.slice(0, courts * 2);
+    const allPairs = schedule[r % schedule.length]!;
+    const pairs = allPairs.filter((p) => !p.includes(GHOST));
+    if (pairs.length < 2) continue;
+
+    // Rotate the complete pair list before removing the ghost pair. This keeps
+    // the rotation tied to the circle-method positions for odd player counts.
+    const pairOffset = (r * maxPairs) % allPairs.length;
+    const rotatedAllPairs = [
+      ...allPairs.slice(pairOffset),
+      ...allPairs.slice(0, pairOffset),
+    ];
+    const playablePairs = rotatedAllPairs
+      .filter((p) => !p.includes(GHOST))
+      .slice(0, maxPairs);
 
     for (let i = 0; i + 1 < playablePairs.length; i += 2) {
       out.push({
@@ -103,7 +109,7 @@ export function buildMexicanoRound(
   round: number,
   courts: number,
 ): PlannedMatch[] {
-  const ids = standings.slice(0, Math.max(courts, 0) * 4).map((s) => s.playerId);
+  const ids = standings.map((s) => s.playerId);
   const out: PlannedMatch[] = [];
   let court = 0;
   for (let i = 0; i + 3 < ids.length; i += 4) {
