@@ -1,6 +1,6 @@
 # Padellic
 
-Padel Americano tournament app like Padelio
+Padel tournament app - Americano+Mexicano+Swiss in development
 
 This project was built with [Lovable](https://lovable.dev).
 
