@@ -251,7 +251,12 @@ function TournamentPage() {
               Copy share link
             </Button>
             <Button asChild variant="ghost">
-              <Link to="/t/$code" params={{ code: tournament.share_code }}>
+              <Link 
+                to="/t/$code" 
+                params={{ code: tournament.share_code }}
+                target="_blank"
+                rel="noreferrer"
+              >
                 Live view
               </Link>
             </Button>
