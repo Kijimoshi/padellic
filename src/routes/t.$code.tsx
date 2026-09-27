@@ -75,20 +75,23 @@ function PublicTournament() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-border/70">
-        {/* Left side: Padellic Logo */}
-        <Link to="/" className="mx-auto flex h-16 max-w-3xl items-center gap-2 px-4 transition-opacity hover:opacity-80">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Trophy className="size-4" />
-          </span>
-          <span className="font-display text-lg font-bold">Padellic</span>
-        </Link>
-
-        {/* Right side: Theme Toggle */}
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
+      <header className="border-b border-border/70 bg-background/85 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
+          
+          {/* Left side: Padellic Logo */}
+          <Link to="/" className="flex items-center gap-2 transition-opacity hover:opacity-80">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <Trophy className="size-4" />
+            </span>
+            <span className="font-display text-lg font-bold">Padellic</span>
+          </Link>
+      
+          {/* Right side: Theme Toggle */}
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+          </div>
+      
         </div>
-        
       </header>
 
       <main className="mx-auto max-w-3xl px-4 py-10">
