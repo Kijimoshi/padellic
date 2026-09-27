@@ -92,16 +92,14 @@ function Landing() {
           ))}
         </div>
 
-        <div className="panel mt-4 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <Shuffle className="w-5 h-5 text-primary" />
+        <div className="panel mt-4 flex flex-col gap-4 p-6 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-3">
+            <Shuffle className="h-6 w-6 shrink-0 text-primary mt-0.5" />
             <p className="text-sm text-muted-foreground whitespace-pre-line">
-              Americano: smart scheduling - partners rotate randomly every round, with the Padellic algorithm actively prioritizing unique pairings for maximum variety. \n \n
-              Mexicano: re-seeds from the current standings so the top players meet. \n \n
-              Swiss-system: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.
+              {`Americano: smart scheduling - partners rotate randomly every round, with the Padellic algorithm actively prioritizing unique pairings for maximum variety.\n\nMexicano: re-seeds from the current standings so the top players meet.\n\nSwiss-system: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.`}
             </p>
           </div>
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" className="shrink-0">
             <Link to="/auth">Create your first event</Link>
           </Button>
         </div>
