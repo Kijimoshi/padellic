@@ -1,4 +1,5 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Activity, Trophy } from "lucide-react";
 
 import { StandingsTable } from "@/components/standings-table";
@@ -56,6 +57,16 @@ export const Route = createFileRoute("/t/$code")({
 
 function PublicTournament() {
   const { tournament, players, matches } = Route.useLoaderData();
+  const router = useRouter();
+
+  // Auto-refresh the live view every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.invalidate();
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [router]);
+
   const standings = computeStandings(players, matches);
   const nameOf = (id: string) => players.find((p) => p.id === id)?.name ?? "—";
 
@@ -101,23 +112,44 @@ function PublicTournament() {
               <h3 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
                 Round {round}
               </h3>
-              <div className="mt-3 space-y-2">
+              <div className="mt-4 space-y-3">
                 {matches
                   .filter((m) => m.round === round)
                   .map((m) => (
                     <div
                       key={m.id}
-                      className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 rounded-lg border border-border/80 bg-background/40 px-3 py-2 text-sm"
+                      className="flex flex-col items-stretch gap-4 rounded-lg border border-border/80 bg-background/40 p-3 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4 md:items-center"
                     >
-                      <span>
-                        {nameOf(m.a1)} &amp; {nameOf(m.a2)}
-                      </span>
-                      <span className="font-display font-bold tabular">
-                        {m.completed ? `${m.score_a} : ${m.score_b}` : "vs"}
-                      </span>
-                      <span className="text-right">
-                        {nameOf(m.b1)} &amp; {nameOf(m.b2)}
-                      </span>
+                      {/* Team A */}
+                      <div className="flex flex-col items-start gap-1">
+                        <p className="text-left text-sm font-medium">
+                          {nameOf(m.a1)}{" "}
+                          <span className="text-xs font-normal text-muted-foreground">&amp;</span>{" "}
+                          {nameOf(m.a2)}
+                        </p>
+                      </div>
+
+                      {/* Score */}
+                      <div className="flex flex-col items-center justify-center py-1">
+                        <span className="font-display text-lg font-bold tabular-nums">
+                          {m.completed ? (
+                            `${m.score_a} : ${m.score_b}`
+                          ) : (
+                            <span className="text-sm font-normal uppercase text-muted-foreground">
+                              vs
+                            </span>
+                          )}
+                        </span>
+                      </div>
+
+                      {/* Team B */}
+                      <div className="flex flex-col items-end gap-1">
+                        <p className="text-right text-sm font-medium">
+                          {nameOf(m.b1)}{" "}
+                          <span className="text-xs font-normal text-muted-foreground">&amp;</span>{" "}
+                          {nameOf(m.b2)}
+                        </p>
+                      </div>
                     </div>
                   ))}
               </div>
