@@ -66,7 +66,7 @@ function partnerRounds(ids: string[]): string[][][] {
 /**
  * Americano: partners rotate every round so everyone plays with (almost) everyone.
  * Players are selected by least-played count, then mixed into 2v2 matches while
- * also preferring partner combinations that have not appeared before.
+ * avoiding repeated team combinations across all rounds.
  */
 export function buildAmericano(
   playerIds: string[],
@@ -80,16 +80,18 @@ export function buildAmericano(
   const playersPerRound = courts * 4;
   const out: PlannedMatch[] = [];
   const shuffledIds = shuffle(playerIds);
-  const pairCounts = new Map<string, number>();
 
+  // Track all team pairings from history
+  const usedTeams = new Set<string>();
   for (const match of matches) {
     const aPair = [match.a1, match.a2].sort().join("|");
     const bPair = [match.b1, match.b2].sort().join("|");
-    pairCounts.set(aPair, (pairCounts.get(aPair) || 0) + 1);
-    pairCounts.set(bPair, (pairCounts.get(bPair) || 0) + 1);
+    usedTeams.add(aPair);
+    usedTeams.add(bPair);
   }
 
-  const allStandings = players.length > 0 && matches.length > 0 ? computeStandings(players, matches) : [];
+  const allStandings =
+    players.length > 0 && matches.length > 0 ? computeStandings(players, matches) : [];
 
   for (let r = 0; r < rounds; r++) {
     let playingIds: string[];
@@ -107,67 +109,47 @@ export function buildAmericano(
       playingIds = rotatedIds.slice(0, playersPerRound);
     }
 
-    const pairs: [string, string][] = [];
-    const used = new Set<string>();
-
-    for (let i = 0; i < playingIds.length; i += 2) {
-      if (i + 1 >= playingIds.length) break;
-      const p1 = playingIds[i]!;
-      const p2 = playingIds[i + 1]!;
-      if (!used.has(p1) && !used.has(p2)) {
-        pairs.push([p1, p2]);
-        used.add(p1);
-        used.add(p2);
-      }
-    }
-
-    const teamCandidates: Array<[string, string]> = [];
+    // Generate all possible team combinations from available players
+    const possibleTeams: Array<[string, string]> = [];
     for (let i = 0; i < playingIds.length; i++) {
       for (let j = i + 1; j < playingIds.length; j++) {
-        const a = playingIds[i]!;
-        const b = playingIds[j]!;
-        if (a === b) continue;
-        teamCandidates.push([a, b]);
+        const key = [playingIds[i], playingIds[j]].sort().join("|");
+        if (!usedTeams.has(key)) {
+          possibleTeams.push([playingIds[i]!, playingIds[j]!]);
+        }
       }
     }
 
-    teamCandidates.sort((teamA, teamB) => {
-      const keyA = [teamA[0], teamA[1]].sort().join("|");
-      const keyB = [teamB[0], teamB[1]].sort().join("|");
-      return (pairCounts.get(keyA) || 0) - (pairCounts.get(keyB) || 0);
-    });
+    // Shuffle to add variety
+    shuffle(possibleTeams);
 
-    const selectedTeams: [string, string][] = [];
-    const usedTeams = new Set<string>();
+    // Select teams greedily (no player appears twice per round)
+    const roundTeams: Array<[string, string]> = [];
+    const usedPlayers = new Set<string>();
 
-    for (const team of teamCandidates) {
-      const key = team.join("|");
-      if (usedTeams.has(key)) continue;
+    for (const team of possibleTeams) {
       const [a, b] = team;
-      if (used.has(a) || used.has(b)) continue;
-      selectedTeams.push(team);
-      used.add(a);
-      used.add(b);
-      usedTeams.add(key);
-      if (selectedTeams.length === courts * 2) break;
+      if (usedPlayers.has(a) || usedPlayers.has(b)) continue;
+      roundTeams.push(team);
+      usedPlayers.add(a);
+      usedPlayers.add(b);
+      usedTeams.add([a, b].sort().join("|"));
+      if (roundTeams.length === courts * 2) break;
     }
 
-    const finalPairs = selectedTeams.length > 0 ? selectedTeams : pairs;
-
+    // Create matches from selected teams
     for (let court = 0; court < courts; court++) {
-      const first = finalPairs[court * 2];
-      const second = finalPairs[court * 2 + 1];
-      if (!first || !second) break;
+      const aTeam = roundTeams[court * 2];
+      const bTeam = roundTeams[court * 2 + 1];
+      if (!aTeam || !bTeam) break;
 
-      const [a1, a2] = first;
-      const [b1, b2] = second;
       out.push({
         round: r + 1,
         court: court + 1,
-        a1,
-        a2,
-        b1,
-        b2,
+        a1: aTeam[0]!,
+        a2: aTeam[1]!,
+        b1: bTeam[0]!,
+        b2: bTeam[1]!,
       });
     }
   }
