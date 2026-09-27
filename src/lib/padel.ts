@@ -232,5 +232,5 @@ export function computeStandings(
 export function suggestedRounds(playerCount: number): number {
   if (playerCount < 4) return 0;
   const base = playerCount % 2 === 0 ? playerCount - 1 : playerCount;
-  return Math.min(Math.max(base, 5), 11);
+  return Math.min(Math.max(base, 3), 15);
 }
