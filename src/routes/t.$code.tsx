@@ -85,7 +85,11 @@ function PublicTournament() {
             </span>
             <span className="font-display text-lg font-bold">Padellic</span>
           </Link>
-      
+
+          {/* Separator and Live View text */}
+          <span className="text-muted-foreground/50">/</span>
+          <span className="text-sm font-medium text-muted-foreground">Live View</span>
+          
           {/* Right side: Theme Toggle */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
