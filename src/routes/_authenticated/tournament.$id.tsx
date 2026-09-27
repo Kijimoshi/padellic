@@ -289,8 +289,8 @@ function TournamentPage() {
                     Generate schedule
                   </Button>
                 ) : (
-                  {/* "NEXT ROUND" (MEXICANO) */}
                   <div className="flex flex-col items-end gap-2 text-right">
+                    {/* "NEXT ROUND" (MEXICANO) */}
                     {tournament.format === "mexicano" && (
                       <Button
                         variant="outline"
