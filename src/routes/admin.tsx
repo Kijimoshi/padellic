@@ -132,17 +132,17 @@ const { data: users, isLoading: loadingUsers, error: usersError } = useQuery({
               
               <div className="flex items-center gap-2">
                 <Filter className="size-4 text-muted-foreground" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="flex h-9 w-[150px] items-center justify-between rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring"
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="setup">Setup</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="archived">Archived</option>
-                </select>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="flex h-9 w-[150px] items-center justify-between rounded-md border border-input bg-background text-foreground px-3 py-1 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring"
+                  >
+                    <option value="all" className="bg-background text-foreground">All Statuses</option>
+                    <option value="setup" className="bg-background text-foreground">Setup</option>
+                    <option value="live" className="bg-background text-foreground">Live</option>
+                    <option value="finished" className="bg-background text-foreground">Finished</option>
+                    <option value="archived" className="bg-background text-foreground">Archived</option>
+                  </select>
               </div>
             </div>
 
