@@ -80,10 +80,7 @@ function TournamentPage() {
   const standings = useMemo(() => computeStandings(players, matches), [players, matches]);
   const nameOf = (pid: string) => players.find((p) => p.id === pid)?.name ?? "—";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  
-  const [currentRoundIndex, setCurrentRoundIndex] = useState(0); // <-- Add this line
-  const maxGeneratedRound = rounds.length > 0 ? Math.max(...rounds.map(([r]) => r)) : 1;
+  const [currentRoundIndex, setCurrentRoundIndex] = useState(0); 
   
   const rounds = useMemo(() => {
     const map = new Map<number, MatchRow[]>();
