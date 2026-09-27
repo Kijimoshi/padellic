@@ -46,7 +46,13 @@ function Dashboard() {
   const [points, setPoints] = useState("21");
 
   // State for status filtering
-  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(statuses);
+  //const [selectedStatuses, setSelectedStatuses] = useState<string[]>(statuses);
+  // Initialize state without "archived"
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([
+    "setup",
+    "live",
+    "completed",
+  ]);
 
   const toggleStatus = (status: string) => {
     setSelectedStatuses((prev) =>
