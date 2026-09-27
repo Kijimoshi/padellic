@@ -33,13 +33,14 @@ function AdminPanel() {
     });
   }, []);
 
-  const { data: tournaments, isLoading: loadingTourneys } = useQuery({
+
+  const { data: tournaments, isLoading: loadingTourneys, error: tourneysError } = useQuery({
     queryKey: ["admin", "tournaments", statusFilter],
     queryFn: async () => {
       let query = supabase
         .from("tournaments")
-        // Added profiles(email) to join the profiles table and get the creator's email
-        .select("id, name, status, created_at, profiles(email)")
+        // REMOVED profiles(email) temporarily to fix the crash
+        .select("id, name, status, created_at") 
         .order("created_at", { ascending: false });
 
       if (statusFilter !== "all") {
