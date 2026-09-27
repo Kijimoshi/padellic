@@ -28,12 +28,12 @@ const features = [
   {
     icon: Shuffle,
     title: "Rounds that build themselves",
-    body: "Americano rotates partners every round. Mexicano re-seeds from the current standings so the top players meet.",
+    body: "Americano: Randomly rotates partners every round for maximum variety. Mexicano: re-seeds from the current standings so the top players meet. Swiss-system: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.",
   },
   {
     icon: ListOrdered,
-    title: "Scores in two taps",
-    body: "Fixed points per match, big number inputs and instant validation. No paper, no arguments.",
+    title: "Have an odd number of players?",
+    body: "No problem. The algorithm automatically balances the schedule, resting players on a rotating basis so those with the least matches played always get priority on the court.",
   },
   {
     icon: Share2,
@@ -60,7 +60,7 @@ function Landing() {
 
         <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-             AMERICANO&nbsp;·&nbsp;MEXICANO · TROLOLOLO&nbsp;·&nbsp;POZDRO =]
+             AMERICANO · MEXICANO · and soon also SWISS
           </p>
           <h1 className="mt-5 max-w-2xl whitespace-pre-line text-4xl font-bold leading-[1.05] sm:text-6xl">
              {"Less admin,\nmore smashes."}
