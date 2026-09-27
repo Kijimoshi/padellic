@@ -34,13 +34,16 @@ function AdminPanel() {
   }, []);
 
 
-  const { data: tournaments, isLoading: loadingTourneys, error: tourneysError } = useQuery({
+const { 
+    data: tournaments, 
+    isLoading: loadingTourneys,
+    error: tourneysError // Extracted here
+  } = useQuery({
     queryKey: ["admin", "tournaments", statusFilter],
     queryFn: async () => {
       let query = supabase
         .from("tournaments")
-        // REMOVED profiles(email) temporarily to fix the crash
-        .select("id, name, status, created_at") 
+        .select("id, name, status, created_at, profiles(display_name)")
         .order("created_at", { ascending: false });
 
       if (statusFilter !== "all") {
