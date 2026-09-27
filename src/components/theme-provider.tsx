@@ -41,7 +41,7 @@ export function ThemeProvider({
 
     if (theme === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
-      
+
       const applySystemTheme = (e: MediaQueryList | MediaQueryListEvent) => {
         if (e.matches) {
           root.classList.add("light");
@@ -51,7 +51,7 @@ export function ThemeProvider({
       };
 
       applySystemTheme(mediaQuery);
-      
+
       mediaQuery.addEventListener("change", applySystemTheme);
       return () => mediaQuery.removeEventListener("change", applySystemTheme);
     }
