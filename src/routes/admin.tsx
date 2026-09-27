@@ -59,8 +59,10 @@ const { data: users, isLoading: loadingUsers, error: usersError } = useQuery({
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles") 
-        .select("id, email, created_at")
+        // THIS LINE was causing the error - change it to display_name
+        .select("id, display_name, created_at")
         .order("created_at", { ascending: false });
+        
       if (error) throw error;
       return data;
     },
