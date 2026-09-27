@@ -60,7 +60,7 @@ function Landing() {
 
         <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-             AMERICANO · MEXICANO · and soon SWISS
+             AMERICANO · MEXICANO · SWISS (soon)
           </p>
           <h1 className="mt-5 max-w-2xl whitespace-pre-line text-4xl font-bold leading-[1.05] sm:text-6xl">
              {"Less admin,\nmore smashes."}
@@ -94,8 +94,8 @@ function Landing() {
 
         <div className="panel mt-4 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <Shuffle className="size-5 text-primary" />
-            <p className="text-sm text-muted-foreground">
+            <Shuffle className="w-5 h-5 text-primary" />
+            <p className="text-sm text-muted-foreground whitespace-pre-line">
               Americano: smart scheduling - partners rotate randomly every round, with the Padellic algorithm actively prioritizing unique pairings for maximum variety. \n \n
               Mexicano: re-seeds from the current standings so the top players meet. \n \n
               Swiss-system: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.
