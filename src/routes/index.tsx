@@ -26,9 +26,9 @@ export const Route = createFileRoute("/")({
 
 const features = [
   {
-    icon: Shuffle,
+    icon: Users,
     title: "Rounds that build themselves",
-    body: "Americano: smart scheduling - partners rotate randomly every round, with the Padellic algorithm actively prioritizing unique pairings for maximum variety. \n Mexicano: re-seeds from the current standings so the top players meet. \n Swiss-system: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.",
+    body: "No limits on number of players or courts — the schedule always fits.",
   },
   {
     icon: ListOrdered,
@@ -94,9 +94,11 @@ function Landing() {
 
         <div className="panel mt-4 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <Users className="size-5 text-primary" />
+            <Shuffle className="size-5 text-primary" />
             <p className="text-sm text-muted-foreground">
-               No limits on number of players or courts — the schedule always fits.
+              Americano: smart scheduling - partners rotate randomly every round, with the Padellic algorithm actively prioritizing unique pairings for maximum variety. \n \n
+              Mexicano: re-seeds from the current standings so the top players meet. \n \n
+              Swiss-system: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.
             </p>
           </div>
           <Button asChild variant="outline">
