@@ -44,7 +44,7 @@ const features = [
 
 function Landing() {
   return (
-    <div className="min-h-screen">
+    <div className="flex min-h-screen flex-col">
       <SiteHeader />
 
       <section className="relative overflow-hidden">
@@ -103,6 +103,20 @@ function Landing() {
           </Button>
         </div>
       </section>
+
+      <footer className="mt-auto border-t border-border/40 py-6 text-center">
+        <p className="text-sm text-muted-foreground">
+          Built by{" "}
+          <a 
+            href="https://linkedin.com/in/igor-krolak/" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="font-medium underline underline-offset-4 transition-colors hover:text-foreground"
+          >
+            Igor K.
+          </a>
+        </p>
+      </footer>
     </div>
   );
 }
