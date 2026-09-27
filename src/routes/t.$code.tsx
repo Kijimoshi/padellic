@@ -98,6 +98,15 @@ function PublicTournament() {
             Standings
           </h2>
           <StandingsTable rows={standings} />
+          
+          {/* Auto-refresh indicator moved here */}
+          <div className="mt-3 flex items-center justify-end gap-2 text-xs text-muted-foreground">
+            <span className="relative flex size-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
+            </span>
+            <span>Live standings auto-update every 5s</span>
+          </div>
         </section>
 
         <section className="mt-10 space-y-4">
