@@ -854,7 +854,7 @@ function SettingsForm({
 const STATUSES = [
   { id: "setup", label: "Setup", icon: Settings2 },
   { id: "live", label: "Live", icon: Play },
-  { id: "completed", label: "Finished", icon: Trophy },
+  { id: "finished", label: "Finished", icon: Trophy },
   { id: "archived", label: "Archived", icon: Archive },
 ] as const;
 
