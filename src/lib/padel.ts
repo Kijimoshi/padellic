@@ -66,7 +66,8 @@ function partnerRounds(ids: string[]): string[][][] {
 /**
  * Americano: partners rotate every round so everyone plays with (almost) everyone.
  * Players are selected by least-played count, then mixed into 2v2 matches while
- * avoiding repeated team combinations across all rounds.
+ * minimizing repeated team combinations. If not enough unique teams exist,
+ * repeats are allowed (prioritizing least-repeated teams).
  */
 export function buildAmericano(
   playerIds: string[],
@@ -81,13 +82,13 @@ export function buildAmericano(
   const out: PlannedMatch[] = [];
   const shuffledIds = shuffle(playerIds);
 
-  // Track all team pairings from history
-  const usedTeams = new Set<string>();
+  // Track repeat count for each team pairing
+  const teamCounts = new Map<string, number>();
   for (const match of matches) {
     const aPair = [match.a1, match.a2].sort().join("|");
     const bPair = [match.b1, match.b2].sort().join("|");
-    usedTeams.add(aPair);
-    usedTeams.add(bPair);
+    teamCounts.set(aPair, (teamCounts.get(aPair) || 0) + 1);
+    teamCounts.set(bPair, (teamCounts.get(bPair) || 0) + 1);
   }
 
   const allStandings =
@@ -113,14 +114,18 @@ export function buildAmericano(
     const possibleTeams: Array<[string, string]> = [];
     for (let i = 0; i < playingIds.length; i++) {
       for (let j = i + 1; j < playingIds.length; j++) {
-        const key = [playingIds[i], playingIds[j]].sort().join("|");
-        if (!usedTeams.has(key)) {
-          possibleTeams.push([playingIds[i]!, playingIds[j]!]);
-        }
+        possibleTeams.push([playingIds[i]!, playingIds[j]!]);
       }
     }
 
-    // Shuffle to add variety
+    // Sort by repeat count (prefer teams that haven't played together)
+    possibleTeams.sort((teamA, teamB) => {
+      const keyA = [teamA[0], teamA[1]].sort().join("|");
+      const keyB = [teamB[0], teamB[1]].sort().join("|");
+      return (teamCounts.get(keyA) || 0) - (teamCounts.get(keyB) || 0);
+    });
+
+    // Shuffle within same count to add variety
     shuffle(possibleTeams);
 
     // Select teams greedily (no player appears twice per round)
@@ -133,7 +138,8 @@ export function buildAmericano(
       roundTeams.push(team);
       usedPlayers.add(a);
       usedPlayers.add(b);
-      usedTeams.add([a, b].sort().join("|"));
+      const key = [a, b].sort().join("|");
+      teamCounts.set(key, (teamCounts.get(key) || 0) + 1);
       if (roundTeams.length === courts * 2) break;
     }
 
