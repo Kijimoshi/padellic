@@ -650,6 +650,8 @@ function ScoreRow({
       // Cleanup function clears the timer if the user types again before 1 second passes
       return () => clearTimeout(timer);
     }
+
+    return undefined;
   }, [numA, numB, valid, hasChanged, onSave]);
 
   // Handle the 3-second highlight reset
@@ -660,6 +662,8 @@ function ScoreRow({
       }, 3000);
       return () => clearTimeout(timer);
     }
+
+    return undefined;
   }, [justSaved]);
 
   return (

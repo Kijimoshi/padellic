@@ -59,6 +59,8 @@ export function ThemeProvider({
     if (theme === "light") {
       root.classList.add("light");
     }
+
+    return undefined;
   }, [theme]);
 
   const value = {
