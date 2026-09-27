@@ -71,6 +71,10 @@ function TournamentPage() {
   const standings = useMemo(() => computeStandings(players, matches), [players, matches]);
   const nameOf = (pid: string) => players.find((p) => p.id === pid)?.name ?? "—";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  
+  const [currentRoundIndex, setCurrentRoundIndex] = useState(0); // <-- Add this line
+  
   
   const rounds = useMemo(() => {
     const map = new Map<number, MatchRow[]>();
@@ -314,42 +318,75 @@ function TournamentPage() {
               </p>
             )}
 
-            {rounds.map(([round, list]) => {
-              // Gather IDs of all players playing in this round
-              const playingIds = new Set(
-                list.flatMap((m) => [m.a1, m.a2, m.b1, m.b2])
-              );
-              
-              // Filter the main players list to find those who are NOT in playingIds
+            {/* DISPLAY ONLY THE CURRENT ACTIVE ROUND */}
+            {rounds.length > 0 && (() => {
+              const safeIndex = Math.min(currentRoundIndex, rounds.length - 1);
+              const currentRoundEntry = rounds[safeIndex];
+              if (!currentRoundEntry) return null;
+            
+              const [round, list] = currentRoundEntry;
+              const playingIds = new Set(list.flatMap((m) => [m.a1, m.a2, m.b1, m.b2]));
               const restingPlayers = players.filter((p) => !playingIds.has(p.id));
-
+            
               return (
-                <div key={round} className="panel p-5">
-                  <h3 className="font-display text-sm font-bold uppercase tracking-widest text-primary">
-                    Round {round}
-                  </h3>
-                  <div className="mt-4 space-y-3">
-                    {list.map((m) => (
-                      <ScoreRow
-                        key={m.id}
-                        match={m}
-                        nameOf={nameOf}
-                        maxPoints={tournament.points_per_match}
-                        onSave={(a, b) => saveScore.mutate({ matchId: m.id, a, b })}
-                      />
-                    ))}
-                  </div>
-                  
-                  {/* Resting players section */}
-                  {restingPlayers.length > 0 && (
-                    <div className="mt-4 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
-                      <span className="font-medium text-foreground">Resting:</span>{" "}
-                      {restingPlayers.map((p) => p.name).join(", ")}
+                <div className="space-y-4">
+                  {/* Current Round Panel */}
+                  <div key={round} className="panel p-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-display text-sm font-bold uppercase tracking-widest text-primary">
+                        Round {round} 
+                      </h3>
                     </div>
-                  )}
+            
+                    <div className="mt-4 space-y-3">
+                      {list.map((m) => (
+                        <ScoreRow
+                          key={m.id}
+                          match={m}
+                          nameOf={nameOf}
+                          maxPoints={tournament.points_per_match}
+                          onSave={(a, b) => saveScore.mutate({ matchId: m.id, a, b })}
+                        />
+                      ))}
+                    </div>
+            
+                    {/* Resting players section */}
+                    {restingPlayers.length > 0 && (
+                      <div className="mt-4 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                        <span className="font-medium text-foreground">Resting:</span>{" "}
+                        {restingPlayers.map((p) => p.name).join(", ")}
+                      </div>
+                    )}
+                  </div>
+            
+                  {/* Navigation controls directly below the panel */}
+                  <div className="panel flex items-center justify-between p-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={safeIndex === 0}
+                      onClick={() => setCurrentRoundIndex((prev) => Math.max(0, prev - 1))}
+                    >
+                      Previous round
+                    </Button>
+            
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {/* Round {safeIndex + 1} of {rounds.length} */}
+                      Round {safeIndex + 1} 
+                    </span>
+            
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={safeIndex >= rounds.length - 1}
+                      onClick={() => setCurrentRoundIndex((prev) => Math.min(rounds.length - 1, prev + 1))}
+                    >
+                      Next round
+                    </Button>
+                  </div>
                 </div>
               );
-            })}
+            })()}
 
           </TabsContent>
 
