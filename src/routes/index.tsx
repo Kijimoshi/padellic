@@ -60,7 +60,7 @@ function Landing() {
 
         <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-             AMERICANO · MEXICANO · SWISS (soon)
+             AMERICANO · MEXICANO · SWISS&nbsp;(soon)
           </p>
           <h1 className="mt-5 max-w-2xl whitespace-pre-line text-4xl font-bold leading-[1.05] sm:text-6xl">
              {"Less admin,\nmore smashes."}
@@ -96,7 +96,9 @@ function Landing() {
           <div className="flex items-start gap-3">
             <Shuffle className="h-6 w-6 shrink-0 text-primary mt-0.5" />
             <p className="text-sm text-muted-foreground whitespace-pre-line">
-              {`Americano: smart scheduling - partners rotate randomly every round, with the Padellic algorithm actively prioritizing unique pairings for maximum variety.\n\nMexicano: re-seeds from the current standings so the top players meet.\n\nSwiss-system: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.`}
+              {`<strong>Americano</strong>: smart scheduling - partners rotate randomly every round, with the Padellic algorithm actively prioritizing unique pairings for maximum variety.\n\n
+              <strong>Mexicano</strong>: re-seeds from the current standings so the top players meet.\n\n
+              <strong>Swiss-system</strong>: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.`}
             </p>
           </div>
           <Button asChild variant="outline" className="shrink-0">
