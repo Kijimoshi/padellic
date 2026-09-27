@@ -39,7 +39,7 @@ function shuffle<T>(array: T[]): T[] {
   const result = [...array];
   for (let i = result.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
+    [result[i], result[j]] = [result[j]!, result[i]!];
   }
   return result;
 }
@@ -68,28 +68,30 @@ function partnerRounds(ids: string[]): string[][][] {
  * Pairs that cannot be matched up in a round simply rest.
  */
 export function buildAmericano(playerIds: string[], rounds: number, courts: number): PlannedMatch[] {
-  if (playerIds.length < 4) return [];
-  // Randomize player order before building the schedule
+  if (playerIds.length < 4 || courts < 1) return [];
+  // Randomize player order before building the schedule.
   const shuffledIds = shuffle(playerIds);
   const schedule = partnerRounds(shuffledIds);
   const out: PlannedMatch[] = [];
 
   for (let r = 0; r < rounds; r++) {
     const pairs = schedule[r % schedule.length]!.filter((p) => !p.includes(GHOST));
-    // rotate the starting offset on repeat cycles so opponents vary
+    // Rotate the starting offset on repeat cycles so opponents vary.
     const offset = Math.floor(r / schedule.length) % Math.max(pairs.length, 1);
     const ordered = [...pairs.slice(offset), ...pairs.slice(0, offset)];
-    let court = 0;
-    for (let i = 0; i + 1 < ordered.length; i += 2) {
+    // One match uses one court and two pairs. Do not schedule more matches
+    // than the tournament has courts; any remaining players rest this round.
+    const playablePairs = ordered.slice(0, courts * 2);
+
+    for (let i = 0; i + 1 < playablePairs.length; i += 2) {
       out.push({
         round: r + 1,
-        court: (court % courts) + 1,
-        a1: ordered[i]![0]!,
-        a2: ordered[i]![1]!,
-        b1: ordered[i + 1]![0]!,
-        b2: ordered[i + 1]![1]!,
+        court: i / 2 + 1,
+        a1: playablePairs[i]![0]!,
+        a2: playablePairs[i]![1]!,
+        b1: playablePairs[i + 1]![0]!,
+        b2: playablePairs[i + 1]![1]!,
       });
-      court++;
     }
   }
   return out;
@@ -101,7 +103,7 @@ export function buildMexicanoRound(
   round: number,
   courts: number,
 ): PlannedMatch[] {
-  const ids = standings.map((s) => s.playerId);
+  const ids = standings.slice(0, Math.max(courts, 0) * 4).map((s) => s.playerId);
   const out: PlannedMatch[] = [];
   let court = 0;
   for (let i = 0; i + 3 < ids.length; i += 4) {
