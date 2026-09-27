@@ -56,7 +56,9 @@ const {
     },
     enabled: isAdmin === true,
   });
-
+  
+console.log("Tournaments Data:", tournaments);
+  
 const { data: users, isLoading: loadingUsers, error: usersError } = useQuery({
     queryKey: ["admin", "users"],
     queryFn: async () => {
