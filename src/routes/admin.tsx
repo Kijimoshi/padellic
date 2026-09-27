@@ -144,53 +144,47 @@ function AdminPanel() {
               </div>
             </div>
 
-            {loadingTourneys ? (
+            {tourneysError ? (
+              <div className="p-4 text-center font-bold text-destructive">
+                Database Error: {tourneysError.message}
+              </div>
+            ) : loadingTourneys ? (
               <div className="p-4 text-center text-muted-foreground">Loading...</div>
             ) : !tournaments?.length ? (
               <div className="p-4 text-center text-muted-foreground">No tournaments found for this filter.</div>
             ) : (
               <div className="divide-y divide-border/50">
-                {tournaments.map((t) => {
-                  // Safely extract the email from the joined profiles table
-                  const ownerEmail = t.profiles 
-                    ? (Array.isArray(t.profiles) ? t.profiles[0]?.email : (t.profiles as any).email) 
-                    : "Unknown owner";
-
-                  return (
-                    <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-4">
-                      <div>
-                        <p className="font-medium">{t.name || "Untitled Tournament"}</p>
-                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                          <Badge variant={t.status === "archived" ? "secondary" : "outline"}>
-                            {t.status}
-                          </Badge>
-                          <span>Created {formatDistanceToNow(new Date(t.created_at))} ago</span>
-                          <span className="hidden sm:inline text-border">•</span>
-                          <span className="flex items-center gap-1">
-                            <User className="size-3" />
-                            {ownerEmail}
-                          </span>
-                        </div>
+                {tournaments.map((t) => (
+                  <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-4">
+                    <div>
+                      <p className="font-medium">{t.name || "Untitled Tournament"}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        <Badge variant={t.status === "archived" ? "secondary" : "outline"}>
+                          {t.status}
+                        </Badge>
+                        <span>Created {formatDistanceToNow(new Date(t.created_at))} ago</span>
                       </div>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => {
-                          if (window.confirm(`Are you sure you want to delete "${t.name}"?`)) {
-                            deleteTournament.mutate(t.id);
-                          }
-                        }}
-                        disabled={deleteTournament.isPending}
-                        className="w-full sm:w-auto"
-                      >
-                        <Trash2 className="size-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Delete</span>
-                      </Button>
                     </div>
-                  );
-                })}
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        if (window.confirm(`Are you sure you want to delete "${t.name}"?`)) {
+                          deleteTournament.mutate(t.id);
+                        }
+                      }}
+                      disabled={deleteTournament.isPending}
+                      className="w-full sm:w-auto"
+                    >
+                      <Trash2 className="size-4 sm:mr-2" />
+                      <span className="hidden sm:inline">Delete</span>
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
+
+
           </div>
         </TabsContent>
 
