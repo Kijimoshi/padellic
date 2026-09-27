@@ -65,20 +65,38 @@ function partnerRounds(ids: string[]): string[][][] {
 
 /**
  * Americano: partners rotate every round so everyone plays with (almost) everyone.
- * Players are rotated through the active set each round so those resting change.
- * The matches themselves are 2v2, but the players are mixed every round.
+ * Players are selected by least-played count, then mixed into 2v2 matches.
  */
-export function buildAmericano(playerIds: string[], rounds: number, courts: number): PlannedMatch[] {
+export function buildAmericano(
+  playerIds: string[],
+  rounds: number,
+  courts: number,
+  players: { id: string; name: string }[] = [],
+  matches: MatchRow[] = [],
+): PlannedMatch[] {
   if (playerIds.length < 4 || courts < 1) return [];
 
-  const shuffledIds = shuffle(playerIds);
   const playersPerRound = courts * 4;
   const out: PlannedMatch[] = [];
+  const shuffledIds = shuffle(playerIds);
+
+  const allStandings = players.length > 0 && matches.length > 0 ? computeStandings(players, matches) : [];
 
   for (let r = 0; r < rounds; r++) {
-    const offset = (r * playersPerRound) % shuffledIds.length;
-    const rotatedIds = [...shuffledIds.slice(offset), ...shuffledIds.slice(0, offset)];
-    const playingIds = rotatedIds.slice(0, playersPerRound);
+    let playingIds: string[];
+
+    if (allStandings.length > 0) {
+      const leastPlayed = [...allStandings]
+        .sort((a, b) => a.played - b.played || a.name.localeCompare(b.name))
+        .slice(0, playersPerRound)
+        .map((row) => row.playerId);
+
+      playingIds = shuffle(leastPlayed);
+    } else {
+      const offset = (r * playersPerRound) % shuffledIds.length;
+      const rotatedIds = [...shuffledIds.slice(offset), ...shuffledIds.slice(0, offset)];
+      playingIds = rotatedIds.slice(0, playersPerRound);
+    }
 
     for (let court = 0; court < courts; court++) {
       const [a1, a2, b1, b2] = playingIds.slice(court * 4, court * 4 + 4);
