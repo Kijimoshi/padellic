@@ -1,17 +1,34 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
-import { Trash2, AlertTriangle } from "lucide-react";
+import { Trash2, AlertTriangle, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
+const ADMIN_EMAIL = "igor.krolak@gmail.com";
+
 export function AdminPanel() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
-  // 1. Fetch Draft/Archived Tournaments
+  // 0. Verify Admin Access
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email === ADMIN_EMAIL) {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
+    });
+  }, []);
+
+  // 1. Fetch Draft/Archived Tournaments (Only runs if admin)
   const { data: tournaments, isLoading: loadingTourneys } = useQuery({
     queryKey: ["admin", "tournaments"],
     queryFn: async () => {
@@ -23,26 +40,26 @@ export function AdminPanel() {
       if (error) throw error;
       return data;
     },
+    enabled: isAdmin === true,
   });
 
-  // 2. Fetch Users (Profiles)
+  // 2. Fetch Users (Only runs if admin)
   const { data: users, isLoading: loadingUsers } = useQuery({
     queryKey: ["admin", "users"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("profiles") // Replace with your actual users table name
+        .from("profiles") 
         .select("id, email, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
+    enabled: isAdmin === true,
   });
 
   // 3. Delete Mutations
   const deleteTournament = useMutation({
     mutationFn: async (id: string) => {
-      // Assuming ON DELETE CASCADE is set for matches. 
-      // If not, you must delete matches first: await supabase.from("matches").delete().eq("tournament_id", id);
       const { error } = await supabase.from("tournaments").delete().eq("id", id);
       if (error) throw error;
     },
@@ -64,6 +81,23 @@ export function AdminPanel() {
     },
     onError: (e) => toast.error(e.message),
   });
+
+  // Block rendering until auth is verified
+  if (isAdmin === null) {
+    return <div className="p-10 text-center text-muted-foreground">Verifying access...</div>;
+  }
+
+  // Show unauthorized error for everyone else
+  if (isAdmin === false) {
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
+        <ShieldAlert className="size-12 text-destructive" />
+        <h1 className="text-2xl font-bold">Unauthorized</h1>
+        <p className="text-muted-foreground">You do not have permission to view this page.</p>
+        <Button onClick={() => navigate({ to: "/" })}>Go Home</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-5xl p-6">
