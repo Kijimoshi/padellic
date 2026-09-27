@@ -34,6 +34,16 @@ export type StandingRow = {
 
 const GHOST = "__rest__";
 
+/** Fisher-Yates shuffle: randomizes an array in-place */
+function shuffle<T>(array: T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 /** Circle-method partner rotation: every round pairs all players with a new partner. */
 function partnerRounds(ids: string[]): string[][][] {
   const list = [...ids];
@@ -59,7 +69,9 @@ function partnerRounds(ids: string[]): string[][][] {
  */
 export function buildAmericano(playerIds: string[], rounds: number, courts: number): PlannedMatch[] {
   if (playerIds.length < 4) return [];
-  const schedule = partnerRounds(playerIds);
+  // Randomize player order before building the schedule
+  const shuffledIds = shuffle(playerIds);
+  const schedule = partnerRounds(shuffledIds);
   const out: PlannedMatch[] = [];
 
   for (let r = 0; r < rounds; r++) {
