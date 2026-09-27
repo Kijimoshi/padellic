@@ -164,8 +164,7 @@ const { data: users, isLoading: loadingUsers, error: usersError } = useQuery({
                 
               {tournaments.map((t) => {
                   // Find the matching user from the existing users query!
-                  const ownerProfile = users?.find((u) => u.id === t.owner_id);
-                  const ownerEmail = ownerProfile?.email || "Unknown user";
+                  const ownerName = t.profiles?.display_name || "Unknown user";
 
                   return (
                     <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-4">
@@ -179,7 +178,7 @@ const { data: users, isLoading: loadingUsers, error: usersError } = useQuery({
                           <span className="hidden sm:inline text-border">•</span>
                           <span className="flex items-center gap-1">
                             <User className="size-3" />
-                            {ownerEmail}
+                            {ownerName}
                           </span>
                         </div>
                       </div>
