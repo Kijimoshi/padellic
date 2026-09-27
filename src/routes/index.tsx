@@ -86,7 +86,8 @@ function Landing() {
             <div key={f.title} className="panel p-6">
               <f.icon className="size-5 text-primary" />
               <h2 className="mt-4 text-lg font-semibold">{f.title}</h2>
-              <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
+              {/* Added whitespace-pre-line class here */}
+              <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{f.body}</p>
             </div>
           ))}
         </div>
