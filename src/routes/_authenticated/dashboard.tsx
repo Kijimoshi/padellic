@@ -33,7 +33,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-const statuses = ["setup", "live", "completed", "archived"];
+const statuses = ["setup", "live", "finished", "archived"];
 
 function Dashboard() {
   const { data: tournaments = [], isLoading } = useQuery(tournamentsQuery());
@@ -51,7 +51,7 @@ function Dashboard() {
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([
     "setup",
     "live",
-    "completed",
+    "finished",
   ]);
 
   const toggleStatus = (status: string) => {
