@@ -21,7 +21,7 @@ function publishableKey(): string {
   if (keyset) {
     try {
       const parsed = JSON.parse(keyset) as Record<string, unknown>;
-      const key = [parsed.default, ...Object.values(parsed)].find(
+      const key = [parsed["default"], ...Object.values(parsed)].find(
         (v): v is string => typeof v === "string" && v.startsWith("sb_publishable_"),
       );
       if (key) return key;

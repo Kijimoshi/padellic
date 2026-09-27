@@ -18,7 +18,8 @@ export default defineTool({
       .from("matches").select("id, tournaments(points_per_match)").eq("id", match_id).maybeSingle();
     if (error) throw new ToolError(error.message);
     if (!match) throw new ToolError("Match not found");
-    const total = (match.tournaments as { points_per_match: number } | null)?.points_per_match;
+    const rel = match.tournaments as unknown as { points_per_match: number } | { points_per_match: number }[] | null;
+    const total = Array.isArray(rel) ? rel[0]?.points_per_match : rel?.points_per_match;
     if (total && score_a + score_b !== total) throw new ToolError(`Scores must add up to ${total}`);
     const upd = await sb.from("matches").update({ score_a, score_b, completed: true }).eq("id", match_id);
     if (upd.error) throw new ToolError(upd.error.message);
