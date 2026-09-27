@@ -65,41 +65,34 @@ function partnerRounds(ids: string[]): string[][][] {
 
 /**
  * Americano: partners rotate every round so everyone plays with (almost) everyone.
- * Pairs that cannot be matched up in a round simply rest.
+ * Players are rotated through the active set each round so those resting change.
+ * The matches themselves are 2v2, but the players are mixed every round.
  */
 export function buildAmericano(playerIds: string[], rounds: number, courts: number): PlannedMatch[] {
   if (playerIds.length < 4 || courts < 1) return [];
-  const schedule = partnerRounds(shuffle(playerIds));
+
+  const shuffledIds = shuffle(playerIds);
+  const playersPerRound = courts * 4;
   const out: PlannedMatch[] = [];
-  const maxPairs = courts * 2;
 
   for (let r = 0; r < rounds; r++) {
-    const allPairs = schedule[r % schedule.length]!;
-    const pairs = allPairs.filter((p) => !p.includes(GHOST));
-    if (pairs.length < 2) continue;
+    const offset = (r * playersPerRound) % shuffledIds.length;
+    const rotatedIds = [...shuffledIds.slice(offset), ...shuffledIds.slice(0, offset)];
+    const playingIds = rotatedIds.slice(0, playersPerRound);
 
-    // Rotate the complete pair list before removing the ghost pair. This keeps
-    // the rotation tied to the circle-method positions for odd player counts.
-    const pairOffset = (r * maxPairs) % allPairs.length;
-    const rotatedAllPairs = [
-      ...allPairs.slice(pairOffset),
-      ...allPairs.slice(0, pairOffset),
-    ];
-    const playablePairs = rotatedAllPairs
-      .filter((p) => !p.includes(GHOST))
-      .slice(0, maxPairs);
-
-    for (let i = 0; i + 1 < playablePairs.length; i += 2) {
+    for (let court = 0; court < courts; court++) {
+      const [a1, a2, b1, b2] = playingIds.slice(court * 4, court * 4 + 4);
       out.push({
         round: r + 1,
-        court: i / 2 + 1,
-        a1: playablePairs[i]![0]!,
-        a2: playablePairs[i]![1]!,
-        b1: playablePairs[i + 1]![0]!,
-        b2: playablePairs[i + 1]![1]!,
+        court: court + 1,
+        a1: a1!,
+        a2: a2!,
+        b1: b1!,
+        b2: b2!,
       });
     }
   }
+
   return out;
 }
 
