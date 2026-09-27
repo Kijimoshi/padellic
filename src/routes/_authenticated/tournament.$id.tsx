@@ -313,6 +313,10 @@ function TournamentPage() {
           </TabsList>
 
           <TabsContent value="rounds" className="mt-6 space-y-4">
+
+            {/* INJECT THE CLOCK HERE */}
+            <MatchClock />
+          
             {matches.length === 0 ? (
               <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                 {/* 1. TOP BUTTON: Only shows when NO matches exist */}
@@ -916,6 +920,40 @@ function TournamentStatusBar({
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function MatchClock() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const hours = time.getHours().toString().padStart(2, "0");
+  const minutes = time.getMinutes().toString().padStart(2, "0");
+  const seconds = time.getSeconds().toString().padStart(2, "0");
+
+  return (
+    <div className="mb-6 flex justify-center">
+      <div className="relative flex items-center gap-3 rounded-xl border-2 border-primary/20 bg-background/50 px-6 py-4 shadow-[4px_4px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[4px_4px_0px_0px_hsl(var(--primary)/0.3)]">
+        <div className="flex flex-col items-end">
+          <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
+            Local Time
+          </span>
+          <div className="flex items-baseline font-mono text-4xl font-black tracking-tighter text-foreground tabular-nums">
+            <span>{hours}</span>
+            <span className="mx-1 animate-[pulse_2s_ease-in-out_infinite] text-primary/60">
+              :
+            </span>
+            <span>{minutes}</span>
+            <span className="mx-1 text-muted-foreground/30">.</span>
+            <span className="text-2xl text-muted-foreground/70">{seconds}</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
