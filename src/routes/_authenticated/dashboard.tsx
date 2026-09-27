@@ -161,7 +161,7 @@ function Dashboard() {
           <div className="space-y-4">
             {/* Filter Checkboxes */}
             <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border/80 bg-background/40 p-4">
-              <span className="text-sm font-medium text-muted-foreground">Filter:</span>
+              <span className="text-sm font-medium text-muted-foreground">Filter your tournaments by status:</span>
               {statuses.map((status) => (
                 <div key={status} className="flex items-center space-x-2">
                   <Checkbox
