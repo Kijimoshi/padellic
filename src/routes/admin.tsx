@@ -54,7 +54,7 @@ function AdminPanel() {
     enabled: isAdmin === true,
   });
 
-  const { data: users, isLoading: loadingUsers } = useQuery({
+const { data: users, isLoading: loadingUsers, error: usersError } = useQuery({
     queryKey: ["admin", "users"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -154,49 +154,65 @@ function AdminPanel() {
               <div className="p-4 text-center text-muted-foreground">No tournaments found for this filter.</div>
             ) : (
               <div className="divide-y divide-border/50">
-                {tournaments.map((t) => (
-                  <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-4">
-                    <div>
-                      <p className="font-medium">{t.name || "Untitled Tournament"}</p>
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                        <Badge variant={t.status === "archived" ? "secondary" : "outline"}>
-                          {t.status}
-                        </Badge>
-                        <span>Created {formatDistanceToNow(new Date(t.created_at))} ago</span>
+                
+              {tournaments.map((t) => {
+                  // Find the matching user from the existing users query!
+                  const ownerProfile = users?.find((u) => u.id === t.owner_id);
+                  const ownerEmail = ownerProfile?.email || "Unknown user";
+
+                  return (
+                    <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-4">
+                      <div>
+                        <p className="font-medium">{t.name || "Untitled Tournament"}</p>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                          <Badge variant={t.status === "archived" ? "secondary" : "outline"}>
+                            {t.status}
+                          </Badge>
+                          <span>Created {formatDistanceToNow(new Date(t.created_at))} ago</span>
+                          <span className="hidden sm:inline text-border">•</span>
+                          <span className="flex items-center gap-1">
+                            <User className="size-3" />
+                            {ownerEmail}
+                          </span>
+                        </div>
                       </div>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          if (window.confirm(`Are you sure you want to delete "${t.name}"?`)) {
+                            deleteTournament.mutate(t.id);
+                          }
+                        }}
+                        disabled={deleteTournament.isPending}
+                        className="w-full sm:w-auto"
+                      >
+                        <Trash2 className="size-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Delete</span>
+                      </Button>
                     </div>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => {
-                        if (window.confirm(`Are you sure you want to delete "${t.name}"?`)) {
-                          deleteTournament.mutate(t.id);
-                        }
-                      }}
-                      disabled={deleteTournament.isPending}
-                      className="w-full sm:w-auto"
-                    >
-                      <Trash2 className="size-4 sm:mr-2" />
-                      <span className="hidden sm:inline">Delete</span>
-                    </Button>
-                  </div>
-                ))}
+                  );
+                })}
+                
               </div>
             )}
 
 
           </div>
         </TabsContent>
-
+        
         <TabsContent value="users" className="space-y-4">
-          {/* Users content remains unchanged */}
           <div className="rounded-lg border border-border/70 bg-surface p-4">
             <div className="mb-4 flex items-center gap-2 text-sm text-amber-500">
               <AlertTriangle className="size-4" />
               <span>Only deletes public profile. Delete user in Supabase Auth to revoke access entirely.</span>
             </div>
 
-            {loadingUsers ? (
+            {usersError ? (
+              <div className="p-4 text-center font-bold text-destructive">
+                Database Error: {usersError.message}
+              </div>
+            ) : loadingUsers ? (
               <div className="p-4 text-center text-muted-foreground">Loading...</div>
             ) : !users?.length ? (
               <div className="p-4 text-center text-muted-foreground">No users found.</div>
@@ -205,7 +221,8 @@ function AdminPanel() {
                 {users.map((u) => (
                   <div key={u.id} className="flex items-center justify-between py-3">
                     <div>
-                      <p className="font-medium">{u.email}</p>
+                      {/* Changed u.email to u.display_name */}
+                      <p className="font-medium">{u.display_name}</p>
                       <p className="text-xs text-muted-foreground">
                         Joined {formatDistanceToNow(new Date(u.created_at))} ago
                       </p>
@@ -214,7 +231,8 @@ function AdminPanel() {
                       variant="destructive"
                       size="sm"
                       onClick={() => {
-                        if (window.confirm(`Delete profile for ${u.email}?`)) {
+                        // Changed u.email to u.display_name
+                        if (window.confirm(`Delete profile for ${u.display_name}?`)) {
                           deleteUser.mutate(u.id);
                         }
                       }}
