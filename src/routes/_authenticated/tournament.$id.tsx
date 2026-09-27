@@ -570,8 +570,21 @@ function ScoreRow({
 
   const numA = Number(a);
   const numB = Number(b);
+
+  // Validation logic checking for NaN, negatives, or scores exceeding maxPoints
+  const hasError =
+    (a !== "" && (Number.isNaN(numA) || numA < 0 || numA > maxPoints)) ||
+    (b !== "" && (Number.isNaN(numB) || numB < 0 || numB > maxPoints));
+
   const valid =
-    a !== "" && b !== "" && Number.isFinite(numA) && Number.isFinite(numB) && numA >= 0 && numB >= 0 && numA + numB === maxPoints;
+    !hasError &&
+    a !== "" &&
+    b !== "" &&
+    Number.isFinite(numA) &&
+    Number.isFinite(numB) &&
+    numA >= 0 &&
+    numB >= 0 &&
+    numA + numB === maxPoints;
 
   // Check if the current inputs are different from the saved database values
   const hasChanged = numA !== match.score_a || numB !== match.score_b;
@@ -603,7 +616,9 @@ function ScoreRow({
     <div className="rounded-lg border border-border/80 bg-background/40 p-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Court {match.court}</span>
-        {match.completed || justSaved ? (
+        {hasError ? (
+          <span className="font-bold text-destructive">Error</span>
+        ) : match.completed || justSaved ? (
           <span
             className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${
               justSaved
