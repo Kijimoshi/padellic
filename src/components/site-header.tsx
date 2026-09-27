@@ -42,22 +42,22 @@ export function SiteHeader() {
           </span>
            <span className="font-display text-lg font-bold tracking-tight">Padellic</span>
         </Link>
-
+        
         <div className="flex items-center gap-2">
-          {/* Theme toggle inserted here */}
           <ThemeToggle />
           
           {email ? (
             <>
+              {/* ADMIN LINK - ONLY VISIBLE TO YOU */}
+              {email === "igor.krolak@gmail.com" && (
+                <Button asChild variant="ghost" size="sm" className="text-amber-500 hover:text-amber-600">
+                  <Link to="/admin">Admin</Link>
+                </Button>
+              )}
+
               <Button asChild variant="ghost" size="sm">
                 <Link to="/dashboard">My tournaments</Link>
               </Button>
-              
-              {/* Display user email here */}
-              <span className="hidden px-2 text-sm text-muted-foreground sm:inline-block">
-                {email}
-              </span>
-
               <Button variant="outline" size="sm" onClick={signOut}>
                 <LogOut className="size-4" />
                 <span className="hidden sm:inline">Sign out</span>
@@ -69,6 +69,7 @@ export function SiteHeader() {
             </Button>
           )}
         </div>
+        
       </div>
     </header>
   );
