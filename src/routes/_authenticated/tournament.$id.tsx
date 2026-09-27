@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, Settings2, Play, Trophy, Archive } from "lucide-react";
+import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive } from "lucide-react"; // Added QrCode
 
 import { SiteHeader } from "@/components/site-header";
 import { StandingsTable } from "@/components/standings-table";
@@ -40,6 +40,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
+import { QRCodeSVG } from "qrcode.react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/tournament/$id")({
   head: () => ({
@@ -243,28 +252,54 @@ function TournamentPage() {
               <span>· {players.length} players</span>
             </div>
           </div>
+          
           <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                navigator.clipboard.writeText(shareUrl);
-                toast.success("Share link copied");
-              }}
-            >
-              <Copy className="size-4" />
-              Copy share link
-            </Button>
-            <Button asChild variant="ghost">
-              <Link 
-                to="/t/$code" 
-                params={{ code: tournament.share_code }}
-                target="_blank"
-                rel="noreferrer"
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <QrCode className="size-4" />
+                    Show QR
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="text-center">Scan to follow live</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex flex-col items-center justify-center p-4">
+                    {/* Forced white background for contrast */}
+                    <div className="rounded-xl bg-white p-4 shadow-sm">
+                      <QRCodeSVG
+                        value={shareUrl}
+                        size={240}
+                        level="H" 
+                      />
+                    </div>
+                    <p className="mt-4 text-center text-sm text-muted-foreground">
+                      Players can scan this code to view live standings and court assignments.
+                    </p>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            
+              <Button
+                variant="outline"
+                onClick={() => {
+                  navigator.clipboard.writeText(shareUrl);
+                  toast.success("Share link copied");
+                }}
               >
-                Live view
-              </Link>
-            </Button>
+                <Copy className="size-4" />
+                Copy link
+              </Button>
+              
+              <Button asChild variant="ghost">
+                <Link to="/t/$code" params={{ code: tournament.share_code }}>
+                  Live view
+                </Link>
+              </Button>
           </div>
+
+          
         </div>
 
         <Tabs defaultValue="rounds" className="mt-8">
@@ -806,7 +841,7 @@ function SettingsForm({
 const STATUSES = [
   { id: "setup", label: "Setup", icon: Settings2 },
   { id: "live", label: "Live", icon: Play },
-  { id: "completed", label: "Completed", icon: Trophy },
+  { id: "completed", label: "Finished", icon: Trophy },
   { id: "archived", label: "Archived", icon: Archive },
 ] as const;
 
