@@ -300,10 +300,13 @@ function TournamentPage() {
                 </Link>
               </Button>
           </div>
-
-          
         </div>
 
+        {/* NEW CLOCK LOCATION: Right under the header / buttons */}
+        <div className="mt-8 mb-4">
+          <MatchClock />
+        </div>
+        
         <Tabs defaultValue="rounds" className="mt-8">
           <TabsList>
             <TabsTrigger value="rounds">Rounds</TabsTrigger>
@@ -312,11 +315,7 @@ function TournamentPage() {
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="rounds" className="mt-6 space-y-4">
-
-            {/* INJECT THE CLOCK HERE */}
-            <MatchClock />
-          
+          <TabsContent value="rounds" className="mt-6 space-y-4">          
             {matches.length === 0 ? (
               <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                 {/* 1. TOP BUTTON: Only shows when NO matches exist */}
