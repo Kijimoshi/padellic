@@ -287,7 +287,7 @@ function TournamentPage() {
           
           {/* 1. INFO BAR (Moved outside the clock container to stay high up) //  mb-4  removed */}
           
-          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <Badge variant="secondary" className="capitalize">
               {tournament.format}
             </Badge>
@@ -299,7 +299,7 @@ function TournamentPage() {
           </div>
 
           {/* 2. TABS & CLOCK CONTAINER */}
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div className="mt-1 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             
             {/* Left side: Tabs Menu only */}
             <TabsList className="w-fit">
@@ -356,7 +356,7 @@ function TournamentPage() {
                   {/* Current Round Panel */}
                   <div key={round} className="panel p-5">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-display text-sm font-bold uppercase tracking-widest text-primary">
+                      <h3 className="font-display text-base font-bold uppercase tracking-widest text-primary">
                         Round {round} 
                       </h3>
                     </div>
@@ -945,9 +945,9 @@ function MatchClock() {
     <div className="relative flex items-center justify-center rounded-lg border border-primary/20 bg-background/50 px-5 py-3 shadow-[2px_2px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[2px_2px_0px_0px_hsl(var(--primary)/0.3)]">
       <div className="flex items-baseline font-mono text-5xl font-black leading-none tracking-tighter text-foreground tabular-nums">
         <span>{hours}</span>
-        <span className="mx-1 animate-[pulse_1s_ease-in-out_infinite] text-primary/20 pb-0.5">:</span>
+        <span className="mx-1 animate-[pulse_1s_ease-in-out_infinite] text-primary/40 pb-0.5">:</span>
         <span>{minutes}</span>
-        <span className="text-2xl mx-1 text-muted-foreground/40 pb-0.5">:</span>
+        <span className="text-3xl mx-1 text-muted-foreground/40 pb-0.5">:</span>
         <span className="text-3xl text-muted-foreground/70">{seconds}</span>
       </div>
     </div>
