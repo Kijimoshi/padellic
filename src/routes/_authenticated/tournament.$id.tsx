@@ -273,9 +273,19 @@ function TournamentPage() {
                 <Copy className="size-4" />
                 Copy link
               </Button>
-              
-              <Button asChild variant="ghost">
-                <Link to="/t/$code" params={{ code: tournament.share_code }} target="_blank" rel="noreferrer">
+
+              <Button asChild variant="outline" className="gap-2">
+                <Link 
+                  to="/t/$code" 
+                  params={{ code: tournament.share_code }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {/* The Pulsing Green Dot */}
+                  <span className="relative flex size-2.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500"></span>
+                  </span>
                   Live view
                 </Link>
               </Button>
