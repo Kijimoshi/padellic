@@ -311,7 +311,7 @@ function TournamentPage() {
           </TabsList>
 
           <TabsContent value="rounds" className="mt-6 space-y-4">          
-            {matches.length === 0 ? (
+            {matches.length === 0 && (
               <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                 {/* 1. TOP BUTTON: Only shows when NO matches exist */}
                 <p className="text-sm text-muted-foreground">
@@ -328,7 +328,6 @@ function TournamentPage() {
                   Generate schedule
                 </Button>
               </div>
-            ) : (
             )}
 
             {/* Flex container to hold text on the left and clock on the right */}
