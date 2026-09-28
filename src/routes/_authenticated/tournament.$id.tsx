@@ -301,11 +301,6 @@ function TournamentPage() {
               </Button>
           </div>
         </div>
-
-        {/* NEW CLOCK LOCATION: Right under the header / buttons */}
-        <div className="mt-8 mb-4">
-          <MatchClock />
-        </div>
         
         <Tabs defaultValue="rounds" className="mt-8">
           <TabsList>
@@ -334,10 +329,16 @@ function TournamentPage() {
                 </Button>
               </div>
             ) : (
+            )}
+
+            {/* Flex container to hold text on the left and clock on the right */}
+            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-sm text-muted-foreground">
                 Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
               </p>
-            )}
+              
+              <MatchClock />
+            </div>
 
             {players.length < 4 && (
               <p className="text-sm text-muted-foreground">
@@ -935,22 +936,18 @@ function MatchClock() {
   const minutes = time.getMinutes().toString().padStart(2, "0");
   const seconds = time.getSeconds().toString().padStart(2, "0");
 
-  return (
-    <div className="mb-6 flex justify-end">
-      <div className="relative flex items-center gap-3 rounded-xl border-2 border-primary/20 bg-background/50 px-6 py-4 shadow-[4px_4px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[4px_4px_0px_0px_hsl(var(--primary)/0.3)]">
-        <div className="flex flex-col items-end">
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
-            Local Time
-          </span>
-          <div className="flex items-baseline font-mono text-4xl font-black tracking-tighter text-foreground tabular-nums">
-            <span>{hours}</span>
-            <span className="mx-1 animate-[pulse_2s_ease-in-out_infinite] text-primary/60">
-              :
-            </span>
-            <span>{minutes}</span>
-            <span className="mx-1 text-muted-foreground/30">.</span>
-            <span className="text-2xl text-muted-foreground/70">{seconds}</span>
-          </div>
+return (
+    <div className="relative flex items-center gap-3 rounded-xl border-2 border-primary/20 bg-background/50 px-6 py-4 shadow-[4px_4px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[4px_4px_0px_0px_hsl(var(--primary)/0.3)]">
+      <div className="flex flex-col items-end">
+        <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
+          Local Time
+        </span>
+        <div className="flex items-baseline font-mono text-4xl font-black tracking-tighter text-foreground tabular-nums">
+          <span>{hours}</span>
+          <span className="mx-1 animate-[pulse_2s_ease-in-out_infinite] text-primary/60">:</span>
+          <span>{minutes}</span>
+          <span className="mx-1 text-muted-foreground/30">.</span>
+          <span className="text-2xl text-muted-foreground/70">{seconds}</span>
         </div>
       </div>
     </div>
