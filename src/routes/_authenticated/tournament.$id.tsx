@@ -941,19 +941,14 @@ function MatchClock() {
   const minutes = time.getMinutes().toString().padStart(2, "0");
   const seconds = time.getSeconds().toString().padStart(2, "0");
 
-return (
-    <div className="relative flex items-center gap-3 rounded-xl border-2 border-primary/20 bg-background/50 px-6 py-4 shadow-[4px_4px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[4px_4px_0px_0px_hsl(var(--primary)/0.3)]">
-      <div className="flex flex-col items-end">
-        <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
-          Local Time
-        </span>
-        <div className="flex items-baseline font-mono text-4xl font-black tracking-tighter text-foreground tabular-nums">
-          <span>{hours}</span>
-          <span className="mx-1 animate-[pulse_2s_ease-in-out_infinite] text-primary/60">:</span>
-          <span>{minutes}</span>
-          <span className="mx-1 text-muted-foreground/30">.</span>
-          <span className="text-2xl text-muted-foreground/70">{seconds}</span>
-        </div>
+  return (
+    <div className="relative flex items-center justify-center rounded-lg border border-primary/20 bg-background/50 px-5 py-3 shadow-[2px_2px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[2px_2px_0px_0px_hsl(var(--primary)/0.3)]">
+      <div className="flex items-baseline font-mono text-5xl font-black leading-none tracking-tighter text-foreground tabular-nums">
+        <span>{hours}</span>
+        <span className="mx-1 animate-[pulse_2s_ease-in-out_infinite] text-primary/30 pb-0.5">:</span>
+        <span>{minutes}</span>
+        <span className="mx-1 text-muted-foreground/30 pb-0.5">.</span>
+        <span className="text-2xl text-muted-foreground/70">{seconds}</span>
       </div>
     </div>
   );
