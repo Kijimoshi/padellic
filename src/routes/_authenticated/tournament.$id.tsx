@@ -936,7 +936,7 @@ function MatchClock() {
   const seconds = time.getSeconds().toString().padStart(2, "0");
 
   return (
-    <div className="mb-6 flex justify-center">
+    <div className="mb-6 flex justify-end">
       <div className="relative flex items-center gap-3 rounded-xl border-2 border-primary/20 bg-background/50 px-6 py-4 shadow-[4px_4px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[4px_4px_0px_0px_hsl(var(--primary)/0.3)]">
         <div className="flex flex-col items-end">
           <span className="text-[10px] font-black uppercase tracking-widest text-primary/70">
