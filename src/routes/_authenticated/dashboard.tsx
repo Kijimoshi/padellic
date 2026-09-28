@@ -114,7 +114,7 @@ function Dashboard() {
       <main className="mx-auto max-w-6xl px-4 py-10">
         <h1 className="text-3xl font-bold">My tournaments</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Set up a new night or jump back into one in progress.
+          Set up a new event or jump back into one in progress.
         </p>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[360px_1fr]">
