@@ -945,9 +945,9 @@ function MatchClock() {
     <div className="relative flex items-center justify-center rounded-lg border border-primary/20 bg-background/50 px-5 py-3 shadow-[2px_2px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[2px_2px_0px_0px_hsl(var(--primary)/0.3)]">
       <div className="flex items-baseline font-mono text-5xl font-black leading-none tracking-tighter text-foreground tabular-nums">
         <span>{hours}</span>
-        <span className="mx-1 animate-[pulse_2s_ease-in-out_infinite] text-primary/30 pb-0.5">:</span>
+        <span className="mx-1 animate-[pulse_2s_ease-in-out_infinite] text-primary/60 pb-0.5">:</span>
         <span>{minutes}</span>
-        <span className="mx-1 text-muted-foreground/30 pb-0.5">.</span>
+        <span className="mx-1 text-muted-foreground/40 pb-0.5">:</span>
         <span className="text-3xl text-muted-foreground/70">{seconds}</span>
       </div>
     </div>
