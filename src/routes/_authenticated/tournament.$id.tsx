@@ -283,7 +283,7 @@ function TournamentPage() {
         </div>
         
         {/* 3. The Tabs wrapper now contains the Info Row + Tabs on the left, Clock on the right */}
-        <Tabs defaultValue="rounds" className="mt-4">
+        <Tabs defaultValue="rounds" className="mt-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             
             {/* Left side (Red Square in your image) */}
@@ -313,7 +313,7 @@ function TournamentPage() {
           </div>  
 
          
-          <TabsContent value="rounds" className="mt-2 space-y-2">          
+          <TabsContent value="rounds" className="mt-6 space-y-4">          
             {matches.length === 0 && (
               <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                 {/* 1. TOP BUTTON: Only shows when NO matches exist */}
@@ -333,11 +333,6 @@ function TournamentPage() {
               </div>
             )}
             
-              <p className="mb-4 text-xs text-muted-foreground">
-                  Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
-                </p>
-
-
             {players.length < 4 && (
               <p className="text-sm text-muted-foreground">
                 Add at least 4 players to build a schedule.
@@ -438,6 +433,16 @@ function TournamentPage() {
                 </div>
               );
             })()}
+
+            {/* NEW FOOTER LOCATION */}
+            {matches.length > 0 && (
+              <div className="mt-8 border-t border-border/50 pt-6 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
+                </p>
+              </div>
+            )}
+            
           </TabsContent>
 
           <TabsContent value="standings" className="mt-6">
