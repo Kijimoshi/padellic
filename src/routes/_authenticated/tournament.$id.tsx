@@ -948,7 +948,7 @@ function MatchClock() {
         <span className="mx-1 animate-[pulse_2s_ease-in-out_infinite] text-primary/30 pb-0.5">:</span>
         <span>{minutes}</span>
         <span className="mx-1 text-muted-foreground/30 pb-0.5">.</span>
-        <span className="text-2xl text-muted-foreground/70">{seconds}</span>
+        <span className="text-3xl text-muted-foreground/70">{seconds}</span>
       </div>
     </div>
   );
