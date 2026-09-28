@@ -315,7 +315,7 @@ function TournamentPage() {
           </div>
 
          
-          <TabsContent value="rounds" className="mt-6 space-y-4">          
+          <TabsContent value="rounds" className="mt-10 space-y-4">          
             {matches.length === 0 && (
               <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                 {/* 1. TOP BUTTON: Only shows when NO matches exist */}
