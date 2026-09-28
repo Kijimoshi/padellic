@@ -237,19 +237,12 @@ function TournamentPage() {
       <main className="mx-auto max-w-5xl px-4 py-10">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">{tournament.name}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <Badge variant="secondary" className="capitalize">
-                {tournament.format}
-              </Badge>
-              <span>
-                {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
-              </span>
-              <span>· {tournament.points_per_match} points per match</span>
-              <span>· {players.length} players</span>
-            </div>
-          </div>
+
+          <div className="flex flex-wrap items-start justify-between gap-4">
+          {/* 1. Top Left: Title Only */}
+          <h1 className="text-3xl font-bold">{tournament.name}</h1>
           
+          {/* 2. Top Right: Action Buttons */}
           <div className="flex flex-wrap gap-2">
               <Dialog>
                 <DialogTrigger asChild>
@@ -263,13 +256,8 @@ function TournamentPage() {
                     <DialogTitle className="text-center">Scan to follow live</DialogTitle>
                   </DialogHeader>
                   <div className="flex flex-col items-center justify-center p-4">
-                    {/* Forced white background for contrast */}
                     <div className="rounded-xl bg-white p-4 shadow-sm">
-                      <QRCodeSVG
-                        value={shareUrl}
-                        size={240}
-                        level="H" 
-                      />
+                      <QRCodeSVG value={shareUrl} size={240} level="H" />
                     </div>
                     <p className="mt-4 text-center text-sm text-muted-foreground">
                       Players can scan this code to view live standings and court assignments.
@@ -290,26 +278,44 @@ function TournamentPage() {
               </Button>
               
               <Button asChild variant="ghost">
-                <Link 
-                  to="/t/$code" 
-                  params={{ code: tournament.share_code }}
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <Link to="/t/$code" params={{ code: tournament.share_code }} target="_blank" rel="noreferrer">
                   Live view
                 </Link>
               </Button>
           </div>
         </div>
         
+        {/* 3. The Tabs wrapper now contains the Info Row + Tabs on the left, Clock on the right */}
         <Tabs defaultValue="rounds" className="mt-4">
-          <TabsList>
-            <TabsTrigger value="rounds">Rounds</TabsTrigger>
-            <TabsTrigger value="standings">Standings</TabsTrigger>
-            <TabsTrigger value="players">Players</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            
+            {/* Left side (Red Square in your image) */}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <Badge variant="secondary" className="capitalize">
+                  {tournament.format}
+                </Badge>
+                <span>
+                  {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
+                </span>
+                <span>· {tournament.points_per_match} points per match</span>
+                <span>· {players.length} players</span>
+              </div>
 
+              <TabsList className="w-fit">
+                <TabsTrigger value="rounds">Rounds</TabsTrigger>
+                <TabsTrigger value="standings">Standings</TabsTrigger>
+                <TabsTrigger value="players">Players</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+            </div>
+
+            {/* Right side: Clock */}
+            <MatchClock />
+            
+          </div>  
+
+         
           <TabsContent value="rounds" className="mt-2 space-y-2">          
             {matches.length === 0 && (
               <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -329,15 +335,11 @@ function TournamentPage() {
                 </Button>
               </div>
             )}
+            
+              <p className="mb-4 text-xs text-muted-foreground">
+                  Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
+                </p>
 
-            {/* Flex container to hold text on the left and clock on the right */}
-            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm text-muted-foreground">
-                Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
-              </p>
-              
-              <MatchClock />
-            </div>
 
             {players.length < 4 && (
               <p className="text-sm text-muted-foreground">
