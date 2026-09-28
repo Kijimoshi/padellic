@@ -283,10 +283,11 @@ function TournamentPage() {
         </div>
         
         {/* 3. The Tabs wrapper now contains the Info Row + Tabs on the left, Clock on the right */}
-        <Tabs defaultValue="rounds" className="mt-4">
+        <Tabs defaultValue="rounds" className="mt-2">
           
-          {/* 1. INFO BAR (Moved outside the clock container to stay high up) */}
-          <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          {/* 1. INFO BAR (Moved outside the clock container to stay high up) //  mb-4  removed */}
+          
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <Badge variant="secondary" className="capitalize">
               {tournament.format}
             </Badge>
