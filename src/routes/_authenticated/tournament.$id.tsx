@@ -283,34 +283,35 @@ function TournamentPage() {
         </div>
         
         {/* 3. The Tabs wrapper now contains the Info Row + Tabs on the left, Clock on the right */}
-        <Tabs defaultValue="rounds" className="mt-8">
+        <Tabs defaultValue="rounds" className="mt-4">
+          
+          {/* 1. INFO BAR (Moved outside the clock container to stay high up) */}
+          <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <Badge variant="secondary" className="capitalize">
+              {tournament.format}
+            </Badge>
+            <span>
+              {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
+            </span>
+            <span>· {tournament.points_per_match} points per match</span>
+            <span>· {players.length} players</span>
+          </div>
+
+          {/* 2. TABS & CLOCK CONTAINER */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             
-            {/* Left side (Red Square in your image) */}
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <Badge variant="secondary" className="capitalize">
-                  {tournament.format}
-                </Badge>
-                <span>
-                  {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
-                </span>
-                <span>· {tournament.points_per_match} points per match</span>
-                <span>· {players.length} players</span>
-              </div>
-
-              <TabsList className="w-fit">
-                <TabsTrigger value="rounds">Rounds</TabsTrigger>
-                <TabsTrigger value="standings">Standings</TabsTrigger>
-                <TabsTrigger value="players">Players</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-              </TabsList>
-            </div>
+            {/* Left side: Tabs Menu only */}
+            <TabsList className="w-fit">
+              <TabsTrigger value="rounds">Rounds</TabsTrigger>
+              <TabsTrigger value="standings">Standings</TabsTrigger>
+              <TabsTrigger value="players">Players</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
 
             {/* Right side: Clock */}
             <MatchClock />
             
-          </div>  
+          </div>
 
          
           <TabsContent value="rounds" className="mt-6 space-y-4">          
