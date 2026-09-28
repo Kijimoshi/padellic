@@ -201,15 +201,16 @@ function Dashboard() {
               <div className="hidden h-5 w-px bg-border sm:block"></div>
 
               {/* Ownership Checkbox */}
-              <div className="flex items-center space-x-2 pl-2">
+              <div className="flex items-center space-x-2">
                 <Checkbox
                   id="filter-mine"
                   checked={showOnlyMine}
                   onCheckedChange={(checked) => setShowOnlyMine(checked as boolean)}
                   disabled={!currentUserId}
                 />
-                <Label htmlFor="filter-mine" className="cursor-pointer text-sm font-semibold text-primary">
+                <Label htmlFor="filter-mine" className="cursor-pointer text-sm font-medium">
                   Only mine
+                  {/* removed  text-primary*/}
                 </Label>
               </div>
             </div>         
