@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Plus, Trophy, Users } from "lucide-react";
 
@@ -53,7 +53,18 @@ function Dashboard() {
     "live",
     "finished",
   ]);
-
+  
+  //const [ownerFilter, setOwnerFilter] = useState<"mine" | "all">("mine");
+  // New states for ownership filtering
+  const [showOnlyMine, setShowOnlyMine] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  // Fetch the current user on mount
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) setCurrentUserId(data.user.id);
+    });
+  }, []);
+  
   const toggleStatus = (status: string) => {
     setSelectedStatuses((prev) =>
       prev.includes(status)
@@ -90,10 +101,12 @@ function Dashboard() {
       toast.error(error instanceof Error ? error.message : "Could not create the tournament"),
   });
 
-  // Filter the tournaments list based on checked statuses
-  const filteredTournaments = tournaments.filter((t: Tournament) =>
-    selectedStatuses.includes(t.status)
-  );
+  // Filter the tournaments list based on checked statuses and ownership
+  const filteredTournaments = tournaments.filter((t: Tournament) => {
+    const matchesStatus = selectedStatuses.includes(t.status);
+    const matchesOwner = showOnlyMine ? t.owner_id === currentUserId : true;
+    return matchesStatus && matchesOwner;
+  });
 
   return (
     <div className="min-h-screen">
@@ -167,20 +180,39 @@ function Dashboard() {
           <div className="space-y-4">
             {/* Filter Checkboxes */}
             <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border/80 bg-background/40 p-4">
-              <span className="text-sm font-medium text-muted-foreground">Filter your tournaments by status:</span>
-              {statuses.map((status) => (
-                <div key={status} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`filter-${status}`}
-                    checked={selectedStatuses.includes(status)}
-                    onCheckedChange={() => toggleStatus(status)}
-                  />
-                  <Label htmlFor={`filter-${status}`} className="cursor-pointer capitalize text-sm">
-                    {status}
-                  </Label>
-                </div>
-              ))}
-            </div>
+              <span className="text-sm font-medium text-muted-foreground">Filter:</span>
+              
+              <div className="flex flex-wrap items-center gap-4">
+                {statuses.map((status) => (
+                  <div key={status} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`filter-${status}`}
+                      checked={selectedStatuses.includes(status)}
+                      onCheckedChange={() => toggleStatus(status)}
+                    />
+                    <Label htmlFor={`filter-${status}`} className="cursor-pointer capitalize text-sm">
+                      {status}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+
+              {/* Visual Divider */}
+              <div className="hidden h-5 w-px bg-border sm:block"></div>
+
+              {/* Ownership Checkbox */}
+              <div className="flex items-center space-x-2 pl-2">
+                <Checkbox
+                  id="filter-mine"
+                  checked={showOnlyMine}
+                  onCheckedChange={(checked) => setShowOnlyMine(checked as boolean)}
+                  disabled={!currentUserId}
+                />
+                <Label htmlFor="filter-mine" className="cursor-pointer text-sm font-semibold text-primary">
+                  Only mine
+                </Label>
+              </div>
+            </div>         
 
             {/* Tournament List */}
             <div className="space-y-3">
