@@ -237,7 +237,7 @@ function TournamentPage() {
       <main className="mx-auto max-w-5xl px-4 py-10">
         <div className="flex flex-wrap items-start justify-between gap-2">
           {/* 1. Top Left: Title & Info */}
-          <div>
+          <div className="space-y-1">
             <h1 className="text-3xl font-bold">{tournament.name}</h1>
             
             {/* INFO BAR */}
@@ -329,7 +329,7 @@ function TournamentPage() {
           </div>
 
          
-          <TabsContent value="rounds" className="mt-4 space-y-4">          
+          <TabsContent value="rounds" className="mt-6 space-y-4">          
             {matches.length === 0 && (
               <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                 {/* 1. TOP BUTTON: Only shows when NO matches exist */}
