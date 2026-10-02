@@ -295,33 +295,35 @@ function TournamentPage() {
         {/* 3. The Tabs wrapper now contains the Info Row + Tabs on the left, Clock on the right */}
         <Tabs defaultValue="rounds" className="mt-2">
           
-          {/* 1. INFO BAR (Moved outside the clock container to stay high up) //  mb-4  removed */}
-          
-          <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-            <Badge variant="secondary" className="capitalize">
-              {tournament.format}
-            </Badge>
-            <span>
-              {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
-            </span>
-            <span>· {tournament.points_per_match} points per match</span>
-            <span>· {players.length} players</span>
-          </div>
+          {/* Grid Container: Left column (Info bar + Tabs), Right column (Clock) */}
+          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_auto]">
+            {/* Left Column: Row 1 = Info Bar, Row 2 = Tabs */}
+            <div className="flex flex-col gap-2">
+              {/* 1. INFO BAR */}
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <Badge variant="secondary" className="capitalize">
+                  {tournament.format}
+                </Badge>
+                <span>
+                  {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
+                </span>
+                <span>· {tournament.points_per_match} points per match</span>
+                <span>· {players.length} players</span>
+              </div>
 
-          {/* 2. TABS & CLOCK CONTAINER */}
-          <div className="mt-1 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            
-            {/* Left side: Tabs Menu only */}
-            <TabsList className="w-fit">
-              <TabsTrigger value="rounds">Rounds</TabsTrigger>
-              <TabsTrigger value="standings">Standings</TabsTrigger>
-              <TabsTrigger value="players">Players</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
+              {/* 2. TABS */}
+              <TabsList className="w-fit">
+                <TabsTrigger value="rounds">Rounds</TabsTrigger>
+                <TabsTrigger value="standings">Standings</TabsTrigger>
+                <TabsTrigger value="players">Players</TabsTrigger>
+                <TabsTrigger value="settings">Settings</TabsTrigger>
+              </TabsList>
+            </div>
 
-            {/* Right side: Clock */}
-            <MatchClock />
-            
+            {/* Right Column: Clock */}
+            <div className="flex justify-start sm:justify-end">
+              <MatchClock />
+            </div>
           </div>
 
          
