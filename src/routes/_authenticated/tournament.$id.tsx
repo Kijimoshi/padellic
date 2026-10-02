@@ -235,9 +235,23 @@ function TournamentPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-5xl px-4 py-10">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          {/* 1. Top Left: Title Only */}
-          <h1 className="text-3xl font-bold">{tournament.name}</h1>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          {/* 1. Top Left: Title & Info */}
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold">{tournament.name}</h1>
+            
+            {/* INFO BAR */}
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <Badge variant="secondary" className="capitalize">
+                {tournament.format}
+              </Badge>
+              <span>
+                {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
+              </span>
+              <span>· {tournament.points_per_match} points per match</span>
+              <span>· {players.length} players</span>
+            </div>
+          </div>
           
           {/* 2. Top Right: Action Buttons */}
           <div className="flex flex-wrap gap-2">
@@ -295,22 +309,10 @@ function TournamentPage() {
         {/* 3. The Tabs wrapper now contains the Info Row + Tabs on the left, Clock on the right */}
         <Tabs defaultValue="rounds" className="mt-2">
           
-          {/* Grid Container: Left column (Info bar + Tabs), Right column (Clock) */}
+          {/* Grid Container: Left column ( Tabs), Right column (Clock) */}
           <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-[1fr_auto]">
-            {/* Left Column: Info Bar aligned to top, Tabs aligned to bottom */}
-            <div className="flex flex-col justify-between gap-2">
-              {/* 1. INFO BAR */}
-              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <Badge variant="secondary" className="capitalize">
-                  {tournament.format}
-                </Badge>
-                <span>
-                  {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
-                </span>
-                <span>· {tournament.points_per_match} points per match</span>
-                <span>· {players.length} players</span>
-              </div>
-
+            {/* Left Column: Tabs  */}
+            <div>
               {/* 2. TABS */}
               <TabsList className="w-fit">
                 <TabsTrigger value="rounds">Rounds</TabsTrigger>
@@ -327,7 +329,7 @@ function TournamentPage() {
           </div>
 
          
-          <TabsContent value="rounds" className="mt-6 space-y-4">          
+          <TabsContent value="rounds" className="mt-4 space-y-4">          
             {matches.length === 0 && (
               <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                 {/* 1. TOP BUTTON: Only shows when NO matches exist */}
