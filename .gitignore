@@ -1,3 +1,6 @@
+# Tansack router auto-generated file
+src/routeTree.gen.ts
+
 # Logs
 logs
 *.log
@@ -30,3 +33,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
