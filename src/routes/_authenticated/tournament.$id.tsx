@@ -254,7 +254,7 @@ function TournamentPage() {
           </div>
           
           {/* 2. Top Right: Action Buttons */}
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-2">
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="outline">
@@ -312,7 +312,7 @@ function TournamentPage() {
           {/* Grid Container: Left column ( Tabs), Right column (Clock) */}
           <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_auto]">
             {/* Left Column: Tabs  */}
-            <div>
+            <div className="mt-2">
               {/* 2. TABS */}
               <TabsList className="w-fit">
                 <TabsTrigger value="rounds">Rounds</TabsTrigger>
