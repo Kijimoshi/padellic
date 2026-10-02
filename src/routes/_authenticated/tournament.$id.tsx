@@ -237,7 +237,7 @@ function TournamentPage() {
       <main className="mx-auto max-w-5xl px-4 py-10">
         <div className="flex flex-wrap items-start justify-between gap-2">
           {/* 1. Top Left: Title & Info */}
-          <div className="space-y-1">
+          <div>
             <h1 className="text-3xl font-bold">{tournament.name}</h1>
             
             {/* INFO BAR */}
@@ -307,10 +307,10 @@ function TournamentPage() {
         </div>
         
         {/* 3. The Tabs wrapper now contains the Info Row + Tabs on the left, Clock on the right */}
-        <Tabs defaultValue="rounds" className="mt-2">
+        <Tabs defaultValue="rounds">
           
           {/* Grid Container: Left column ( Tabs), Right column (Clock) */}
-          <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-[1fr_auto]">
+          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_auto]">
             {/* Left Column: Tabs  */}
             <div>
               {/* 2. TABS */}
@@ -408,8 +408,8 @@ function TournamentPage() {
                       Prev round
                     </Button>
                 
-                    <span className="text-sm font-medium text-muted-foreground">
-                      Round {currentRoundIndex + 1} of {tournament.format === "americano" ? tournament.total_rounds : rounds.length}
+                    <span className="text-xs font-medium">
+                      Round {currentRoundIndex + 1} / {tournament.format === "americano" ? tournament.total_rounds : rounds.length}
                     </span>
                 
                     {currentRoundIndex < rounds.length - 1 ? (
