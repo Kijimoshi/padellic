@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
+import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -99,32 +100,43 @@ const { data: users, isLoading: loadingUsers, error: usersError } = useQuery({
   });
 
   if (isAdmin === null) {
-    return <div className="p-10 text-center text-muted-foreground">Verifying access...</div>;
+    return (
+      <div className="min-h-screen">
+        <SiteHeader />
+        <main className="p-10 text-center text-muted-foreground">Verifying access...</main>
+      </div>
+    );
   }
 
   if (isAdmin === false) {
     return (
-      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-        <ShieldAlert className="size-12 text-destructive" />
-        <h1 className="text-2xl font-bold">Unauthorized</h1>
-        <p className="text-muted-foreground">You do not have permission to view this page.</p>
-        <Button onClick={() => navigate({ to: "/" })}>Go Home</Button>
+      <div className="min-h-screen">
+        <SiteHeader />
+        <main className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
+          <ShieldAlert className="size-12 text-destructive" />
+          <h1 className="text-2xl font-bold">Unauthorized</h1>
+          <p className="text-muted-foreground">You do not have permission to view this page.</p>
+          <Button onClick={() => navigate({ to: "/" })}>Go Home</Button>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl p-6">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">Manage and clean up stale database records.</p>
-      </div>
+    <div className="min-h-screen">
+      <SiteHeader />
 
-      <Tabs defaultValue="tournaments" className="w-full">
-        <TabsList className="mb-6 grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="tournaments">Tournaments</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
-        </TabsList>
+      <main className="mx-auto max-w-5xl p-6">
+        <div className="mb-8">
+          <h1 className="font-display text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-muted-foreground">Manage and clean up stale database records.</p>
+        </div>
+
+        <Tabs defaultValue="tournaments" className="w-full">
+          <TabsList className="mb-6 grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="tournaments">Tournaments</TabsTrigger>
+            <TabsTrigger value="users">Users</TabsTrigger>
+          </TabsList>
 
         <TabsContent value="tournaments" className="space-y-4">
           <div className="rounded-lg border border-border/70 bg-surface p-4">
@@ -253,7 +265,8 @@ const { data: users, isLoading: loadingUsers, error: usersError } = useQuery({
             )}
           </div>
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      </main>
     </div>
   );
 }
