@@ -296,9 +296,9 @@ function TournamentPage() {
         <Tabs defaultValue="rounds" className="mt-2">
           
           {/* Grid Container: Left column (Info bar + Tabs), Right column (Clock) */}
-          <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_auto]">
-            {/* Left Column: Row 1 = Info Bar, Row 2 = Tabs */}
-            <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-[1fr_auto]">
+            {/* Left Column: Info Bar aligned to top, Tabs aligned to bottom */}
+            <div className="flex flex-col justify-between gap-2">
               {/* 1. INFO BAR */}
               <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <Badge variant="secondary" className="capitalize">
@@ -327,7 +327,7 @@ function TournamentPage() {
           </div>
 
          
-          <TabsContent value="rounds" className="mt-10 space-y-4">          
+          <TabsContent value="rounds" className="mt-6 space-y-4">          
             {matches.length === 0 && (
               <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                 {/* 1. TOP BUTTON: Only shows when NO matches exist */}
