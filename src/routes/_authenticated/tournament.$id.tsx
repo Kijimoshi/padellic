@@ -625,7 +625,15 @@ function PlayerItem({
         </div>
       ) : (
         <>
-          <span className="font-medium flex-1">{player.name}</span>
+          <span
+            className="font-medium flex-1 cursor-pointer select-none"
+            onDoubleClick={() => {
+              setIsEditing(true);
+            }}
+            title="Double-click to edit"
+          >
+            {player.name}
+          </span>
           <div className="flex items-center gap-1">
             <Button
               variant="ghost"
