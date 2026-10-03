@@ -15,8 +15,12 @@ import { matchesQuery, playersQuery, tournamentQuery } from "@/lib/tournament-da
 import {
   buildAmericano,
   buildMexicanoRound,
+  buildSwissRound,
+  buildKotcRound,
   computeStandings,
+  computeTeamStandings,
   suggestedRounds,
+  type Format,
   type MatchRow,
   type PlannedMatch,
 } from "@/lib/padel";
@@ -77,7 +81,22 @@ function TournamentPage() {
   const { data: matches = [] } = useQuery(matchesQuery(id));
 
   const [newPlayer, setNewPlayer] = useState("");
-  const standings = useMemo(() => computeStandings(players, matches), [players, matches]);
+
+  // STANDINGS CALCULATION
+  // 1. Keep the individual standings (Mexicano needs this for seeding anyway)
+  const standings = useMemo(
+    () => computeStandings(players, matches), 
+    [players, matches]
+  );
+  // 2. Calculate the team standings using the individual standings
+  const teamStandings = useMemo(
+    () => computeTeamStandings(players, standings), 
+    [players, standings]
+  );
+  // 3. Determine which leaderboard to display based on the format
+  const isTeamFormat = tournament?.format === "swiss" || tournament?.format === "kotc";
+  const displayStandings = isTeamFormat ? teamStandings : standings;
+
   const nameOf = (pid: string) => players.find((p) => p.id === pid)?.name ?? "—";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0); 
@@ -175,13 +194,31 @@ function TournamentPage() {
     mutationFn: async () => {
       if (!tournament) return;
       const ids = players.map((p) => p.id);
+      
+      // Clear existing matches
       await supabase.from("matches").delete().eq("tournament_id", id);
       const total = suggestedRounds(ids.length);
-      if (tournament.format === "americano") {
-        await insertMatches(buildAmericano(ids, total, tournament.courts));
-      } else {
-        await insertMatches(buildMexicanoRound(computeStandings(players, []), 1, tournament.courts));
+      
+      // Generate matches based on format
+      let plannedMatches;
+      switch (tournament.format) {
+        case "americano":
+          plannedMatches = buildAmericano(ids, total, tournament.courts);
+          break;
+        case "swiss":
+          plannedMatches = buildSwissRound(ids, [], 1, tournament.courts);
+          break;
+        case "kotc":
+          plannedMatches = buildKotcRound(ids, [], 1, tournament.courts);
+          break;
+        case "mexicano":
+        default:
+          plannedMatches = buildMexicanoRound(computeStandings(players, []), 1, tournament.courts);
+          break;
       }
+      
+      await insertMatches(plannedMatches);
+
       await supabase
         .from("tournaments")
         .update({ status: "live", total_rounds: total })
@@ -194,15 +231,32 @@ function TournamentPage() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not build the schedule"),
   });
 
-  const nextMexicanoRound = useMutation({
+  const generateNextRound = useMutation({
     mutationFn: async () => {
       if (!tournament) return;
+      
       const nextRound = (rounds.at(-1)?.[0] ?? 0) + 1;
-      await insertMatches(buildMexicanoRound(standings, nextRound, tournament.courts));
+      const ids = players.map((p) => p.id);
+      let plannedMatches;
+
+      switch (tournament.format) {
+        case "swiss":
+          plannedMatches = buildSwissRound(ids, matches, nextRound, tournament.courts);
+          break;
+        case "kotc":
+          plannedMatches = buildKotcRound(ids, matches, nextRound, tournament.courts);
+          break;
+        case "mexicano":
+        default:
+          plannedMatches = buildMexicanoRound(standings, nextRound, tournament.courts);
+          break;
+      }
+
+      await insertMatches(plannedMatches);
     },
     onSuccess: () => {
       invalidate();
-      toast.success("Next round seeded from the standings");
+      toast.success("Next round generated successfully");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not create the round"),
   });
@@ -339,7 +393,7 @@ function TournamentPage() {
                 <p className="text-sm text-muted-foreground">
                   {tournament.format === "americano"
                     ? "Generates the full tournament with rotating partners."
-                    : "Mexicano builds one round at a time from the live standings."}
+                    : "Mexicano, Swiss and KOtC build one round at a time from the live standings."}
                 </p>
                 <Button
                   onClick={() => generateSchedule.mutate()}
@@ -423,21 +477,21 @@ function TournamentPage() {
                       >
                         Next round
                       </Button>
-                    ) : tournament.format === "mexicano" ? (
+                    ) : tournament.format !== "americano" ? (
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => {
-                          nextMexicanoRound.mutate(undefined, {
+                          generateNextRound.mutate(undefined, {
                             onSuccess: () => {
                               setCurrentRoundIndex((prev) => prev + 1);
                             }
                           });
                         }}
-                        disabled={nextMexicanoRound.isPending || matches.some((m) => !m.completed)}
+                        disabled={generateNextRound.isPending || matches.some((m) => !m.completed)}
                       >
                         <Plus className="mr-1 size-4" />
-                        Generate next round
+                        Generate next
                       </Button>
                     ) : (
                       <Button
@@ -465,7 +519,7 @@ function TournamentPage() {
           </TabsContent>
 
           <TabsContent value="standings" className="mt-6">
-            <StandingsTable rows={standings} />
+            <StandingsTable rows={displayStandings} />
           </TabsContent>
 
           <TabsContent value="players" className="mt-6 space-y-4">
@@ -488,19 +542,57 @@ function TournamentPage() {
               </Button>
             </form>
 
-            <div className="panel divide-y divide-border/70">
+            <div className={tournament?.format === "swiss" || tournament?.format === "kotc" ? "space-y-1" : "panel divide-y divide-border/70"}>
               {players.length === 0 && (
-                <p className="p-5 text-sm text-muted-foreground">No players yet.</p>
+                <p className="p-3 text-sm text-muted-foreground">No players yet.</p>
               )}
-              {players.map((p, i) => (
-                <PlayerItem
-                  key={p.id}
-                  player={p}
-                  index={i}
-                  onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p.id, name })}
-                  onRemove={() => removePlayer.mutate(p.id)}
-                />
-              ))}
+              
+              {tournament?.format === "swiss" || tournament?.format === "kotc" ? (
+                // TEAM FORMAT: Compact grouped box
+                Array.from({ length: Math.ceil(players.length / 2) }).map((_, i) => {
+                  const p1 = players[i * 2];
+                  const p2 = players[i * 2 + 1];
+
+                  return (
+                    <div 
+                      key={`team-${i}`} 
+                      className="overflow-hidden rounded-md border-2 border-foreground/30 bg-primary/5 shadow-sm"
+                    >
+                      <div className="divide-y divide-primary/20 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
+                        {p1 && (
+                          <PlayerItem
+                            player={p1}
+                            index={i * 2}
+                            onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p1.id, name })}
+                            onRemove={() => removePlayer.mutate(p1.id)}
+                          />
+                        )}
+                        {p2 && (
+                          <PlayerItem
+                            player={p2}
+                            index={i * 2 + 1}
+                            onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p2.id, name })}
+                            onRemove={() => removePlayer.mutate(p2.id)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                  // INDIVIDUAL FORMAT: Compact list with horizontal separators
+                  <div className="divide-y divide-border/70 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
+                    {players.map((p, i) => (
+                      <PlayerItem
+                        key={p.id}
+                        player={p}
+                        index={i}
+                        onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p.id, name })}
+                        onRemove={() => removePlayer.mutate(p.id)}
+                      />
+                    ))}
+                  </div>
+              )}
             </div>
           </TabsContent>
 
@@ -828,12 +920,18 @@ function SettingsForm({
   isPending,
 }: {
   tournament: any;
-  onSave: (updates: { name: string; courts: number; format: "americano" | "mexicano" }) => void;
+  onSave: (updates: { 
+    name: string; 
+    courts: number; 
+    format: Format  // changed from "americano" | "mexicano" | "swiss" | "kotc" to 'Format' type
+  }) => void;
   isPending: boolean;
 }) {
   const [name, setName] = useState(tournament.name);
   const [courts, setCourts] = useState(String(tournament.courts));
-  const [format, setFormat] = useState<"americano" | "mexicano">(tournament.format);
+  const [format, setFormat] = useState<"americano" | "mexicano" | "swiss" | "kotc">(
+    tournament.format
+  );
 
   const handleSave = () => {
     const numCourts = parseInt(courts, 10);
@@ -864,14 +962,17 @@ function SettingsForm({
       
       <div className="space-y-2">
         <label className="text-sm font-medium">Tournament Format</label>
-        <Select value={format} onValueChange={(val: "americano" | "mexicano") => setFormat(val)}>
+        {/* // changed from "americano" | "mexicano" | "swiss" | "kotc" to 'Format' type */}
+        <Select value={format} onValueChange={(val: Format) => setFormat(val)}> 
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="americano">Americano — partners rotate</SelectItem>
-            <SelectItem value="mexicano">Mexicano — seeded by standings</SelectItem>
-          </SelectContent>
+            <SelectContent>
+              <SelectItem value="americano">Americano — solo partners rotate</SelectItem>
+              <SelectItem value="mexicano">Mexicano — solo seeded by standings</SelectItem>
+              <SelectItem value="swiss">Swiss — fixed pairs matched by score</SelectItem>
+              <SelectItem value="kotc">King of the Court — fixed pairs move courts</SelectItem>
+            </SelectContent>
         </Select>
       </div>
 

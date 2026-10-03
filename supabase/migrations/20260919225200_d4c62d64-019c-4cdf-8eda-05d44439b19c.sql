@@ -31,7 +31,7 @@ CREATE TABLE public.tournaments (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   owner_id UUID NOT NULL,
   name TEXT NOT NULL,
-  format TEXT NOT NULL DEFAULT 'americano',
+  format TEXT NOT NULL DEFAULT 'americano' CHECK (format IN ('americano','mexicano')),
   courts INTEGER NOT NULL DEFAULT 1,
   points_per_match INTEGER NOT NULL DEFAULT 24,
   total_rounds INTEGER NOT NULL DEFAULT 0,
