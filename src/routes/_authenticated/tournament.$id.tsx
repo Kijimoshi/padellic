@@ -317,7 +317,7 @@ function TournamentPage() {
             {/* Left Column: Tabs  */}
             <div>
               {/* 2. TABS */}
-              <TabsList className="w-fit sm:h-10">
+              <TabsList className="w-fit sm:h-10 mt-2">
                 <TabsTrigger value="rounds" className="text-sm sm:text-base">Rounds</TabsTrigger>
                 <TabsTrigger value="standings" className="text-sm sm:text-base">Standings</TabsTrigger>
                 <TabsTrigger value="players" className="text-sm sm:text-base">Players</TabsTrigger>
@@ -326,15 +326,15 @@ function TournamentPage() {
             </div>
 
             {/* Right Column: Clock */}
-            <div className="flex justify-start sm:justify-end">
+            <div className="hidden sm:flex sm:justify-end">
               <MatchClock />
             </div>
           </div>
 
          
-          <TabsContent value="rounds" className="mt-6 space-y-4">          
+          <TabsContent value="rounds" className="mt-4 space-y-2">          
             {matches.length === 0 && (
-              <div className="panel mb-6 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="panel mb-2 flex flex-col gap-1 p-2 sm:flex-row sm:items-center sm:justify-between">
                 {/* 1. TOP BUTTON: Only shows when NO matches exist */}
                 <p className="text-sm text-muted-foreground">
                   {tournament.format === "americano"
@@ -369,16 +369,16 @@ function TournamentPage() {
               const restingPlayers = players.filter((p) => !playingIds.has(p.id));
             
               return (
-                <div className="space-y-4">
+                <div className="space-y-2">
                   {/* Current Round Panel */}
-                  <div key={round} className="panel p-5">
+                  <div key={round} className="panel p-2 sm:p-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-display text-base font-bold uppercase tracking-widest text-primary">
+                      <h3 className="ml-1 font-display text-base font-bold uppercase tracking-widest text-primary">
                         Round {round} 
                       </h3>
                     </div>
             
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-1 sm:mt-3 space-y-2 sm:space-y-4">
                       {list.map((m) => (
                         <ScoreRow
                           key={m.id}
@@ -749,7 +749,7 @@ function ScoreRow({
   }, [justSaved]);
 
   return (
-    <div className="rounded-lg border border-border/80 bg-background/40 p-3">
+    <div className="rounded-lg border border-border/80 bg-background/40 p-2 md:p-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Court {match.court}</span>
         {hasError ? (
@@ -771,7 +771,7 @@ function ScoreRow({
         )}
       </div>
       
-      <div className="mt-4 flex flex-col items-stretch gap-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4">
+      <div className="mt-1 md:mt-4 flex flex-col items-stretch gap-1 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4">
         {/* Team A */}
         <div className="flex flex-col items-start gap-1">
           <p className="text-left text-base font-semibold">
