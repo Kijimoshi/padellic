@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { Trash2, AlertTriangle, ShieldAlert, Filter, User } from "lucide-react";
@@ -130,6 +130,10 @@ const { data: users, isLoading: loadingUsers, error: usersError } = useQuery({
         <div className="mb-8">
           <h1 className="font-display text-3xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">Manage and clean up stale database records.</p>
+          
+          {/* <Button asChild size="lg" className="h-12 px-8 text-lg">
+             <Link to="/DemoTournamentPage">See a Live Tournament</Link>
+          </Button> */}
         </div>
 
         <Tabs defaultValue="tournaments" className="w-full">

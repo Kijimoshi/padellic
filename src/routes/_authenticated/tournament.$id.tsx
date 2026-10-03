@@ -720,7 +720,7 @@ function PlayerItem({
 
   return (
     <div className="flex items-center justify-between px-5 py-3 gap-3">
-      <span className="tabular text-xs text-muted-foreground min-w-[1.25rem]">{index + 1}</span>
+      <span className="tabular text-xs text-muted-foreground min-w-5">{index + 1}</span>
 
       {isEditing ? (
         <div className="flex items-center flex-1 gap-2">
@@ -1036,7 +1036,7 @@ function TournamentStatusBar({
   return (
     <div className="relative flex w-full justify-between pb-8 pt-2">
       {/* Background Track Line */}
-      <div className="absolute left-[20px] right-[20px] top-[28px] h-[2px] -translate-y-1/2 bg-border">
+      <div className="absolute left-5 right-5 top-7 h-0.5 -translate-y-1/2 bg-border">
         {/* Active Progress Line */}
         <div
           className="h-full bg-primary transition-all duration-500 ease-out"
