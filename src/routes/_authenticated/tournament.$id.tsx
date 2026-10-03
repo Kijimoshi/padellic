@@ -18,6 +18,7 @@ import {
   buildSwissRound,
   buildKotcRound,
   computeStandings,
+  computeTeamStandings,
   suggestedRounds,
   type Format,
   type MatchRow,
@@ -80,7 +81,22 @@ function TournamentPage() {
   const { data: matches = [] } = useQuery(matchesQuery(id));
 
   const [newPlayer, setNewPlayer] = useState("");
-  const standings = useMemo(() => computeStandings(players, matches), [players, matches]);
+
+  // STANDINGS CALCULATION
+  // 1. Keep the individual standings (Mexicano needs this for seeding anyway)
+  const standings = useMemo(
+    () => computeStandings(players, matches), 
+    [players, matches]
+  );
+  // 2. Calculate the team standings using the individual standings
+  const teamStandings = useMemo(
+    () => computeTeamStandings(players, standings), 
+    [players, standings]
+  );
+  // 3. Determine which leaderboard to display based on the format
+  const isTeamFormat = tournament?.format === "swiss" || tournament?.format === "kotc";
+  const displayStandings = isTeamFormat ? teamStandings : standings;
+
   const nameOf = (pid: string) => players.find((p) => p.id === pid)?.name ?? "—";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0); 
@@ -503,7 +519,7 @@ function TournamentPage() {
           </TabsContent>
 
           <TabsContent value="standings" className="mt-6">
-            <StandingsTable rows={standings} />
+            <StandingsTable rows={displayStandings} />
           </TabsContent>
 
           <TabsContent value="players" className="mt-6 space-y-4">

@@ -403,3 +403,42 @@ export function buildSwissRound(
 
   return out;
 }
+
+export function computeTeamStandings(
+  players: { id: string; name: string }[],
+  individualStandings: StandingRow[] 
+): StandingRow[] {
+  const teams: StandingRow[] = [];
+
+  // Group players into pairs exactly as they were seeded in Round 1
+  for (let i = 0; i < players.length; i += 2) {
+    const p1 = players[i];
+    const p2 = players[i + 1];
+
+    if (!p1 || !p2) continue; // Safety check in case of uneven players
+
+    // Look up p1's stats to represent the whole team
+    const stats = individualStandings.find((s) => s.playerId === p1.id) || {
+      played: 0,
+      wins: 0,
+      points: 0,
+      diff: 0,
+    };
+
+    teams.push({
+      playerId: `${p1.id}-${p2.id}`, // Maps to the React key in StandingsTable
+      name: `${p1.name} & ${p2.name}`,
+      played: stats.played,
+      wins: stats.wins,
+      points: stats.points,
+      diff: stats.diff,
+    });
+  }
+
+  // Sort the leaderboard: Points (desc) -> Diff (desc) -> Wins (desc)
+  return teams.sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points;
+    if (b.diff !== a.diff) return b.diff - a.diff;
+    return b.wins - a.wins;
+  });
+}
