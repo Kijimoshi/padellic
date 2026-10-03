@@ -257,7 +257,7 @@ function TournamentPage() {
           <div className="flex flex-wrap gap-2 mb-2">
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="outline">
+                  <Button variant="outline" className="text-xs sm:text-sm">
                     <QrCode className="size-4" />
                     Show QR
                   </Button>
@@ -279,6 +279,7 @@ function TournamentPage() {
             
               <Button
                 variant="outline"
+                className="text-xs sm:text-sm"
                 onClick={() => {
                   navigator.clipboard.writeText(shareUrl);
                   toast.success("Share link copied");
@@ -288,20 +289,22 @@ function TournamentPage() {
                 Copy link
               </Button>
 
-              <Button asChild variant="outline" className="gap-2">
-                <Link 
-                  to="/t/$code" 
-                  params={{ code: tournament.share_code }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {/* The Pulsing Green Dot */}
-                  <span className="relative flex size-2.5">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500"></span>
-                  </span>
-                  Live view
-                </Link>
+              <Button
+                variant="outline"
+                className="gap-2 text-xs sm:text-sm"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    // Open live view in a normal new tab/window (no popup features)
+                    window.open(shareUrl, "_blank");
+                  }
+                }}
+              >
+                {/* The Pulsing Green Dot */}
+                <span className="relative flex size-2.5">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500"></span>
+                </span>
+                Live view
               </Button>
           </div>
         </div>
@@ -312,13 +315,13 @@ function TournamentPage() {
           {/* Grid Container: Left column ( Tabs), Right column (Clock) */}
           <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_auto]">
             {/* Left Column: Tabs  */}
-            <div className="mt-2">
+            <div>
               {/* 2. TABS */}
-              <TabsList className="w-fit">
-                <TabsTrigger value="rounds">Rounds</TabsTrigger>
-                <TabsTrigger value="standings">Standings</TabsTrigger>
-                <TabsTrigger value="players">Players</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsList className="w-fit sm:h-10">
+                <TabsTrigger value="rounds" className="text-sm sm:text-base">Rounds</TabsTrigger>
+                <TabsTrigger value="standings" className="text-sm sm:text-base">Standings</TabsTrigger>
+                <TabsTrigger value="players" className="text-sm sm:text-base">Players</TabsTrigger>
+                <TabsTrigger value="settings" className="text-sm sm:text-base">Settings</TabsTrigger>
               </TabsList>
             </div>
 
