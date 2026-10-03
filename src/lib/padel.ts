@@ -162,7 +162,6 @@ export function buildAmericano(
 
   return out;
 }
-
 /** Mexicano: next round is seeded by current standings — 1+4 vs 2+3 on each court. */
 export function buildMexicanoRound(
   standings: StandingRow[],
@@ -171,18 +170,22 @@ export function buildMexicanoRound(
 ): PlannedMatch[] {
   const ids = standings.map((s) => s.playerId);
   const out: PlannedMatch[] = [];
-  let court = 0;
-  for (let i = 0; i + 3 < ids.length; i += 4) {
+
+  // Determine the maximum number of matches: no more than the available physical courts
+  const maxMatches = Math.min(Math.floor(ids.length / 4), courts);
+
+  for (let courtIndex = 0; courtIndex < maxMatches; courtIndex++) {
+    const i = courtIndex * 4;
     const [p1, p2, p3, p4] = ids.slice(i, i + 4);
+
     out.push({
       round,
-      court: (court % courts) + 1,
+      court: courtIndex + 1, // Always 1 to maxMatches (prevents duplicate court assignments)
       a1: p1!,
       a2: p4!,
       b1: p2!,
       b2: p3!,
     });
-    court++;
   }
 
   return out;
@@ -276,15 +279,15 @@ export function buildKotcRound(
     const loser = teamAWon ? teamB : teamA;
 
     if (courtIdx === 0) {
-      nextCourts[0].push(winner); // King court winner stays
-      if (courts > 1) nextCourts[1].push(loser); // King court loser moves down
-      else nextCourts[0].push(loser);
+      nextCourts[0]!.push(winner); // King court winner stays
+      if (courts > 1) nextCourts[1]!.push(loser); // King court loser moves down
+      else nextCourts[0]!.push(loser);
     } else if (courtIdx === courts - 1) {
-      nextCourts[courtIdx - 1].push(winner); // Bottom court winner moves up
-      nextCourts[courtIdx].push(loser); // Bottom court loser stays
+      nextCourts[courtIdx - 1]!.push(winner); // Bottom court winner moves up
+      nextCourts[courtIdx]!.push(loser); // Bottom court loser stays
     } else {
-      nextCourts[courtIdx - 1].push(winner); // Middle court winner moves up
-      nextCourts[courtIdx + 1].push(loser); // Middle court loser moves down
+      nextCourts[courtIdx - 1]!.push(winner); // Middle court winner moves up
+      nextCourts[courtIdx + 1]!.push(loser); // Middle court loser moves down
     }
   }
 
@@ -329,33 +332,44 @@ export function buildSwissRound(
     return out;
   }
 
-  // Reconstruct fixed teams and stats from match history
+  // Reconstruct fixed teams and stats
   type TeamData = { id: string; p1: string; p2: string; points: number; diff: number; played: Set<string> };
   const teamMap = new Map<string, TeamData>();
   
   const getTeamId = (p1: string, p2: string) => [p1, p2].sort().join('|');
 
+  // 1. Initialize ALL possible teams so players on a bye don't disappear
+  for (let i = 0; i + 1 < playerIds.length; i += 2) {
+    const p1 = playerIds[i]!;
+    const p2 = playerIds[i + 1]!;
+    const id = getTeamId(p1, p2);
+    teamMap.set(id, { id, p1, p2, points: 0, diff: 0, played: new Set() });
+  }
+
+  // 2. Populate stats from match history
   for (const m of matches) {
     if (!m.completed) continue;
     const idA = getTeamId(m.a1, m.a2);
     const idB = getTeamId(m.b1, m.b2);
 
-    if (!teamMap.has(idA)) teamMap.set(idA, { id: idA, p1: m.a1, p2: m.a2, points: 0, diff: 0, played: new Set() });
-    if (!teamMap.has(idB)) teamMap.set(idB, { id: idB, p1: m.b1, p2: m.b2, points: 0, diff: 0, played: new Set() });
+    // Apply stats to Team A
+    if (teamMap.has(idA)) {
+      const tA = teamMap.get(idA)!;
+      tA.points += m.score_a;
+      tA.diff += (m.score_a - m.score_b);
+      tA.played.add(idB);
+    }
 
-    const tA = teamMap.get(idA)!;
-    const tB = teamMap.get(idB)!;
-
-    tA.points += m.score_a;
-    tA.diff += (m.score_a - m.score_b);
-    tA.played.add(idB);
-
-    tB.points += m.score_b;
-    tB.diff += (m.score_b - m.score_a);
-    tB.played.add(idA);
+    // Apply stats to Team B
+    if (teamMap.has(idB)) {
+      const tB = teamMap.get(idB)!;
+      tB.points += m.score_b;
+      tB.diff += (m.score_b - m.score_a);
+      tB.played.add(idA);
+    }
   }
 
-  // Sort teams by Points, then by Differential
+  // 3. Sort teams by Points, then by Differential
   const sortedTeams = Array.from(teamMap.values()).sort((a, b) => b.points - a.points || b.diff - a.diff);
   const assigned = new Set<string>();
   let courtCount = 1;
@@ -385,7 +399,7 @@ export function buildSwissRound(
       }
     }
 
-    // Assign Match
+    // Assign Match (Cap at max physical courts)
     if (opponentIndex !== -1 && courtCount <= courts) {
       const teamB = sortedTeams[opponentIndex]!;
       out.push({
@@ -423,6 +437,7 @@ export function computeTeamStandings(
       wins: 0,
       points: 0,
       diff: 0,
+      conceded: 0
     };
 
     teams.push({
@@ -431,6 +446,7 @@ export function computeTeamStandings(
       played: stats.played,
       wins: stats.wins,
       points: stats.points,
+      conceded: stats.conceded, // <-- Added this line
       diff: stats.diff,
     });
   }
@@ -456,4 +472,19 @@ export function getFormatLabel(format: Format): string {
     default:
       return format;
   }
+}
+
+export function validatePlayerCount(format: Format, count: number): { valid: boolean; message?: string } {
+  if (count < 4) {
+    return { valid: false, message: "A minimum of 4 players is required to start." };
+  }
+
+  if ((format === "kotc" || format === "swiss") && count % 4 !== 0) {
+    return { 
+      valid: false, 
+      message: `${getFormatLabel(format)} requires a multiple of 4 players (e.g., 4, 8, 12, 16).` 
+    };
+  }
+
+  return { valid: true };
 }

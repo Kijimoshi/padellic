@@ -24,6 +24,7 @@ import {
   type MatchRow,
   type PlannedMatch,
   getFormatLabel,
+  validatePlayerCount
 } from "@/lib/padel";
 
 import {
@@ -86,12 +87,12 @@ function TournamentPage() {
   // STANDINGS CALCULATION
   // 1. Keep the individual standings (Mexicano needs this for seeding anyway)
   const standings = useMemo(
-    () => computeStandings(players, matches), 
+    () => computeStandings(players, matches),
     [players, matches]
   );
   // 2. Calculate the team standings using the individual standings
   const teamStandings = useMemo(
-    () => computeTeamStandings(players, standings), 
+    () => computeTeamStandings(players, standings),
     [players, standings]
   );
   // 3. Determine which leaderboard to display based on the format
@@ -100,8 +101,8 @@ function TournamentPage() {
 
   const nameOf = (pid: string) => players.find((p) => p.id === pid)?.name ?? "—";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentRoundIndex, setCurrentRoundIndex] = useState(0); 
-  
+  const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
+
   const rounds = useMemo(() => {
     const map = new Map<number, MatchRow[]>();
     for (const m of matches) {
@@ -143,7 +144,7 @@ function TournamentPage() {
     onSuccess: invalidate,
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update the player"),
   });
-  
+
   const removePlayer = useMutation({
     mutationFn: async (playerId: string) => {
       const { error } = await supabase.from("players").delete().eq("id", playerId);
@@ -154,7 +155,7 @@ function TournamentPage() {
   });
 
   const updateTournament = useMutation({
-    mutationFn: async (updates: { name: string; courts: number; format: "americano" | "mexicano" }) => {
+    mutationFn: async (updates: { name: string; courts: number; format: Format }) => {
       const { error } = await supabase
         .from("tournaments")
         .update(updates)
@@ -166,7 +167,7 @@ function TournamentPage() {
       toast.success("Tournament settings saved");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not save settings"),
-  });    
+  });
 
   const updateStatus = useMutation({
     mutationFn: async (status: string) => {
@@ -182,7 +183,7 @@ function TournamentPage() {
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update status"),
   });
-  
+
   const insertMatches = async (planned: PlannedMatch[]) => {
     if (planned.length === 0) throw new Error("Not enough players for a full court (need 4).");
     const { error } = await supabase
@@ -195,11 +196,11 @@ function TournamentPage() {
     mutationFn: async () => {
       if (!tournament) return;
       const ids = players.map((p) => p.id);
-      
+
       // Clear existing matches
       await supabase.from("matches").delete().eq("tournament_id", id);
       const total = suggestedRounds(ids.length);
-      
+
       // Generate matches based on format
       let plannedMatches;
       switch (tournament.format) {
@@ -217,7 +218,7 @@ function TournamentPage() {
           plannedMatches = buildMexicanoRound(computeStandings(players, []), 1, tournament.courts);
           break;
       }
-      
+
       await insertMatches(plannedMatches);
 
       await supabase
@@ -235,7 +236,7 @@ function TournamentPage() {
   const generateNextRound = useMutation({
     mutationFn: async () => {
       if (!tournament) return;
-      
+
       const nextRound = (rounds.at(-1)?.[0] ?? 0) + 1;
       const ids = players.map((p) => p.id);
       let plannedMatches;
@@ -294,7 +295,7 @@ function TournamentPage() {
           {/* 1. Top Left: Title & Info */}
           <div className="space-y-1">
             <h1 className="text-3xl font-bold">{tournament.name}</h1>
-            
+
             {/* INFO BAR */}
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <Badge variant="secondary">
@@ -307,66 +308,66 @@ function TournamentPage() {
               <span>· {players.length} players</span>
             </div>
           </div>
-          
+
           {/* 2. Top Right: Action Buttons */}
           <div className="flex flex-wrap gap-2 mb-2">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="text-xs sm:text-sm">
-                    <QrCode className="size-4" />
-                    Show QR
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-md">
-                  <DialogHeader>
-                    <DialogTitle className="text-center">Scan to follow live</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex flex-col items-center justify-center p-4">
-                    <div className="rounded-xl bg-white p-4 shadow-sm">
-                      <QRCodeSVG value={shareUrl} size={240} level="H" />
-                    </div>
-                    <p className="mt-4 text-center text-sm text-muted-foreground">
-                      Players can scan this code to view live standings and court assignments.
-                    </p>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="text-xs sm:text-sm">
+                  <QrCode className="size-4" />
+                  Show QR
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-center">Scan to follow live</DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-col items-center justify-center p-4">
+                  <div className="rounded-xl bg-white p-4 shadow-sm">
+                    <QRCodeSVG value={shareUrl} size={240} level="H" />
                   </div>
-                </DialogContent>
-              </Dialog>
-            
-              <Button
-                variant="outline"
-                className="text-xs sm:text-sm"
-                onClick={() => {
-                  navigator.clipboard.writeText(shareUrl);
-                  toast.success("Share link copied");
-                }}
-              >
-                <Copy className="size-4" />
-                Copy link
-              </Button>
+                  <p className="mt-4 text-center text-sm text-muted-foreground">
+                    Players can scan this code to view live standings and court assignments.
+                  </p>
+                </div>
+              </DialogContent>
+            </Dialog>
 
-              <Button
-                variant="outline"
-                className="gap-2 text-xs sm:text-sm"
-                onClick={() => {
-                  if (typeof window !== "undefined") {
-                    // Open live view in a normal new tab/window (no popup features)
-                    window.open(shareUrl, "_blank");
-                  }
-                }}
-              >
-                {/* The Pulsing Green Dot */}
-                <span className="relative flex size-2.5">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500"></span>
-                </span>
-                Live view
-              </Button>
+            <Button
+              variant="outline"
+              className="text-xs sm:text-sm"
+              onClick={() => {
+                navigator.clipboard.writeText(shareUrl);
+                toast.success("Share link copied");
+              }}
+            >
+              <Copy className="size-4" />
+              Copy link
+            </Button>
+
+            <Button
+              variant="outline"
+              className="gap-2 text-xs sm:text-sm"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  // Open live view in a normal new tab/window (no popup features)
+                  window.open(shareUrl, "_blank");
+                }
+              }}
+            >
+              {/* The Pulsing Green Dot */}
+              <span className="relative flex size-2.5">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500"></span>
+              </span>
+              Live view
+            </Button>
           </div>
         </div>
-        
+
         {/* 3. The Tabs wrapper now contains the Info Row + Tabs on the left, Clock on the right */}
         <Tabs defaultValue="rounds">
-          
+
           {/* Grid Container: Left column ( Tabs), Right column (Clock) */}
           <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_auto]">
             {/* Left Column: Tabs  */}
@@ -386,27 +387,53 @@ function TournamentPage() {
             </div>
           </div>
 
-         
-          <TabsContent value="rounds" className="mt-4 space-y-2">          
-            {matches.length === 0 && (
-              <div className="panel mb-2 flex flex-col gap-1 p-2 sm:flex-row sm:items-center sm:justify-between">
-                {/* 1. TOP BUTTON: Only shows when NO matches exist */}
-                <p className="text-sm text-muted-foreground">
-                  {tournament.format === "americano"
-                    ? "Generates the full tournament with rotating partners."
-                    : "Mexicano, Swiss and KotC build one round at a time from the live standings."}
-                </p>
-                <Button
-                  onClick={() => generateSchedule.mutate()}
-                  disabled={players.length < 4 || generateSchedule.isPending}
-                  className="w-full sm:w-auto"
-                >
-                  <Shuffle className="size-4" />
-                  Generate schedule
-                </Button>
-              </div>
-            )}
-            
+          <TabsContent value="rounds" className="mt-4 space-y-2">
+            {matches.length === 0 && (() => {
+              // Check if the current format strictly requires a multiple of 4
+              const requiresMultipleOf4 = tournament.format !== "americano";
+              const isInvalidPlayerCount = players.length < 4 || (requiresMultipleOf4 && players.length % 4 !== 0);
+
+              const teamsCount = players.length / 2;
+              const requiredCourts = teamsCount / 2; // 2 teams per court
+              const isKotcOverCapacity =
+                tournament.format === "kotc" && requiredCourts > tournament.courts;
+
+              return (
+                <div className="panel mb-2 flex flex-col gap-2 p-3 sm:flex-row sm:items-center sm:justify-between">
+                  {/* Helper Text / Validation Warning */}
+                  <div className="space-y-0.5">
+                    <p className="text-sm font-medium text-foreground">
+                      {tournament.format === "americano"
+                        ? "Generates the full tournament with rotating partners."
+                        : "Mexicano, Swiss, and KotC build round-by-round."}
+                    </p>
+                    {isInvalidPlayerCount && (
+                      <p className="text-xs font-semibold text-destructive">
+                        {players.length < 4
+                          ? ""
+                          : `${getFormatLabel(tournament.format)} requires a multiple of 4 players (currently ${players.length}).`}
+                      </p>
+                    )}
+                    {isKotcOverCapacity && (
+                      <p className="text-xs font-semibold text-destructive">
+                        KotC requires 1 court per 4 players. You need {requiredCourts} courts, but only have {tournament.courts}.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Generate Schedule Button */}
+                  <Button
+                    onClick={() => generateSchedule.mutate()}
+                    disabled={isInvalidPlayerCount || generateSchedule.isPending}
+                    className="w-full sm:w-auto"
+                  >
+                    <Shuffle className="size-4" />
+                    Generate schedule
+                  </Button>
+                </div>
+              );
+            })()}
+
             {players.length < 4 && (
               <p className="text-sm text-muted-foreground">
                 Add at least 4 players to build a schedule.
@@ -418,21 +445,21 @@ function TournamentPage() {
               const safeIndex = Math.min(currentRoundIndex, rounds.length - 1);
               const currentRoundEntry = rounds[safeIndex];
               if (!currentRoundEntry) return null;
-            
+
               const [round, list] = currentRoundEntry;
               const playingIds = new Set(list.flatMap((m) => [m.a1, m.a2, m.b1, m.b2]));
               const restingPlayers = players.filter((p) => !playingIds.has(p.id));
-            
+
               return (
                 <div className="space-y-2">
                   {/* Current Round Panel */}
                   <div key={round} className="panel p-2 sm:p-4">
                     <div className="flex items-center justify-between">
                       <h3 className="ml-1 font-display text-base font-bold uppercase tracking-widest text-primary">
-                        Round {round} 
+                        Round {round}
                       </h3>
                     </div>
-            
+
                     <div className="mt-1 sm:mt-3 space-y-2 sm:space-y-4">
                       {list.map((m) => (
                         <ScoreRow
@@ -444,7 +471,7 @@ function TournamentPage() {
                         />
                       ))}
                     </div>
-            
+
                     {/* Resting players section */}
                     {restingPlayers.length > 0 && (
                       <div className="mt-4 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
@@ -456,7 +483,7 @@ function TournamentPage() {
 
                   {/* BOTTOM: Round Navigation Only */}
                   <div className="mt-8 flex items-center justify-between gap-2">
-                    
+
                     <Button
                       type="button"
                       variant="outline"
@@ -465,11 +492,11 @@ function TournamentPage() {
                     >
                       Prev round
                     </Button>
-                
+
                     <span className="text-xs font-medium">
                       Round {currentRoundIndex + 1} / {tournament.format === "americano" ? tournament.total_rounds : rounds.length}
                     </span>
-                
+
                     {currentRoundIndex < rounds.length - 1 ? (
                       <Button
                         type="button"
@@ -516,7 +543,7 @@ function TournamentPage() {
                 </p>
               </div>
             )}
-            
+
           </TabsContent>
 
           <TabsContent value="standings" className="mt-6">
@@ -547,7 +574,7 @@ function TournamentPage() {
               {players.length === 0 && (
                 <p className="p-3 text-sm text-muted-foreground">No players yet.</p>
               )}
-              
+
               {tournament?.format === "swiss" || tournament?.format === "kotc" ? (
                 // TEAM FORMAT: Compact grouped box
                 Array.from({ length: Math.ceil(players.length / 2) }).map((_, i) => {
@@ -555,8 +582,8 @@ function TournamentPage() {
                   const p2 = players[i * 2 + 1];
 
                   return (
-                    <div 
-                      key={`team-${i}`} 
+                    <div
+                      key={`team-${i}`}
                       className="overflow-hidden rounded-md border-2 border-foreground/30 bg-primary/5 shadow-sm"
                     >
                       <div className="divide-y divide-primary/20 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
@@ -581,18 +608,18 @@ function TournamentPage() {
                   );
                 })
               ) : (
-                  // INDIVIDUAL FORMAT: Compact list with horizontal separators
-                  <div className="divide-y divide-border/70 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
-                    {players.map((p, i) => (
-                      <PlayerItem
-                        key={p.id}
-                        player={p}
-                        index={i}
-                        onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p.id, name })}
-                        onRemove={() => removePlayer.mutate(p.id)}
-                      />
-                    ))}
-                  </div>
+                // INDIVIDUAL FORMAT: Compact list with horizontal separators
+                <div className="divide-y divide-border/70 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
+                  {players.map((p, i) => (
+                    <PlayerItem
+                      key={p.id}
+                      player={p}
+                      index={i}
+                      onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p.id, name })}
+                      onRemove={() => removePlayer.mutate(p.id)}
+                    />
+                  ))}
+                </div>
               )}
             </div>
           </TabsContent>
@@ -600,8 +627,8 @@ function TournamentPage() {
           <TabsContent value="settings" className="mt-6 space-y-6">
             <div className="panel max-w-lg p-5">
               <h2 className="mb-6 text-sm font-medium">Tournament Status</h2>
-              <TournamentStatusBar 
-                currentStatus={tournament.status} 
+              <TournamentStatusBar
+                currentStatus={tournament.status}
                 onStatusChange={(newStatus) => updateStatus.mutate(newStatus)}
                 isPending={updateStatus.isPending}
               />
@@ -616,9 +643,9 @@ function TournamentPage() {
             <div className="mt-8 rounded-lg border border-destructive/30 bg-destructive/5 p-5">
               <h3 className="text-sm font-semibold text-destructive">Danger Zone: Rebuild Schedule</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                <strong>Be careful!</strong> Rebuilding the schedule will delete all current matches and entered scores, creating a brand new schedule from scratch. 
+                <strong>Be careful!</strong> Rebuilding the schedule will delete all current matches and entered scores, creating a brand new schedule from scratch.
               </p>
-              
+
               <div className="mt-4">
                 <Button
                   type="button"
@@ -630,7 +657,7 @@ function TournamentPage() {
                   <Shuffle className="size-4" />
                   Rebuild schedule
                 </Button>
-            
+
                 <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                   <AlertDialogContent>
                     <AlertDialogHeader>
@@ -655,9 +682,9 @@ function TournamentPage() {
                 </AlertDialog>
               </div>
             </div>
-            
+
           </TabsContent>
-          
+
         </Tabs>
       </main>
     </div>
@@ -692,7 +719,7 @@ function PlayerItem({
   return (
     <div className="flex items-center justify-between px-5 py-3 gap-3">
       <span className="tabular text-xs text-muted-foreground min-w-[1.25rem]">{index + 1}</span>
-      
+
       {isEditing ? (
         <div className="flex items-center flex-1 gap-2">
           <Input
@@ -849,11 +876,10 @@ function ScoreRow({
           <span className="font-bold text-destructive">Error</span>
         ) : match.completed || justSaved ? (
           <span
-            className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${
-              justSaved
+            className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${justSaved
                 ? "bg-green-500/20 text-green-600 dark:text-green-400 font-bold scale-105"
                 : "text-primary"
-            }`}
+              }`}
           >
             <Check className="size-3.5" /> Saved
           </span>
@@ -863,7 +889,7 @@ function ScoreRow({
           </span>
         )}
       </div>
-      
+
       <div className="mt-1 md:mt-4 flex flex-col items-stretch gap-1 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4">
         {/* Team A */}
         <div className="flex flex-col items-start gap-1">
@@ -910,7 +936,7 @@ function ScoreRow({
           </p>
         </div>
       </div>
-      
+
     </div>
   );
 }
@@ -921,9 +947,9 @@ function SettingsForm({
   isPending,
 }: {
   tournament: any;
-  onSave: (updates: { 
-    name: string; 
-    courts: number; 
+  onSave: (updates: {
+    name: string;
+    courts: number;
     format: Format  // changed from "americano" | "mexicano" | "swiss" | "kotc" to 'Format' type
   }) => void;
   isPending: boolean;
@@ -944,40 +970,40 @@ function SettingsForm({
     <div className="panel max-w-lg space-y-5 p-5">
       <div className="space-y-2">
         <label className="text-sm font-medium">Tournament Name</label>
-        <Input 
-          value={name} 
-          onChange={(e) => setName(e.target.value)} 
-          placeholder="New Tournament name" 
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="New Tournament name"
         />
       </div>
-      
+
       <div className="space-y-2">
         <label className="text-sm font-medium">Number of Courts</label>
-        <Input 
-          type="number" 
-          min="1" 
-          value={courts} 
-          onChange={(e) => setCourts(e.target.value)} 
+        <Input
+          type="number"
+          min="1"
+          value={courts}
+          onChange={(e) => setCourts(e.target.value)}
         />
       </div>
-      
+
       <div className="space-y-2">
         <label className="text-sm font-medium">Tournament Format</label>
         {/* // changed from "americano" | "mexicano" | "swiss" | "kotc" to 'Format' type */}
-        <Select value={format} onValueChange={(val: Format) => setFormat(val)}> 
+        <Select value={format} onValueChange={(val: Format) => setFormat(val)}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="americano">Americano — solo partners rotate</SelectItem>
-              <SelectItem value="mexicano">Mexicano — solo seeded by standings</SelectItem>
-              <SelectItem value="swiss">Swiss — fixed pairs matched by score</SelectItem>
-              <SelectItem value="kotc">King of the Court — fixed pairs move courts</SelectItem>
-            </SelectContent>
+          <SelectContent>
+            <SelectItem value="americano">Americano — solo partners rotate</SelectItem>
+            <SelectItem value="mexicano">Mexicano — solo seeded by standings</SelectItem>
+            <SelectItem value="swiss">Swiss — fixed pairs matched by score</SelectItem>
+            <SelectItem value="kotc">King of the Court — fixed pairs move courts</SelectItem>
+          </SelectContent>
         </Select>
       </div>
 
-      <Button 
+      <Button
         onClick={handleSave}
         disabled={isPending || !name.trim() || parseInt(courts, 10) < 1}
       >
@@ -1031,20 +1057,18 @@ function TournamentStatusBar({
             >
               {/* Added bg-background to perfectly mask the track line behind it */}
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background transition-all duration-200 ${
-                  isCurrent
+                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background transition-all duration-200 ${isCurrent
                     ? "border-primary bg-primary text-primary-foreground shadow-md ring-4 ring-primary/20"
                     : isPast
-                    ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
-                    : "border-muted text-muted-foreground hover:border-primary/50 hover:text-primary/70"
-                }`}
+                      ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
+                      : "border-muted text-muted-foreground hover:border-primary/50 hover:text-primary/70"
+                  }`}
               >
                 <Icon className="size-4" />
               </div>
               <span
-                className={`absolute -bottom-7 whitespace-nowrap text-xs font-semibold tracking-wide transition-colors ${
-                  isCurrent ? "text-primary" : isPast ? "text-foreground" : "text-muted-foreground"
-                }`}
+                className={`absolute -bottom-7 whitespace-nowrap text-xs font-semibold tracking-wide transition-colors ${isCurrent ? "text-primary" : isPast ? "text-foreground" : "text-muted-foreground"
+                  }`}
               >
                 {status.label}
               </span>
