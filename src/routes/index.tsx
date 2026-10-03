@@ -33,7 +33,7 @@ const features = [
   {
     icon: ListOrdered,
     title: "Have an odd number of players?",
-    body: "No problem. The algorithm automatically balances the schedule, resting players on a rotating basis so those with the least matches played always get priority on the court.",
+    body: "No problem - play Americano! The algorithm automatically balances the schedule, resting players on a rotating basis so those with the least matches played always get priority on the court.",
   },
   {
     icon: Share2,
@@ -55,13 +55,10 @@ function Landing() {
           height={1008}
           className="absolute inset-0 size-full object-cover opacity-70"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/50 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/40 to-background" />
         <div className="court-grid absolute inset-0 opacity-70" />
 
         <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-             AMERICANO · MEXICANO · SWISS&nbsp;(soon)
-          </p>
           <h1 className="mt-5 max-w-2xl whitespace-pre-line text-4xl font-bold leading-[1.05] sm:text-6xl">
              {"Less admin,\nmore smashes."}
           </h1>
@@ -69,7 +66,34 @@ function Landing() {
               Pick a format, drop in the players, and Padellic handles the pairings, the courts and the
             leaderboard. Share one link and everyone follows along.
           </p>
-          <div className="mt-8">
+
+          <div className="mt-4 max-w-xl grid gap-3 sm:grid-cols-2">
+            {/* Frame 1: Rotating Partners */}
+            <div className="rounded-xl border border-foreground/20 bg-surface-strong/50 px-4 py-3 flex flex-col justify-between">
+              <div className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Rotating Partners
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold tracking-wide text-foreground">
+                <span>AMERICANO</span>
+                <span className="text-primary/40">•</span>
+                <span>MEXICANO</span>
+              </div>
+            </div>
+
+            {/* Frame 2: Fixed Teams */}
+            <div className="rounded-xl border border-foreground/20 bg-surface-strong/50 px-4 py-3 flex flex-col justify-between">
+              <div className="text-xs font-semibold uppercase tracking-wider text-primary">
+                Fixed Teams
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold tracking-wide text-foreground">
+                <span>SWISS-SYSTEM</span>
+                <span className="text-primary/40">•</span>
+                <span>KING OF THE COURT</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
             <Button asChild size="lg">
               <Link to="/auth">
                 Start a tournament
@@ -103,7 +127,10 @@ function Landing() {
                     <strong className="text-foreground">Mexicano</strong>: re-seeds from the current standings so the top players meet.
                   </p>
                   <p>
-                    <strong className="text-foreground">Swiss-system</strong>: ensures that each competitor plays opponents with a similar running score without playing the same opponent more than once.
+                    <strong className="text-foreground">Swiss-system</strong>: ensures that each pair plays opponents with a similar running score without rematching.
+                  </p>
+                  <p>
+                    <strong className="text-foreground">King of the Court</strong>: pairs compete in a knockout-style tournament to determine the ultimate champion.
                   </p>
                 </div>
           </div>

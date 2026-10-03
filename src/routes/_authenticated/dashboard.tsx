@@ -19,7 +19,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { tournamentsQuery, type Tournament } from "@/lib/tournament-data";
-import type { Format } from "@/lib/padel";
+import { getFormatLabel, type Format } from "@/lib/padel";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -243,8 +243,8 @@ function Dashboard() {
                     </p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <Badge variant="secondary" className="capitalize">
-                      {t.format}
+                    <Badge variant="secondary">
+                      {getFormatLabel(t.format)}
                     </Badge>
                     <span className="text-xs capitalize text-muted-foreground">{t.status}</span>
                   </div>

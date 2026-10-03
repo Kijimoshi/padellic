@@ -60,7 +60,7 @@ export function SiteHeader() {
                 <span className="self-center text-[10px] sm:text-xs text-muted-foreground mr-1 max-w-[90px] sm:max-w-none truncate" title={email}>
                   {email}
                 </span>
-                <Button asChild variant="ghost" size="sm" className="sm:text-base">
+                <Button asChild variant="ghost" size="sm" className="h-6 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm">
                   <Link to="/dashboard">My tournaments</Link>
                 </Button>
               </div>

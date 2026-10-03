@@ -442,3 +442,18 @@ export function computeTeamStandings(
     return b.wins - a.wins;
   });
 }
+
+export function getFormatLabel(format: Format): string {
+  switch (format) {
+    case "americano":
+      return "Americano";
+    case "mexicano":
+      return "Mexicano";
+    case "swiss":
+      return "Swiss";
+    case "kotc":
+      return "KotC"; // Ensures 'C' remains capitalized
+    default:
+      return format;
+  }
+}

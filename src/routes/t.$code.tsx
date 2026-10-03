@@ -5,7 +5,7 @@ import { Activity, Trophy } from "lucide-react";
 import { StandingsTable } from "@/components/standings-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { computeStandings, computeTeamStandings } from "@/lib/padel";
+import { computeStandings, computeTeamStandings, getFormatLabel} from "@/lib/padel";
 import { getPublicTournament } from "@/lib/public-tournament.functions";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -106,8 +106,8 @@ function PublicTournament() {
       <main className="mx-auto max-w-3xl px-4 py-10">
         <h1 className="text-3xl font-bold">{tournament.name}</h1>
         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          <Badge variant="secondary" className="capitalize">
-            {tournament.format}
+          <Badge variant="secondary">
+            {getFormatLabel(tournament.format)}
           </Badge>
           <span>{players.length} players</span>
           <span>· {tournament.points_per_match} points per match</span>

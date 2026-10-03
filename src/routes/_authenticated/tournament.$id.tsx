@@ -23,6 +23,7 @@ import {
   type Format,
   type MatchRow,
   type PlannedMatch,
+  getFormatLabel,
 } from "@/lib/padel";
 
 import {
@@ -296,8 +297,8 @@ function TournamentPage() {
             
             {/* INFO BAR */}
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <Badge variant="secondary" className="capitalize">
-                {tournament.format}
+              <Badge variant="secondary">
+                {getFormatLabel(tournament.format)}
               </Badge>
               <span>
                 {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
@@ -393,7 +394,7 @@ function TournamentPage() {
                 <p className="text-sm text-muted-foreground">
                   {tournament.format === "americano"
                     ? "Generates the full tournament with rotating partners."
-                    : "Mexicano, Swiss and KOtC build one round at a time from the live standings."}
+                    : "Mexicano, Swiss and KotC build one round at a time from the live standings."}
                 </p>
                 <Button
                   onClick={() => generateSchedule.mutate()}
