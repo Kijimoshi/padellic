@@ -5,7 +5,7 @@ import { Activity, Trophy } from "lucide-react";
 import { StandingsTable } from "@/components/standings-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { computeStandings } from "@/lib/padel";
+import { computeStandings, computeTeamStandings } from "@/lib/padel";
 import { getPublicTournament } from "@/lib/public-tournament.functions";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -69,8 +69,12 @@ function PublicTournament() {
   }, [router]);
 
   const standings = computeStandings(players, matches);
+  const teamStandings = computeTeamStandings(players, standings);
+  // Determine which leaderboard to display based on the format
+  const isTeamFormat = tournament?.format === "swiss" || tournament?.format === "kotc";
+  const displayStandings = isTeamFormat ? teamStandings : standings;
+  
   const nameOf = (id: string) => players.find((p) => p.id === id)?.name ?? "—";
-
   const rounds = [...new Set(matches.map((m) => m.round))].sort((a, b) => a - b);
 
   return (
@@ -113,8 +117,9 @@ function PublicTournament() {
           <h2 className="mb-3 font-display text-sm font-bold uppercase tracking-widest text-primary">
             Standings
           </h2>
-          <StandingsTable rows={standings} />
-          
+          {/* <StandingsTable rows={standings} /> */}
+          <StandingsTable rows={displayStandings} />
+
           {/* Auto-refresh indicator moved here */}
           <div className="mt-3 flex items-center justify-end gap-2 text-xs text-muted-foreground">
             <span className="relative flex size-2">
