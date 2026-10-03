@@ -542,19 +542,57 @@ function TournamentPage() {
               </Button>
             </form>
 
-            <div className="panel divide-y divide-border/70">
+            <div className={tournament?.format === "swiss" || tournament?.format === "kotc" ? "space-y-1" : "panel divide-y divide-border/70"}>
               {players.length === 0 && (
-                <p className="p-5 text-sm text-muted-foreground">No players yet.</p>
+                <p className="p-3 text-sm text-muted-foreground">No players yet.</p>
               )}
-              {players.map((p, i) => (
-                <PlayerItem
-                  key={p.id}
-                  player={p}
-                  index={i}
-                  onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p.id, name })}
-                  onRemove={() => removePlayer.mutate(p.id)}
-                />
-              ))}
+              
+              {tournament?.format === "swiss" || tournament?.format === "kotc" ? (
+                // TEAM FORMAT: Compact grouped box
+                Array.from({ length: Math.ceil(players.length / 2) }).map((_, i) => {
+                  const p1 = players[i * 2];
+                  const p2 = players[i * 2 + 1];
+
+                  return (
+                    <div 
+                      key={`team-${i}`} 
+                      className="overflow-hidden rounded-md border-2 border-foreground/30 bg-primary/5 shadow-sm"
+                    >
+                      <div className="divide-y divide-primary/20 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
+                        {p1 && (
+                          <PlayerItem
+                            player={p1}
+                            index={i * 2}
+                            onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p1.id, name })}
+                            onRemove={() => removePlayer.mutate(p1.id)}
+                          />
+                        )}
+                        {p2 && (
+                          <PlayerItem
+                            player={p2}
+                            index={i * 2 + 1}
+                            onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p2.id, name })}
+                            onRemove={() => removePlayer.mutate(p2.id)}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                  // INDIVIDUAL FORMAT: Compact list with horizontal separators
+                  <div className="divide-y divide-border/70 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
+                    {players.map((p, i) => (
+                      <PlayerItem
+                        key={p.id}
+                        player={p}
+                        index={i}
+                        onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p.id, name })}
+                        onRemove={() => removePlayer.mutate(p.id)}
+                      />
+                    ))}
+                  </div>
+              )}
             </div>
           </TabsContent>
 
