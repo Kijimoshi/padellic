@@ -2,11 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
+import type { Format } from "@/lib/padel"; 
+
 export type PublicTournamentPayload = {
   tournament: {
     id: string;
     name: string;
-    format: "americano" | "mexicano";
+    format: Format;
     courts: number;
     points_per_match: number;
     status: string;

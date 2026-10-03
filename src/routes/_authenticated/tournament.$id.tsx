@@ -15,8 +15,11 @@ import { matchesQuery, playersQuery, tournamentQuery } from "@/lib/tournament-da
 import {
   buildAmericano,
   buildMexicanoRound,
+  buildSwissRound,
+  buildKotcRound,
   computeStandings,
   suggestedRounds,
+  type Format,
   type MatchRow,
   type PlannedMatch,
 } from "@/lib/padel";
@@ -175,13 +178,31 @@ function TournamentPage() {
     mutationFn: async () => {
       if (!tournament) return;
       const ids = players.map((p) => p.id);
+      
+      // Clear existing matches
       await supabase.from("matches").delete().eq("tournament_id", id);
       const total = suggestedRounds(ids.length);
-      if (tournament.format === "americano") {
-        await insertMatches(buildAmericano(ids, total, tournament.courts));
-      } else {
-        await insertMatches(buildMexicanoRound(computeStandings(players, []), 1, tournament.courts));
+      
+      // Generate matches based on format
+      let plannedMatches;
+      switch (tournament.format) {
+        case "americano":
+          plannedMatches = buildAmericano(ids, total, tournament.courts);
+          break;
+        case "swiss":
+          plannedMatches = buildSwissRound(ids, [], 1, tournament.courts);
+          break;
+        case "kotc":
+          plannedMatches = buildKotcRound(ids, [], 1, tournament.courts);
+          break;
+        case "mexicano":
+        default:
+          plannedMatches = buildMexicanoRound(computeStandings(players, []), 1, tournament.courts);
+          break;
       }
+      
+      await insertMatches(plannedMatches);
+
       await supabase
         .from("tournaments")
         .update({ status: "live", total_rounds: total })
@@ -194,15 +215,32 @@ function TournamentPage() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not build the schedule"),
   });
 
-  const nextMexicanoRound = useMutation({
+  const generateNextRound = useMutation({
     mutationFn: async () => {
       if (!tournament) return;
+      
       const nextRound = (rounds.at(-1)?.[0] ?? 0) + 1;
-      await insertMatches(buildMexicanoRound(standings, nextRound, tournament.courts));
+      const ids = players.map((p) => p.id);
+      let plannedMatches;
+
+      switch (tournament.format) {
+        case "swiss":
+          plannedMatches = buildSwissRound(ids, matches, nextRound, tournament.courts);
+          break;
+        case "kotc":
+          plannedMatches = buildKotcRound(ids, matches, nextRound, tournament.courts);
+          break;
+        case "mexicano":
+        default:
+          plannedMatches = buildMexicanoRound(standings, nextRound, tournament.courts);
+          break;
+      }
+
+      await insertMatches(plannedMatches);
     },
     onSuccess: () => {
       invalidate();
-      toast.success("Next round seeded from the standings");
+      toast.success("Next round generated successfully");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not create the round"),
   });
@@ -423,21 +461,21 @@ function TournamentPage() {
                       >
                         Next round
                       </Button>
-                    ) : tournament.format === "mexicano" ? (
+                    ) : tournament.format !== "americano" ? (
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => {
-                          nextMexicanoRound.mutate(undefined, {
+                          generateNextRound.mutate(undefined, {
                             onSuccess: () => {
                               setCurrentRoundIndex((prev) => prev + 1);
                             }
                           });
                         }}
-                        disabled={nextMexicanoRound.isPending || matches.some((m) => !m.completed)}
+                        disabled={generateNextRound.isPending || matches.some((m) => !m.completed)}
                       >
                         <Plus className="mr-1 size-4" />
-                        Generate next round
+                        Generate next
                       </Button>
                     ) : (
                       <Button
@@ -828,12 +866,18 @@ function SettingsForm({
   isPending,
 }: {
   tournament: any;
-  onSave: (updates: { name: string; courts: number; format: "americano" | "mexicano" }) => void;
+  onSave: (updates: { 
+    name: string; 
+    courts: number; 
+    format: "americano" | "mexicano" | "swiss" | "kotc" 
+  }) => void;
   isPending: boolean;
 }) {
   const [name, setName] = useState(tournament.name);
   const [courts, setCourts] = useState(String(tournament.courts));
-  const [format, setFormat] = useState<"americano" | "mexicano">(tournament.format);
+  const [format, setFormat] = useState<"americano" | "mexicano" | "swiss" | "kotc">(
+    tournament.format
+  );
 
   const handleSave = () => {
     const numCourts = parseInt(courts, 10);

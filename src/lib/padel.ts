@@ -1,4 +1,4 @@
-export type Format = "americano" | "mexicano";
+export type Format = "americano" | "mexicano" | "swiss" | "kotc";
 
 export type PlannedMatch = {
   round: number;
@@ -233,4 +233,173 @@ export function suggestedRounds(playerCount: number): number {
   if (playerCount < 4) return 0;
   const base = playerCount % 2 === 0 ? playerCount - 1 : playerCount;
   return Math.min(Math.max(base, 3), 15);
+}
+
+// KOTC: King of the Court — winners move up, losers move down. Each court has a "king" team.
+export function buildKotcRound(
+  playerIds: string[],
+  matches: MatchRow[],
+  round: number,
+  courts: number
+): PlannedMatch[] {
+  const out: PlannedMatch[] = [];
+  const lastRoundMatches = matches.filter((m) => m.round === round - 1 && m.completed);
+
+  // Fallback: Round 1 (Sequential fixed pairings)
+  if (lastRoundMatches.length === 0) {
+    for (let i = 0; i < courts * 4 && i + 3 < playerIds.length; i += 4) {
+      out.push({
+        round,
+        court: out.length + 1,
+        a1: playerIds[i]!,
+        a2: playerIds[i + 1]!,
+        b1: playerIds[i + 2]!,
+        b2: playerIds[i + 3]!,
+      });
+    }
+    return out;
+  }
+
+  // KOTC Logic: Calculate court movements
+  const nextCourts = Array.from({ length: courts }, () => [] as [string, string][]);
+
+  for (const m of lastRoundMatches) {
+    const courtIdx = m.court - 1;
+    if (courtIdx >= courts) continue;
+
+    const teamA: [string, string] = [m.a1, m.a2];
+    const teamB: [string, string] = [m.b1, m.b2];
+    
+    // Tie-breaker: If points are tied, Team A stays/moves up by default
+    const teamAWon = m.score_a >= m.score_b; 
+    const winner = teamAWon ? teamA : teamB;
+    const loser = teamAWon ? teamB : teamA;
+
+    if (courtIdx === 0) {
+      nextCourts[0].push(winner); // King court winner stays
+      if (courts > 1) nextCourts[1].push(loser); // King court loser moves down
+      else nextCourts[0].push(loser);
+    } else if (courtIdx === courts - 1) {
+      nextCourts[courtIdx - 1].push(winner); // Bottom court winner moves up
+      nextCourts[courtIdx].push(loser); // Bottom court loser stays
+    } else {
+      nextCourts[courtIdx - 1].push(winner); // Middle court winner moves up
+      nextCourts[courtIdx + 1].push(loser); // Middle court loser moves down
+    }
+  }
+
+  // Generate Planned Matches for the next round
+  for (let c = 0; c < courts; c++) {
+    const courtTeams = nextCourts[c];
+    if (courtTeams && courtTeams.length === 2) {
+      out.push({
+        round,
+        court: c + 1,
+        a1: courtTeams[0]![0],
+        a2: courtTeams[0]![1],
+        b1: courtTeams[1]![0],
+        b2: courtTeams[1]![1],
+      });
+    }
+  }
+  return out;
+}
+
+// Swiss: next round is seeded by current standings, but teams are fixed (no partner rotation).
+export function buildSwissRound(
+  playerIds: string[],
+  matches: MatchRow[],
+  round: number,
+  courts: number
+): PlannedMatch[] {
+  const out: PlannedMatch[] = [];
+  
+  // Fallback: Round 1 (Sequential fixed pairings)
+  if (matches.length === 0) {
+    for (let i = 0; i < courts * 4 && i + 3 < playerIds.length; i += 4) {
+      out.push({
+        round,
+        court: out.length + 1,
+        a1: playerIds[i]!,
+        a2: playerIds[i + 1]!,
+        b1: playerIds[i + 2]!,
+        b2: playerIds[i + 3]!,
+      });
+    }
+    return out;
+  }
+
+  // Reconstruct fixed teams and stats from match history
+  type TeamData = { id: string; p1: string; p2: string; points: number; diff: number; played: Set<string> };
+  const teamMap = new Map<string, TeamData>();
+  
+  const getTeamId = (p1: string, p2: string) => [p1, p2].sort().join('|');
+
+  for (const m of matches) {
+    if (!m.completed) continue;
+    const idA = getTeamId(m.a1, m.a2);
+    const idB = getTeamId(m.b1, m.b2);
+
+    if (!teamMap.has(idA)) teamMap.set(idA, { id: idA, p1: m.a1, p2: m.a2, points: 0, diff: 0, played: new Set() });
+    if (!teamMap.has(idB)) teamMap.set(idB, { id: idB, p1: m.b1, p2: m.b2, points: 0, diff: 0, played: new Set() });
+
+    const tA = teamMap.get(idA)!;
+    const tB = teamMap.get(idB)!;
+
+    tA.points += m.score_a;
+    tA.diff += (m.score_a - m.score_b);
+    tA.played.add(idB);
+
+    tB.points += m.score_b;
+    tB.diff += (m.score_b - m.score_a);
+    tB.played.add(idA);
+  }
+
+  // Sort teams by Points, then by Differential
+  const sortedTeams = Array.from(teamMap.values()).sort((a, b) => b.points - a.points || b.diff - a.diff);
+  const assigned = new Set<string>();
+  let courtCount = 1;
+
+  for (let i = 0; i < sortedTeams.length; i++) {
+    const teamA = sortedTeams[i]!;
+    if (assigned.has(teamA.id)) continue;
+
+    let opponentIndex = -1;
+    
+    // Priority 1: Find closest opponent they haven't played yet
+    for (let j = i + 1; j < sortedTeams.length; j++) {
+      const candidate = sortedTeams[j]!;
+      if (!assigned.has(candidate.id) && !teamA.played.has(candidate.id)) {
+        opponentIndex = j;
+        break;
+      }
+    }
+    
+    // Priority 2 (Fallback): Find closest opponent regardless of history if no unique matchups remain
+    if (opponentIndex === -1) {
+      for (let j = i + 1; j < sortedTeams.length; j++) {
+        if (!assigned.has(sortedTeams[j]!.id)) {
+          opponentIndex = j;
+          break;
+        }
+      }
+    }
+
+    // Assign Match
+    if (opponentIndex !== -1 && courtCount <= courts) {
+      const teamB = sortedTeams[opponentIndex]!;
+      out.push({
+        round,
+        court: courtCount++,
+        a1: teamA.p1,
+        a2: teamA.p2,
+        b1: teamB.p1,
+        b2: teamB.p2,
+      });
+      assigned.add(teamA.id);
+      assigned.add(teamB.id);
+    }
+  }
+
+  return out;
 }
