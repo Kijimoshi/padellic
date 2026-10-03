@@ -82,7 +82,7 @@ function Dashboard() {
         .from("tournaments")
         .insert({
           owner_id: ownerId,
-          name: name.trim() || "Padel night",
+          name: name.trim() || "My padel event",
           format,
           courts: Number(courts),
           points_per_match: Number(points),
@@ -119,23 +119,24 @@ function Dashboard() {
 
         <div className="mt-3 md:mt-4 grid gap-3 md:gap-5 lg:grid-cols-[360px_1fr] gap-y-4 md:gap-y-5">
           <form
-            className="panel h-fit space-y-1 md:space-y-3 p-6 mb-2 md:mb-6"
+            className="panel h-fit space-y-1 md:space-y-3 p-4 mb-1 md:p-6 md:mb-6"
             onSubmit={(e) => {
               e.preventDefault();
               create.mutate();
             }}
           >
             <h2 className="text-lg font-semibold">New tournament</h2>
-            <div className="space-y-2">
+            <div className="space-y-1 ms:space-y-2">
               <Label htmlFor="tname">Name</Label>
               <Input
                 id="tname"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Friday padel night"
+                className="text-sm placeholder:text-foreground/30"
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1 ms:space-y-2">
               <Label>Format</Label>
               <Select value={format} onValueChange={(v) => setFormat(v as Format)}>
                 <SelectTrigger>
@@ -150,7 +151,7 @@ function Dashboard() {
               </Select>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
+              <div className="space-y-1 ms:space-y-2">
                 <Label htmlFor="courts">Courts</Label>
                 <Input
                   id="courts"

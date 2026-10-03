@@ -124,13 +124,13 @@ function Landing() {
                     <strong className="text-foreground">Americano</strong>: smart scheduling - partners rotate randomly every round, with the Padellic algorithm actively prioritizing unique pairings for maximum variety.
                   </p>
                   <p>
-                    <strong className="text-foreground">Mexicano</strong>: re-seeds from the current standings so the top players meet.
+                    <strong className="text-foreground">Mexicano</strong>: re-seeds matches after every round based on the standings to keep games highly competitive.
                   </p>
                   <p>
-                    <strong className="text-foreground">Swiss-system</strong>: ensures that each pair plays opponents with a similar running score without rematching.
+                    <strong className="text-foreground">Swiss-system</strong>: pairs compete against opponents with a similar ongoing score, guaranteeing balanced matches while strictly preventing repeat matchups.
                   </p>
                   <p>
-                    <strong className="text-foreground">King of the Court</strong>: pairs compete in a knockout-style tournament to determine the ultimate champion.
+                    <strong className="text-foreground">King of the Court</strong>: pairs battle up the promotion ladder to claim the main court and become the ultimate champions.
                   </p>
                 </div>
           </div>

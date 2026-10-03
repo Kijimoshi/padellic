@@ -311,7 +311,7 @@ function TournamentPage() {
           </div>
 
           {/* 2. Top Right: Action Buttons */}
-          <div className="flex flex-wrap gap-2 mb-2">
+          <div className="mb-2 mt-1 flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
             <Dialog>
               <DialogTrigger asChild>
                 <Button variant="outline" className="text-xs sm:text-sm">
@@ -374,7 +374,7 @@ function TournamentPage() {
             {/* Left Column: Tabs  */}
             <div>
               {/* 2. TABS */}
-              <TabsList className="w-fit sm:h-10 mt-2">
+              <TabsList className="sm:h-10 mt-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto">
                 <TabsTrigger value="rounds" className="text-sm sm:text-base">Rounds</TabsTrigger>
                 <TabsTrigger value="standings" className="text-sm sm:text-base">Standings</TabsTrigger>
                 <TabsTrigger value="players" className="text-sm sm:text-base">Players</TabsTrigger>
@@ -494,9 +494,10 @@ function TournamentPage() {
                       Prev round
                     </Button>
 
-                    <span className="text-xs font-medium">
-                      Round {currentRoundIndex + 1} / {tournament.format === "americano" ? tournament.total_rounds : rounds.length}
-                    </span>
+                    <div className="text-xs font-medium text-center">
+                      <p>Round</p>
+                      <p>{currentRoundIndex + 1} / {tournament.format === "americano" ? tournament.total_rounds : rounds.length}</p>
+                    </div>
 
                     {currentRoundIndex < rounds.length - 1 ? (
                       <Button
