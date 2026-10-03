@@ -142,8 +142,8 @@ function Dashboard() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="americano">Americano — partners rotate</SelectItem>
-                  <SelectItem value="mexicano">Mexicano — seeded by standings</SelectItem>
+                  <SelectItem value="americano">Americano — solo partners rotate</SelectItem>
+                  <SelectItem value="mexicano">Mexicano — solo seeded by standings</SelectItem>
                   <SelectItem value="swiss">Swiss — fixed pairs matched by score</SelectItem>
                   <SelectItem value="kotc">King of the Court — fixed pairs move courts</SelectItem>
                 </SelectContent>

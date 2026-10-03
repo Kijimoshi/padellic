@@ -377,7 +377,7 @@ function TournamentPage() {
                 <p className="text-sm text-muted-foreground">
                   {tournament.format === "americano"
                     ? "Generates the full tournament with rotating partners."
-                    : "Mexicano builds one round at a time from the live standings."}
+                    : "Mexicano, Swiss and KOtC build one round at a time from the live standings."}
                 </p>
                 <Button
                   onClick={() => generateSchedule.mutate()}
@@ -869,7 +869,7 @@ function SettingsForm({
   onSave: (updates: { 
     name: string; 
     courts: number; 
-    format: "americano" | "mexicano" | "swiss" | "kotc" 
+    format: Format  // changed from "americano" | "mexicano" | "swiss" | "kotc" to 'Format' type
   }) => void;
   isPending: boolean;
 }) {
@@ -908,14 +908,17 @@ function SettingsForm({
       
       <div className="space-y-2">
         <label className="text-sm font-medium">Tournament Format</label>
-        <Select value={format} onValueChange={(val: "americano" | "mexicano") => setFormat(val)}>
+        {/* // changed from "americano" | "mexicano" | "swiss" | "kotc" to 'Format' type */}
+        <Select value={format} onValueChange={(val: Format) => setFormat(val)}> 
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="americano">Americano — partners rotate</SelectItem>
-            <SelectItem value="mexicano">Mexicano — seeded by standings</SelectItem>
-          </SelectContent>
+            <SelectContent>
+              <SelectItem value="americano">Americano — solo partners rotate</SelectItem>
+              <SelectItem value="mexicano">Mexicano — solo seeded by standings</SelectItem>
+              <SelectItem value="swiss">Swiss — fixed pairs matched by score</SelectItem>
+              <SelectItem value="kotc">King of the Court — fixed pairs move courts</SelectItem>
+            </SelectContent>
         </Select>
       </div>
 
