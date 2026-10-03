@@ -48,11 +48,6 @@ export function SiteHeader() {
           
           {email ? (
             <>
-              {/* EMAIL DISPLAY - RESPONSIVE SIZE & SCALING */}
-              <span className="text-[10px] sm:text-sm text-muted-foreground mr-1 sm:mr-2 max-w-[80px] sm:max-w-none truncate" title={email}>
-                {email}
-              </span>
-
               {/* ADMIN LINK - ONLY VISIBLE TO YOU */}
               {email === "igor.krolak@gmail.com" && (
                 <Button asChild variant="ghost" size="sm" className="text-amber-500 hover:text-amber-600 px-2 sm:px-3">
@@ -60,9 +55,15 @@ export function SiteHeader() {
                 </Button>
               )}
 
-              <Button asChild variant="ghost" size="sm" className="px-2 sm:px-3">
-                <Link to="/dashboard">My tournaments</Link>
-              </Button>
+              {/* EMAIL DISPLAY - RESPONSIVE SIZE & SCALING */}
+              <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+                <span className="self-center text-[10px] sm:text-xs text-muted-foreground mr-1 max-w-[90px] sm:max-w-none truncate" title={email}>
+                  {email}
+                </span>
+                <Button asChild variant="ghost" size="sm" className="sm:text-base">
+                  <Link to="/dashboard">My tournaments</Link>
+                </Button>
+              </div>
               <Button variant="outline" size="sm" onClick={signOut} className="px-2 sm:px-3">
                 <LogOut className="size-4 sm:mr-2" />
                 <span className="hidden sm:inline">Sign out</span>
