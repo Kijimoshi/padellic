@@ -111,15 +111,15 @@ function Dashboard() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="mx-auto max-w-6xl px-4 py-10">
+      <main className="mx-auto max-w-6xl px-4 py-4 sm:py-6 md:py-8">
         <h1 className="text-3xl font-bold">My tournaments</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-1 mb-2 text-sm text-muted-foreground">
           Set up a new event or jump back into one in progress.
         </p>
 
-        <div className="mt-8 grid gap-6 lg:grid-cols-[360px_1fr]">
+        <div className="mt-3 md:mt-4 grid gap-3 md:gap-5 lg:grid-cols-[360px_1fr] gap-y-4 md:gap-y-5">
           <form
-            className="panel h-fit space-y-4 p-6"
+            className="panel h-fit space-y-1 md:space-y-3 p-6 mb-2 md:mb-6"
             onSubmit={(e) => {
               e.preventDefault();
               create.mutate();
@@ -171,13 +171,13 @@ function Dashboard() {
                 />
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={create.isPending}>
+            <Button type="submit" className="w-full mt-2" disabled={create.isPending}>
               <Plus className="size-4" />
               Create tournament
             </Button>
           </form>
 
-          <div className="space-y-4">
+          <div className="space-y-2 md:space-y-4">
             {/* Filter Checkboxes */}
             <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border/80 bg-background/40 p-4">
               <span className="text-sm font-medium text-muted-foreground">Filter:</span>
@@ -190,7 +190,7 @@ function Dashboard() {
                       checked={selectedStatuses.includes(status)}
                       onCheckedChange={() => toggleStatus(status)}
                     />
-                    <Label htmlFor={`filter-${status}`} className="cursor-pointer capitalize text-sm">
+                    <Label htmlFor={`filter-${status}`} className="cursor-pointer capitalize text-xs md:text-sm">
                       {status}
                     </Label>
                   </div>
@@ -198,7 +198,7 @@ function Dashboard() {
               </div>
 
               {/* Visual Divider */}
-              <div className="hidden h-5 w-px bg-border sm:block"></div>
+              <div className="hidden h-5 w-px bg-border sm:block self-center"></div>
 
               {/* Ownership Checkbox */}
               <div className="flex items-center space-x-2">
@@ -216,7 +216,7 @@ function Dashboard() {
             </div>         
 
             {/* Tournament List */}
-            <div className="space-y-3">
+            <div className="mt-4 md:mt-6 space-y-2 md:space-y-4">
               {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
               {!isLoading && filteredTournaments.length === 0 && (
                 <div className="panel p-8 text-center">
@@ -231,7 +231,7 @@ function Dashboard() {
                   key={t.id}
                   to="/tournament/$id"
                   params={{ id: t.id }}
-                  className="panel flex items-center justify-between gap-4 p-5 transition-colors hover:border-primary/60"
+                  className="panel flex items-center justify-between gap-4 p-4 md:p-5 transition-colors hover:border-primary/60"
                 >
                   <div>
                     <p className="font-display text-lg font-semibold">{t.name}</p>

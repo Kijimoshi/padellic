@@ -41,7 +41,7 @@ const features = [
     body: "Players follow the schedule and the leaderboard live from their phones. No account needed to watch.",
   },
 ];
-
+// 80 - 10 - 50
 function Landing() {
   return (
     <div className="flex min-h-screen flex-col">
@@ -53,9 +53,9 @@ function Landing() {
           alt="Floodlit padel court at night"
           width={1600}
           height={1008}
-          className="absolute inset-0 size-full object-cover opacity-45"
+          className="absolute inset-0 size-full object-cover opacity-70"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/50 to-background" />
         <div className="court-grid absolute inset-0 opacity-70" />
 
         <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
