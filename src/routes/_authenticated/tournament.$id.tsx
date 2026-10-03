@@ -229,6 +229,7 @@ function TournamentPage() {
     onSuccess: () => {
       invalidate();
       toast.success("Schedule ready");
+      setCurrentRoundIndex(0);
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not build the schedule"),
   });

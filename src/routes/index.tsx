@@ -75,7 +75,7 @@ function Landing() {
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold tracking-wide text-foreground">
                 <span>AMERICANO</span>
-                <span className="text-primary/40">•</span>
+                <span className="text-primary/60">•</span>
                 <span>MEXICANO</span>
               </div>
             </div>
@@ -87,7 +87,7 @@ function Landing() {
               </div>
               <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-bold tracking-wide text-foreground">
                 <span>SWISS-SYSTEM</span>
-                <span className="text-primary/40">•</span>
+                <span className="text-primary/60">•</span>
                 <span>KING OF THE COURT</span>
               </div>
             </div>
