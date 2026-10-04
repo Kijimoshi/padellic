@@ -721,7 +721,7 @@ function TournamentPage() {
             />
 
             {tournament.status !== "setup" && (
-              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-500 dark:text-amber-800">
+              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-400">
                 <AlertCircle className="mt-0.5 size-4 shrink-0"/>
                     <p>
                       <strong className="font-semibold">Safety check!</strong> You cannot edit parameters while a tournament is active or finished. Temporarily change the status back to <strong>Setup</strong> in the panel above to make changes.  
@@ -1095,6 +1095,25 @@ function SettingsForm({
     onSave({ name: name.trim(), courts: numCourts, format });
   };
 
+  // The compatible format families
+  const FORMAT_FAMILIES = [
+    ["americano", "mexicano"],
+    ["kotc", "swiss"],
+  ];
+
+  // The descriptive text for your dropdown
+  const FORMAT_LABELS: Record<string, string> = {
+    americano: "Americano — solo partners rotate",
+    mexicano: "Mexicano — solo seeded by standings",
+    swiss: "Swiss — fixed pairs matched by score",
+    kotc: "King of the Court — fixed pairs move courts",
+  };
+
+  // Find which family the current tournament belongs to
+  const allowedFormats = FORMAT_FAMILIES.find((family) => 
+    family.includes(tournament.format)
+  ) || [tournament.format];
+
   return (
     <div className="panel max-w-lg space-y-5 p-5">
       <div className="space-y-2">
@@ -1124,12 +1143,17 @@ function SettingsForm({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="americano">Americano — solo partners rotate</SelectItem>
-            <SelectItem value="mexicano">Mexicano — solo seeded by standings</SelectItem>
-            <SelectItem value="swiss">Swiss — fixed pairs matched by score</SelectItem>
-            <SelectItem value="kotc">King of the Court — fixed pairs move courts</SelectItem>
+            {allowedFormats.map((format) => (
+              <SelectItem key={format} value={format}>
+                {/* Fallback to raw format name just in case it's missing from the map */}
+                {FORMAT_LABELS[format] || format} 
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
+        <p className="text-xs text-muted-foreground">
+          Note: Mid-tournament you can switch between compatible format types.
+        </p>
       </div>
 
       <Button
