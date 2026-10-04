@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus } from "lucide-react"; // Added QrCode
+import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus, AlertCircle, Lightbulb } from "lucide-react"; // Added QrCode
 import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/site-header";
 import { StandingsTable } from "@/components/standings-table";
@@ -720,8 +720,17 @@ function TournamentPage() {
               isPending={updateTournament.isPending}
             />
 
+            {tournament.status !== "setup" && (
+              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-500 dark:text-amber-800">
+                <AlertCircle className="mt-0.5 size-4 shrink-0"/>
+                    <p>
+                      <strong className="font-semibold">Safety check!</strong> You cannot edit parameters while a tournament is active or finished. Temporarily change the status back to <strong>Setup</strong> in the panel above to make changes.  
+                    </p>
+              </div>
+            )}
+
             <div className="mt-8 rounded-lg border border-destructive/30 bg-destructive/5 p-5">
-              <h3 className="text-sm font-semibold text-destructive">Danger Zone: Rebuild Schedule</h3>
+              <h3 className="text-sm font-semibold text-destructive">Danger Zone: destructive actions below</h3>
               <p className="mt-2 text-sm text-muted-foreground">
                 <strong>Be careful!</strong> Rebuilding the schedule will delete all current matches and entered scores, creating a brand new schedule from scratch.
               </p>
@@ -1125,7 +1134,7 @@ function SettingsForm({
 
       <Button
         onClick={handleSave}
-        disabled={isPending || !name.trim() || parseInt(courts, 10) < 1}
+        disabled={isPending || tournament.status !== "setup" || !name.trim() || parseInt(courts, 10) < 1 }
       >
         Save changes
       </Button>

@@ -34,31 +34,34 @@ export function ThemeProvider({
     return defaultTheme;
   });
 
-  useEffect(() => {
+useEffect(() => {
     const root = window.document.documentElement;
     
-    root.classList.remove("light");
+    // 1. Remove both classes to start clean every time it runs
+    root.classList.remove("light", "dark");
 
     if (theme === "system") {
-      const mediaQuery = window.matchMedia("(prefers-color-scheme: light)");
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
       const applySystemTheme = (e: MediaQueryList | MediaQueryListEvent) => {
+        root.classList.remove("light", "dark");
         if (e.matches) {
-          root.classList.add("light");
+          root.classList.add("dark");
         } else {
-          root.classList.remove("light");
+          root.classList.add("light");
         }
       };
 
+      // Apply immediately
       applySystemTheme(mediaQuery);
 
+      // Listen for system changes (e.g., user changes OS theme while app is open)
       mediaQuery.addEventListener("change", applySystemTheme);
       return () => mediaQuery.removeEventListener("change", applySystemTheme);
     }
 
-    if (theme === "light") {
-      root.classList.add("light");
-    }
+    // 2. If it's not system, explicitly add "light" or "dark" based on the state
+    root.classList.add(theme);
 
     return undefined;
   }, [theme]);

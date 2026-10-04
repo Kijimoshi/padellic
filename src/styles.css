@@ -3,7 +3,7 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
-
+/* @custom-variant light (&:not(.dark *)); */
 /*
  * Court Night design system — dark padel-court energy.
  * Neon mint accent on deep navy. All colors in oklch.

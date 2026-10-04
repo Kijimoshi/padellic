@@ -21,8 +21,8 @@ export function ThemeToggle() {
   }
 
   // Calculate the actual visible theme
-  const isLight = 
-    theme === "light" || 
+  const isLight =
+    theme === "light" ||
     (theme === "system" && window.matchMedia("(prefers-color-scheme: light)").matches);
 
   return (
