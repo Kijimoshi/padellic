@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus, AlertCircle, Lightbulb } from "lucide-react"; // Added QrCode
+import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus, AlertCircle, ChevronDown, Users } from "lucide-react";
+
 import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/site-header";
 import { StandingsTable } from "@/components/standings-table";
@@ -14,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { matchesQuery, playersQuery, tournamentQuery } from "@/lib/tournament-data";
 import {
   buildAmericano,
+  getPairingStats,
   buildMexicanoRound,
   buildSwissRound,
   buildKotcRound,
@@ -104,6 +106,9 @@ function TournamentPage() {
   const nameOf = (pid: string) => players.find((p) => p.id === pid)?.name ?? "—";
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
+
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const pairingStats = getPairingStats(matches, players);
 
   const rounds = useMemo(() => {
     const map = new Map<number, MatchRow[]>();
@@ -606,14 +611,63 @@ function TournamentPage() {
                   Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
                 </p>
               </div>
+              
             )}
 
           </TabsContent>
 
-          <TabsContent value="standings" className="mt-6">
+          {/* STANDINGS TAB */}
+          <TabsContent value="standings" className="mt-6 space-y-4">
             <StandingsTable rows={displayStandings} />
+
+            {/* Collapsible Pairing Stats Card */}
+            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+              <button
+                onClick={() => setIsStatsOpen(!isStatsOpen)}
+                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+                    <Users className="size-4 text-primary" />
+                  </div>
+                  <span className="font-thin text-sm sm:text-base">Pairing Statistics</span>
+                </div>
+                <ChevronDown
+                  className={`size-5 text-muted-foreground transition-transform duration-200 ${
+                    isStatsOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {isStatsOpen && (
+                <div className="border-t p-4 pt-4 animate-in slide-in-from-top-2 fade-in duration-200">
+                  {pairingStats.length === 0 ? (
+                    <p className="py-6 text-center text-sm text-muted-foreground">
+                      No matches played yet.
+                    </p>
+                  ) : (
+                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                      {pairingStats.map((stat, i) => (
+                        <div 
+                          key={i} 
+                          className="flex items-center justify-between rounded-lg border bg-background p-3 text-sm transition-colors hover:bg-muted/50"
+                        >
+                          <span className="font-medium">
+                            {stat.p1Name} <span className="text-muted-foreground font-normal mx-1">&</span> {stat.p2Name}
+                          </span>
+                          <span className="rounded-full bg-secondary/80 px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                            {stat.count} {stat.count === 1 ? "match" : "matches"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
+          {/* Players Tab     */}
           <TabsContent value="players" className="mt-6 space-y-4">
             <form
               className="flex gap-2"

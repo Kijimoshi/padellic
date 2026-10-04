@@ -162,6 +162,41 @@ export function buildAmericano(
 
   return out;
 }
+
+export function getPairingStats(
+  matches: MatchRow[], 
+  players: { id: string; name: string }[]
+) {
+  const teamCounts = new Map<string, number>();
+
+  // 1. Count every time two players are on the same team
+  for (const match of matches) {
+    const aPair = [match.a1, match.a2].sort().join("|");
+    const bPair = [match.b1, match.b2].sort().join("|");
+    
+    teamCounts.set(aPair, (teamCounts.get(aPair) || 0) + 1);
+    teamCounts.set(bPair, (teamCounts.get(bPair) || 0) + 1);
+  }
+
+  // 2. Create a lookup dictionary for player names (for faster UI rendering)
+  const playerLookup = new Map(players.map(p => [p.id, p.name]));
+
+  // 3. Transform the Map into an array of UI-friendly objects
+  const statsArray = Array.from(teamCounts.entries()).map(([key, count]) => {
+    const [p1Id, p2Id] = key.split("|");
+    return {
+      p1Id,
+      p2Id,
+      p1Name: playerLookup.get(p1Id!) || "Unknown",
+      p2Name: playerLookup.get(p2Id!) || "Unknown",
+      count
+    };
+  });
+
+  // Sort by highest count first
+  return statsArray.sort((a, b) => b.count - a.count);
+}
+
 /** Mexicano: next round is seeded by current standings — 1+4 vs 2+3 on each court. */
 export function buildMexicanoRound(
   standings: StandingRow[],

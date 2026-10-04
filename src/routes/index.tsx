@@ -8,13 +8,13 @@ import heroCourt from "@/assets/hero-court.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Padellic — Padel Americano & Mexicano tournament app" },
+      { title: "Padellic — Padel Tournament app" },
       {
         name: "description",
         content:
-          "Set up a padel Americano or Mexicano in under a minute: add players, auto-generate the rounds, tap in scores and share live standings with a link.",
+          "Set up a padel tournament in under a minute: add players, auto-generate the rounds, tap in scores and share live standings with a link.",
       },
-      { property: "og:title", content: "Padellic — Padel Americano & Mexicano tournament app" },
+      { property: "og:title", content: "Padellic — Padel Tournament app" },
       {
         name: "og:description",
         content: "Auto-generated rounds, live standings and a share link for every padel session.",
@@ -55,7 +55,7 @@ function Landing() {
           height={1008}
           className="absolute inset-0 size-full object-cover opacity-70"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/40 to-background" />
+        <div className="absolute inset-0 bg-linear-to-b from-background/10 via-background/40 to-background" />
         <div className="court-grid absolute inset-0 opacity-70" />
 
         <div className="relative mx-auto max-w-6xl px-4 py-24 sm:py-32">
