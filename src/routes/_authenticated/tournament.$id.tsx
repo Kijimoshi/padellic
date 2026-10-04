@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive } from "lucide-react"; // Added QrCode
-
+import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus } from "lucide-react"; // Added QrCode
+import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/site-header";
 import { StandingsTable } from "@/components/standings-table";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,8 @@ import { QRCodeSVG } from "qrcode.react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -132,6 +134,57 @@ function TournamentPage() {
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not add the player"),
   });
+
+  // bulk player list
+  const addMultiplePlayers = useMutation({
+    mutationFn: async (names: string[]) => {
+      // Transform the array of strings into an array of database row objects
+      const rowsToInsert = names.map((name, index) => ({
+        tournament_id: id,
+        name,
+        sort_order: players.length + index, 
+      }));
+
+      // Pass the entire array to Supabase for a single bulk insert
+      const { error } = await supabase
+        .from("players")
+        .insert(rowsToInsert);
+        
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setBulkText(""); // Clear the textarea
+      setIsLoadModalOpen(false); // Close the modal
+      invalidate(); // Refresh the list
+      toast.success("List loaded successfully");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not load the list"),
+  });
+
+  const [isLoadModalOpen, setIsLoadModalOpen] = useState(false);
+  const [bulkText, setBulkText] = useState("");
+  const handleBulkLoad = () => {
+    if (!bulkText.trim()) return;
+
+    const newNames = bulkText
+      .split("\n")
+      .map((name) => name.trim())
+      .filter((name) => name.length > 0);
+
+    if (newNames.length === 0) {
+      setIsLoadModalOpen(false);
+      return;
+    }
+
+    // 50 Player Limit Check 
+    if (players.length + newNames.length > 50) {
+      const remainingSlots = 50 - players.length;
+      toast.error(`Limit 50 players exceeded! You can only add ${remainingSlots} more players.`);
+      return;
+    }
+
+    addMultiplePlayers.mutate(newNames);
+  };
 
   const updatePlayer = useMutation({
     mutationFn: async ({ playerId, name }: { playerId: string; name: string }) => {
@@ -436,7 +489,7 @@ function TournamentPage() {
             })()}
 
             {players.length < 4 && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm ml-2 text-muted-foreground">
                 Add at least 4 players to build a schedule.
               </p>
             )}
@@ -475,7 +528,7 @@ function TournamentPage() {
 
                     {/* Resting players section */}
                     {restingPlayers.length > 0 && (
-                      <div className="mt-4 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                      <div className="mt-2 sm:mt-4 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
                         <span className="font-medium text-foreground">Resting:</span>{" "}
                         {restingPlayers.map((p) => p.name).join(", ")}
                       </div>
@@ -570,6 +623,14 @@ function TournamentPage() {
                 <Plus className="size-4" />
                 Add
               </Button>
+              <Button 
+                variant="secondary" 
+                onClick={() => setIsLoadModalOpen(true)}
+              >
+                <ListPlus className="mr-2 size-4" />
+                Load list
+              </Button>
+
             </form>
 
             <div className={tournament?.format === "swiss" || tournament?.format === "kotc" ? "space-y-1" : "panel divide-y divide-border/70"}>
@@ -624,6 +685,23 @@ function TournamentPage() {
                 </div>
               )}
             </div>
+
+            {/* helper text */}
+            <div className="ml-1 mt-0.5 sm:mt-4 flex items-start gap-2 text-xs sm:text-sm text-muted-foreground sm:items-center">
+              <span className="text-[14px]">💡</span>
+              <p>
+                Double-click a name to edit. Press{" "}
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                  Enter
+                </kbd>{" "}
+                to confirm, or{" "}
+                <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+                  Esc
+                </kbd>{" "}
+                to cancel.
+              </p>
+            </div>
+            
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6 space-y-6">
@@ -689,6 +767,46 @@ function TournamentPage() {
 
         </Tabs>
       </main>
+
+      {/* BULK LOAD MODAL WINDOW */}
+      <Dialog open={isLoadModalOpen} onOpenChange={setIsLoadModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Load Player List</DialogTitle>
+            <DialogDescription>
+              Paste a list of player names below. Put each name on a new line.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            <Textarea
+              placeholder={`Halina\nZbyszek\nJadzia\nGrażyna`}
+              className="min-h-50 resize-y font-mono text-sm"
+              value={bulkText}
+              onChange={(e) => setBulkText(e.target.value)}
+            />
+          </div>
+          
+          <DialogFooter className="sm:justify-end gap-2">
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setIsLoadModalOpen(false);
+                setBulkText("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleBulkLoad}
+              disabled={addMultiplePlayers.isPending}
+            >
+              {addMultiplePlayers.isPending ? "Saving..." : "Import list"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
