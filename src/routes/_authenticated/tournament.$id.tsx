@@ -307,8 +307,17 @@ function TournamentPage() {
           plannedMatches = buildMexicanoRound(standings, nextRound, tournament.courts);
           break;
       }
-
       await insertMatches(plannedMatches);
+
+      // tournament status check every time a new round is generated
+      if (tournament?.status === "setup") {
+        const { error: statusError } = await supabase
+          .from("tournaments")
+          .update({ status: "live" })
+          .eq("id", id);
+          
+        if (statusError) throw statusError;
+      }
     },
     onSuccess: () => {
       invalidate();
