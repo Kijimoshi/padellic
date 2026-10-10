@@ -54,16 +54,33 @@ function Dashboard() {
     "finished",
   ]);
   
-  //const [ownerFilter, setOwnerFilter] = useState<"mine" | "all">("mine");
-  // New states for ownership filtering
+  // States for ownership filtering
   const [showOnlyMine, setShowOnlyMine] = useState(true);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  // Fetch the current user on mount
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setCurrentUserId(data.user.id);
-    });
-  }, []);
+
+  const { data: currentUserData, isLoading: loadingUser } = useQuery({
+    queryKey: ["currentUserProfile"],
+    queryFn: async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return { userId: null, isAdmin: false };
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", user.id)
+        .single();
+
+      return {
+        userId: user.id,
+        isAdmin: profile?.is_admin === true,
+      };
+    },
+  });
+
+  const currentUserId = currentUserData?.userId ?? null;
+  const isAdmin = currentUserData?.isAdmin ?? false;
   
   const toggleStatus = (status: string) => {
     setSelectedStatuses((prev) =>
@@ -104,9 +121,15 @@ function Dashboard() {
   // Filter the tournaments list based on checked statuses and ownership
   const filteredTournaments = tournaments.filter((t: Tournament) => {
     const matchesStatus = selectedStatuses.includes(t.status);
-    const matchesOwner = showOnlyMine ? t.owner_id === currentUserId : true;
+    const matchesOwner = isAdmin
+      ? showOnlyMine
+        ? t.owner_id === currentUserId
+        : true
+      : t.owner_id === currentUserId;
     return matchesStatus && matchesOwner;
   });
+
+  const isTournamentsLoading = isLoading || loadingUser;
 
   return (
     <div className="min-h-screen">
@@ -212,22 +235,25 @@ function Dashboard() {
                 ))}
               </div>
 
-              {/* Visual Divider */}
-              <div className="hidden h-5 w-px bg-border sm:block self-center"></div>
+              {/* Ownership Checkbox (Admin only) */}
+              {isAdmin && (
+                <>
+                  {/* Visual Divider */}
+                  <div className="hidden h-5 w-px bg-border sm:block self-center"></div>
 
-              {/* Ownership Checkbox */}
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="filter-mine"
-                  checked={showOnlyMine}
-                  onCheckedChange={(checked) => setShowOnlyMine(checked as boolean)}
-                  disabled={!currentUserId}
-                />
-                <Label htmlFor="filter-mine" className="cursor-pointer text-sm font-medium">
-                  Only mine
-                  {/* removed  text-primary*/}
-                </Label>
-              </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="filter-mine"
+                      checked={showOnlyMine}
+                      onCheckedChange={(checked) => setShowOnlyMine(checked as boolean)}
+                      disabled={!currentUserId}
+                    />
+                    <Label htmlFor="filter-mine" className="cursor-pointer text-sm font-medium">
+                      Only mine
+                    </Label>
+                  </div>
+                </>
+              )}
             </div>         
 
             {/* Tournament List */}
