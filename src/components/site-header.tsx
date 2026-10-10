@@ -61,7 +61,7 @@ export function SiteHeader() {
                   {email}
                 </span>
                 <Button asChild variant="ghost" size="sm" className="h-6 px-2 text-xs sm:h-9 sm:px-3 sm:text-sm">
-                  <Link to="/dashboard">My tournaments</Link>
+                  <Link to="/dashboard">Dashboard</Link>
                 </Button>
               </div>
               <Button variant="outline" size="sm" onClick={signOut} className="px-2 sm:px-3">

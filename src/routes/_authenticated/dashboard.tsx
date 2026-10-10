@@ -112,21 +112,24 @@ function Dashboard() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-4 py-4 sm:py-6 md:py-8">
-        <h1 className="text-3xl font-bold">My tournaments</h1>
-        <p className="mt-1 mb-2 text-sm text-muted-foreground">
-          Set up a new event or jump back into one in progress.
-        </p>
+        <div className="grid gap-3 md:gap-5 lg:grid-cols-[360px_1fr] gap-y-4 md:gap-y-5">
+          {/* Part 1: New tournament */}
+          <div className="h-fit space-y-2 md:space-y-3">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">New tournament</h1>
+              <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+                Set up a new event
+              </p>
+            </div>
 
-        <div className="mt-3 md:mt-4 grid gap-3 md:gap-5 lg:grid-cols-[360px_1fr] gap-y-4 md:gap-y-5">
-          <form
-            className="panel h-fit space-y-1 md:space-y-3 p-4 mb-1 md:p-6 md:mb-6"
-            onSubmit={(e) => {
-              e.preventDefault();
-              create.mutate();
-            }}
-          >
-            <h2 className="text-lg font-semibold">New tournament</h2>
-            <div className="space-y-1 ms:space-y-2">
+            <form
+              className="panel h-fit space-y-1 md:space-y-3 p-4 mb-1 md:p-6 md:mb-6"
+              onSubmit={(e) => {
+                e.preventDefault();
+                create.mutate();
+              }}
+            >
+              <div className="space-y-1 ms:space-y-2">
               <Label htmlFor="tname">Name</Label>
               <Input
                 id="tname"
@@ -179,10 +182,19 @@ function Dashboard() {
               Create tournament
             </Button>
           </form>
+        </div>
 
-          <div className="space-y-2 md:space-y-4">
-            {/* Filter Checkboxes */}
-            <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border/80 bg-background/40 p-4">
+        {/* Part 2: My tournaments */}
+        <div className="space-y-2 md:space-y-4">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold">My tournaments</h2>
+            <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
+              Jump back into an event in progress
+            </p>
+          </div>
+
+          {/* Filter Checkboxes */}
+          <div className="flex flex-wrap items-center gap-4 rounded-lg border border-border/80 bg-background/40 p-4">
               <span className="text-sm font-medium text-muted-foreground">Filter:</span>
               
               <div className="flex flex-wrap items-center gap-4">
