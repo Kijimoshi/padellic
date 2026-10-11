@@ -392,7 +392,7 @@ function TournamentPage() {
 
             {/* INFO BAR */}
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <Badge variant="secondary">
+              <Badge variant="secondary" className="bg-secondary">
                 {getFormatLabel(tournament.format)}
               </Badge>
               <span>
@@ -468,10 +468,10 @@ function TournamentPage() {
             <div>
               {/* 2. TABS */}
               <TabsList className="sm:h-10 mt-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto bg-secondary">
-                <TabsTrigger value="rounds" className="text-sm sm:text-base">Rounds</TabsTrigger>
-                <TabsTrigger value="standings" className="text-sm sm:text-base">Standings</TabsTrigger>
-                <TabsTrigger value="players" className="text-sm sm:text-base">Players</TabsTrigger>
-                <TabsTrigger value="settings" className="text-sm sm:text-base">Settings</TabsTrigger>
+                <TabsTrigger value="rounds" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Rounds</TabsTrigger>
+                <TabsTrigger value="standings" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Standings</TabsTrigger>
+                <TabsTrigger value="players" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Players</TabsTrigger>
+                <TabsTrigger value="settings" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Settings</TabsTrigger>
               </TabsList>
             </div>
 
@@ -589,7 +589,7 @@ function TournamentPage() {
 
                     <div className="text-xs font-medium text-center">
                       <p>Round</p>
-                      <p>{currentRoundIndex + 1} / {tournament.format === "americano" ? tournament.total_rounds : rounds.length}</p>
+                      <p><b>{currentRoundIndex + 1}</b> / {tournament.format === "americano" ? tournament.total_rounds : rounds.length}</p>
                     </div>
 
                     {currentRoundIndex < rounds.length - 1 ? (
@@ -828,7 +828,7 @@ function TournamentPage() {
                   return (
                     <div
                       key={`team-${i}`}
-                      className="overflow-hidden rounded-md border-2 border-foreground/30 bg-surface shadow-sm"
+                      className="overflow-hidden rounded-md border border-foreground/30 bg-surface shadow-sm"
                     >
                       <div className="divide-y divide-primary/20 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
                         {p1 && (
@@ -1179,7 +1179,7 @@ function ScoreRow({
   }, [justSaved]);
 
   return (
-    <div className="rounded-lg border border-border/60 bg-muted/80 p-2 md:p-3">
+    <div className="rounded-lg border border-border/60 bg-muted/50 p-2 md:p-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Court {match.court}</span>
         {hasError ? (
@@ -1200,7 +1200,7 @@ function ScoreRow({
         )}
       </div>
 
-      <div className="mt-1 md:mt-4 flex flex-col items-stretch gap-1 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4">
+      <div className="mt-1 md:mt-2 flex flex-col items-stretch md:items-center gap-1 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4">
         {/* Team A */}
         <div className="flex flex-col items-start gap-1">
           <p className="text-left text-base font-semibold">
@@ -1221,7 +1221,7 @@ function ScoreRow({
                 if (a === "") setA("0");
               }}
               inputMode="numeric"
-              className="h-12 w-16 text-center text-xl font-bold tabular-nums bg-surface-strong border-border/80 focus:border-primary"
+              className="h-12 w-16 text-center text-base md:text-lg font-bold tabular-nums bg-surface-strong/80 border-border/80 focus:border-primary"
             />
             <span className="text-muted-foreground pb-1">:</span>
             <Input
@@ -1234,7 +1234,7 @@ function ScoreRow({
                 if (b === "") setB("0");
               }}
               inputMode="numeric"
-              className="h-12 w-16 text-center text-xl font-bold tabular-nums bg-surface-strong border-border/80 focus:border-primary"
+              className="h-12 w-16 text-center text-base md:text-lg font-bold tabular-nums bg-surface-strong/80 border-border/80 focus:border-primary"
             />
           </div>
         </div>
