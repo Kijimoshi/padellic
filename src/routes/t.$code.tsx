@@ -148,7 +148,7 @@ function PublicTournament() {
                   .map((m) => (
                     <div
                       key={m.id}
-                      className="flex flex-col items-stretch gap-4 rounded-lg border border-border/80 bg-background/40 p-3 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4 md:items-center"
+                      className="flex flex-col items-stretch gap-4 rounded-lg border border-border/60 bg-muted/30 p-3 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-4 md:items-center"
                     >
                       {/* Team A */}
                       <div className="flex flex-col items-start gap-1">

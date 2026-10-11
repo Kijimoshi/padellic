@@ -569,7 +569,7 @@ function TournamentPage() {
 
                     {/* Resting players section */}
                     {restingPlayers.length > 0 && (
-                      <div className="mt-2 sm:mt-4 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
+                      <div className="mt-2 sm:mt-4 rounded-lg border border-border/40 bg-muted/40 p-3 text-sm text-muted-foreground">
                         <span className="font-medium text-foreground">Resting:</span>{" "}
                         {restingPlayers.map((p) => p.name).join(", ")}
                       </div>
@@ -648,10 +648,10 @@ function TournamentPage() {
             <StandingsTable rows={displayStandings} />
 
             {/* Collapsible Pairing Stats Card */}
-            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+            <div className="panel">
               <button
                 onClick={() => setIsStatsOpen(!isStatsOpen)}
-                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
@@ -666,7 +666,7 @@ function TournamentPage() {
               </button>
 
               {isStatsOpen && (
-                <div className="border-t p-4 pt-4 animate-in slide-in-from-top-2 fade-in duration-200">
+                <div className="border-t border-border/70 p-4 pt-4 animate-in slide-in-from-top-2 fade-in duration-200">
                   {pairingStats.length === 0 ? (
                     <p className="py-6 text-center text-sm text-muted-foreground">
                       No matches played yet.
@@ -676,12 +676,12 @@ function TournamentPage() {
                       {pairingStats.map((stat, i) => (
                         <div
                           key={i}
-                          className="flex items-center justify-between rounded-lg border bg-background p-3 text-sm transition-colors hover:bg-muted/50"
+                          className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/30 p-3 text-sm transition-colors hover:bg-muted/50"
                         >
                           <span className="font-medium">
                             {stat.p1Name} <span className="text-muted-foreground font-normal mx-1">&</span> {stat.p2Name}
                           </span>
-                          <span className="rounded-full bg-secondary/80 px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
                             {stat.count} {stat.count === 1 ? "match" : "matches"}
                           </span>
                         </div>
@@ -693,10 +693,10 @@ function TournamentPage() {
             </div>
 
             {/* Collapsible Rounds Breakdown Card */}
-            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+            <div className="panel">
               <button
                 onClick={() => setIsRoundsOpen(!isRoundsOpen)}
-                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
@@ -711,7 +711,7 @@ function TournamentPage() {
               </button>
 
               {isRoundsOpen && (
-                <div className="border-t p-4 pt-4 animate-in slide-in-from-top-2 fade-in duration-200">
+                <div className="border-t border-border/70 p-4 pt-4 animate-in slide-in-from-top-2 fade-in duration-200">
                   {rounds.length === 0 ? (
                     <p className="py-6 text-center text-sm text-muted-foreground">
                       No rounds played yet.
@@ -720,8 +720,8 @@ function TournamentPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full min-w-max text-sm">
                         <thead>
-                          <tr className="border-b bg-muted/50 text-xs uppercase tracking-widest text-muted-foreground">
-                            <th className="sticky left-0 z-10 bg-card px-3 py-2 text-left font-semibold">
+                          <tr className="border-b border-border/70 bg-surface-strong text-xs uppercase tracking-widest text-muted-foreground">
+                            <th className="sticky left-0 z-10 bg-surface-strong px-3 py-2 text-left font-semibold">
                               Player
                             </th>
                             {rounds.map(([round]) => (
@@ -729,7 +729,7 @@ function TournamentPage() {
                                 R{round}
                               </th>
                             ))}
-                            <th className="sticky right-0 z-10 bg-card px-3 py-2 text-center font-semibold">
+                            <th className="sticky right-0 z-10 bg-surface-strong px-3 py-2 text-center font-semibold">
                               Points
                             </th>
                           </tr>
@@ -743,7 +743,7 @@ function TournamentPage() {
                             );
                             return (
                               <tr key={row.playerId} className="border-b border-border/70 last:border-b-0">
-                                <td className="sticky left-0 z-10 whitespace-nowrap bg-card px-3 py-2 font-medium">
+                                <td className="sticky left-0 z-10 whitespace-nowrap bg-surface px-3 py-2 font-medium">
                                   {row.name}
                                 </td>
                                 {rounds.map(([round]) => {
@@ -770,7 +770,7 @@ function TournamentPage() {
                                     </td>
                                   );
                                 })}
-                                <td className="sticky right-0 z-10 bg-card px-3 py-2 text-center font-display font-bold tabular-nums">
+                                <td className="sticky right-0 z-10 bg-surface px-3 py-2 text-center font-display font-bold tabular-nums">
                                   {totalPoints}
                                 </td>
                               </tr>
@@ -814,7 +814,7 @@ function TournamentPage() {
 
             </form>
 
-            <div className={tournament?.format === "swiss" || tournament?.format === "kotc" ? "space-y-1" : "panel divide-y divide-border/70"}>
+            <div className={tournament?.format === "swiss" || tournament?.format === "kotc" ? "space-y-1" : "panel bg-surface-strong/70 divide-y divide-border/70"}>
               {players.length === 0 && (
                 <p className="p-3 text-sm text-muted-foreground">No players yet.</p>
               )}
@@ -828,7 +828,7 @@ function TournamentPage() {
                   return (
                     <div
                       key={`team-${i}`}
-                      className="overflow-hidden rounded-md border-2 border-foreground/30 bg-primary/5 shadow-sm"
+                      className="overflow-hidden rounded-md border-2 border-foreground/30 bg-surface-strong/60 shadow-sm"
                     >
                       <div className="divide-y divide-primary/20 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
                         {p1 && (
@@ -1179,7 +1179,7 @@ function ScoreRow({
   }, [justSaved]);
 
   return (
-    <div className="rounded-lg border border-border/80 bg-background/40 p-2 md:p-3">
+    <div className="rounded-lg border border-border/60 bg-muted/30 p-2 md:p-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Court {match.court}</span>
         {hasError ? (
@@ -1221,7 +1221,7 @@ function ScoreRow({
                 if (a === "") setA("0");
               }}
               inputMode="numeric"
-              className="h-12 w-16 text-center text-xl font-bold tabular-nums"
+              className="h-12 w-16 text-center text-xl font-bold tabular-nums bg-surface-strong border-border/80 focus:border-primary"
             />
             <span className="text-muted-foreground pb-1">:</span>
             <Input
@@ -1234,7 +1234,7 @@ function ScoreRow({
                 if (b === "") setB("0");
               }}
               inputMode="numeric"
-              className="h-12 w-16 text-center text-xl font-bold tabular-nums"
+              className="h-12 w-16 text-center text-xl font-bold tabular-nums bg-surface-strong border-border/80 focus:border-primary"
             />
           </div>
         </div>
@@ -1427,7 +1427,7 @@ function MatchClock() {
   const seconds = time.getSeconds().toString().padStart(2, "0");
 
   return (
-    <div className="relative flex items-center justify-center rounded-lg border border-primary/20 bg-background/50 px-5 py-3 shadow-[2px_2px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[2px_2px_0px_0px_hsl(var(--primary)/0.3)]">
+    <div className="relative flex items-center justify-center rounded-lg border border-primary/30 bg-transparent px-5 py-3 shadow-[2px_2px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[2px_2px_0px_0px_hsl(var(--primary)/0.3)]">
       <div className="flex items-baseline font-mono text-5xl font-black leading-none tracking-tighter text-foreground tabular-nums">
         <span>{hours}</span>
         <span className="mx-1 animate-[pulse_1s_ease-in-out_infinite] text-primary/40 pb-0.5">:</span>
