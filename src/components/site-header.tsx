@@ -9,16 +9,40 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 export function SiteHeader() {
   const [email, setEmail] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   useEffect(() => {
     let active = true;
     supabase.auth.getUser().then(({ data }) => {
-      if (active) setEmail(data.user?.email ?? null);
+      if (!active) return;
+      const user = data.user;
+      setEmail(user?.email ?? null);
+      if (!user) return;
+
+      // Check database column is_admin for the logged-in user's profile
+      supabase
+        .from("profiles")
+        .select("display_name, is_admin")
+        .eq("id", user.id)
+        .single()
+        .then(({ data: profile }) => {
+          if (!active) return;
+          if (profile) {
+            setDisplayName(profile.display_name ?? null);
+            setIsAdmin(profile.is_admin === true);
+          }
+        });
     });
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return;
       setEmail(session?.user?.email ?? null);
+      if (!session?.user) {
+        setDisplayName(null);
+        setIsAdmin(false);
+      }
     });
     return () => {
       active = false;
