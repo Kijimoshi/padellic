@@ -60,19 +60,20 @@ function AuthPage() {
     e.preventDefault();
 
     if (!captchaToken) {
-      toast.error("Please complete the bot verification.");
+      toast.error("Please complete the CAPTCHA challenge.");
       return;
     }
 
     setBusy(true);
+
     try {
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin + (next ?? ""),
             captchaToken,
+            emailRedirectTo: `${window.location.origin}${next ?? "/dashboard"}`,
             data: { display_name: name || email.split("@")[0] },
           },
         });
@@ -86,14 +87,15 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
-          options: { captchaToken },
+          options: {
+            captchaToken,
+          },
         });
         if (error) throw error;
         goNext();
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Something went wrong");
-      // Reset Turnstile token on authentication failure so user can retry
+      toast.error(error instanceof Error ? error.message : "Authentication failed");
       turnstileRef.current?.reset();
       setCaptchaToken(null);
     } finally {
@@ -103,9 +105,15 @@ function AuthPage() {
 
   async function handleGoogle() {
     setBusy(true);
+
+    // Ensure valid redirect URI even when 'next' parameter is missing
+    const redirectTarget = next ? next : "/dashboard";
+    const redirectUri = `${window.location.origin}${redirectTarget}`;
+
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin + (next ?? ""),
+      redirect_uri: redirectUri,
     });
+
     if (result.error) {
       setBusy(false);
       toast.error("Google sign-in failed. Please try again.");

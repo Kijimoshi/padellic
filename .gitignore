@@ -35,3 +35,4 @@ dist-ssr
 *.sw?
 
 supabase/functions/verify-turnstile/index.ts
+src/server/turnstile.ts
