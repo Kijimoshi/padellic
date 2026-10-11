@@ -34,7 +34,7 @@ export function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border/70 bg-surface-strong/70 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-border/70 bg-surface-strong backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
         <Link to="/" className="flex items-center gap-2">
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
@@ -50,7 +50,7 @@ export function SiteHeader() {
             <>
               {/* ADMIN LINK - ONLY VISIBLE TO YOU */}
               {email === "igor.krolak@gmail.com" && (
-                <Button asChild variant="ghost" size="sm" className="text-amber-500 hover:text-amber-600 px-2 sm:px-3">
+                <Button asChild variant="ghost" size="sm" className="text-amber-600 hover:text-amber-700 px-2 sm:px-3">
                   <Link to="/admin">Admin</Link>
                 </Button>
               )}

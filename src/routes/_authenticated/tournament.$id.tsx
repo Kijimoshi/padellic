@@ -468,7 +468,7 @@ function TournamentPage() {
             {/* Left Column: Tabs  */}
             <div>
               {/* 2. TABS */}
-              <TabsList className="sm:h-10 mt-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto">
+              <TabsList className="sm:h-10 mt-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto bg-secondary">
                 <TabsTrigger value="rounds" className="text-sm sm:text-base">Rounds</TabsTrigger>
                 <TabsTrigger value="standings" className="text-sm sm:text-base">Standings</TabsTrigger>
                 <TabsTrigger value="players" className="text-sm sm:text-base">Players</TabsTrigger>
@@ -569,7 +569,7 @@ function TournamentPage() {
 
                     {/* Resting players section */}
                     {restingPlayers.length > 0 && (
-                      <div className="mt-2 sm:mt-4 rounded-lg border border-border/40 bg-muted/10 p-3 text-sm text-muted-foreground">
+                      <div className="mt-2 sm:mt-4 rounded-lg border border-border/40 bg-muted/30 p-3 text-sm text-muted-foreground">
                         <span className="font-thin text-foreground">Resting:</span>{" "}
                         {restingPlayers.map((p) => p.name).join(", ")}
                       </div>
@@ -815,7 +815,7 @@ function TournamentPage() {
 
             </form>
 
-            <div className={tournament?.format === "swiss" || tournament?.format === "kotc" ? "space-y-1" : "panel bg-surface-strong/70 divide-y divide-border/70"}>
+            <div className={tournament?.format === "swiss" || tournament?.format === "kotc" ? "space-y-1" : "panel bg-surface divide-y divide-border/70"}>
               {players.length === 0 && (
                 <p className="p-3 text-sm text-muted-foreground">No players yet.</p>
               )}
@@ -829,7 +829,7 @@ function TournamentPage() {
                   return (
                     <div
                       key={`team-${i}`}
-                      className="overflow-hidden rounded-md border-2 border-foreground/30 bg-surface-strong/60 shadow-sm"
+                      className="overflow-hidden rounded-md border-2 border-foreground/30 bg-surface shadow-sm"
                     >
                       <div className="divide-y divide-primary/20 [&_button]:py-0.5 [&_div]:py-0.5 md:[&_button]:py-1 md:[&_div]:py-1">
                         {p1 && (
@@ -1180,7 +1180,7 @@ function ScoreRow({
   }, [justSaved]);
 
   return (
-    <div className="rounded-lg border border-border/60 bg-muted/30 p-2 md:p-3">
+    <div className="rounded-lg border border-border/60 bg-muted/80 p-2 md:p-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Court {match.court}</span>
         {hasError ? (
