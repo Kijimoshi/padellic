@@ -26,8 +26,7 @@ import {
   type Format,
   type MatchRow,
   type PlannedMatch,
-  getFormatLabel,
-  validatePlayerCount
+  getFormatLabel
 } from "@/lib/padel";
 
 import {
@@ -112,7 +111,7 @@ function TournamentPage() {
   const [isRoundsOpen, setIsRoundsOpen] = useState(false);
   const pairingStats = getPairingStats(matches, players);
 
-    const rounds = useMemo(() => {
+  const rounds = useMemo(() => {
     const map = new Map<number, MatchRow[]>();
     for (const m of matches) {
       const list = map.get(m.round) ?? [];
@@ -174,14 +173,14 @@ function TournamentPage() {
       const rowsToInsert = names.map((name, index) => ({
         tournament_id: id,
         name,
-        sort_order: players.length + index, 
+        sort_order: players.length + index,
       }));
 
       // Pass the entire array to Supabase for a single bulk insert
       const { error } = await supabase
         .from("players")
         .insert(rowsToInsert);
-        
+
       if (error) throw error;
     },
     onSuccess: () => {
@@ -208,10 +207,10 @@ function TournamentPage() {
       return;
     }
 
-    // 50 Player Limit Check 
-    if (players.length + newNames.length > 50) {
-      const remainingSlots = 50 - players.length;
-      toast.error(`Limit 50 players exceeded! You can only add ${remainingSlots} more players.`);
+    // 48 Player Limit Check 
+    if (players.length + newNames.length > 48) {
+      const remainingSlots = 48 - players.length;
+      toast.error(`Limit 48 players exceeded! You can only add ${remainingSlots} more players.`);
       return;
     }
 
@@ -347,7 +346,7 @@ function TournamentPage() {
           .from("tournaments")
           .update({ status: "live" })
           .eq("id", id);
-          
+
         if (statusError) throw statusError;
       }
     },
@@ -638,7 +637,7 @@ function TournamentPage() {
                   Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
                 </p>
               </div>
-              
+
             )}
 
           </TabsContent>
@@ -795,7 +794,7 @@ function TournamentPage() {
                 if (name) addPlayer.mutate(name);
               }}
             >
-                            <Input
+              <Input
                 value={newPlayer}
                 onChange={(e) => setNewPlayer(e.target.value)}
                 placeholder="Player name"
@@ -805,8 +804,8 @@ function TournamentPage() {
                 <Plus className="size-4" />
                 Add
               </Button>
-              <Button 
-                variant="secondary" 
+              <Button
+                variant="secondary"
                 onClick={() => setIsLoadModalOpen(true)}
               >
                 <ListPlus className="mr-2 size-4" />
@@ -883,7 +882,7 @@ function TournamentPage() {
                 to cancel.
               </p>
             </div>
-            
+
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6 space-y-6">
@@ -904,10 +903,10 @@ function TournamentPage() {
 
             {tournament.status !== "setup" && (
               <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-400">
-                <AlertCircle className="mt-0.5 size-4 shrink-0"/>
-                    <p>
-                      <strong className="font-semibold">Safety check!</strong> You cannot edit parameters while a tournament is active or finished. Temporarily change the status back to <strong>Setup</strong> in the panel above to make changes.  
-                    </p>
+                <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                <p>
+                  <strong className="font-semibold">Safety check!</strong> You cannot edit parameters while a tournament is active or finished. Temporarily change the status back to <strong>Setup</strong> in the panel above to make changes.
+                </p>
               </div>
             )}
 
@@ -968,7 +967,7 @@ function TournamentPage() {
               Paste a list of player names below. Put each name on a new line.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="py-4">
             <Textarea
               placeholder={`Halina\nZbyszek\nJadzia\nGrażyna`}
@@ -977,10 +976,10 @@ function TournamentPage() {
               onChange={(e) => setBulkText(e.target.value)}
             />
           </div>
-          
+
           <DialogFooter className="sm:justify-end gap-2">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={() => {
                 setIsLoadModalOpen(false);
                 setBulkText("");
@@ -988,7 +987,7 @@ function TournamentPage() {
             >
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleBulkLoad}
               disabled={addMultiplePlayers.isPending}
             >
@@ -1188,8 +1187,8 @@ function ScoreRow({
         ) : match.completed || justSaved ? (
           <span
             className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${justSaved
-                ? "bg-green-500/20 text-primary font-bold scale-105"
-                : "text-primary"
+              ? "bg-green-500/20 text-primary font-bold scale-105"
+              : "text-primary"
               }`}
           >
             <Check className="size-3.5" /> Saved
@@ -1292,7 +1291,7 @@ function SettingsForm({
   };
 
   // Find which family the current tournament belongs to
-  const allowedFormats = FORMAT_FAMILIES.find((family) => 
+  const allowedFormats = FORMAT_FAMILIES.find((family) =>
     family.includes(tournament.format)
   ) || [tournament.format];
 
@@ -1328,7 +1327,7 @@ function SettingsForm({
             {allowedFormats.map((format) => (
               <SelectItem key={format} value={format}>
                 {/* Fallback to raw format name just in case it's missing from the map */}
-                {FORMAT_LABELS[format] || format} 
+                {FORMAT_LABELS[format] || format}
               </SelectItem>
             ))}
           </SelectContent>
@@ -1340,7 +1339,7 @@ function SettingsForm({
 
       <Button
         onClick={handleSave}
-        disabled={isPending || tournament.status !== "setup" || !name.trim() || parseInt(courts, 10) < 1 }
+        disabled={isPending || tournament.status !== "setup" || !name.trim() || parseInt(courts, 10) < 1}
       >
         Save changes
       </Button>
@@ -1393,10 +1392,10 @@ function TournamentStatusBar({
               {/* Added bg-background to perfectly mask the track line behind it */}
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background transition-all duration-200 ${isCurrent
-                    ? "border-primary bg-primary text-primary-foreground shadow-md ring-4 ring-primary/20"
-                    : isPast
-                      ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
-                      : "border-muted text-muted-foreground hover:border-primary/50 hover:text-primary/70"
+                  ? "border-primary bg-primary text-primary-foreground shadow-md ring-4 ring-primary/20"
+                  : isPast
+                    ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
+                    : "border-muted text-muted-foreground hover:border-primary/50 hover:text-primary/70"
                   }`}
               >
                 <Icon className="size-4" />

@@ -44,23 +44,10 @@ function shuffle<T>(array: T[]): T[] {
   return result;
 }
 
-/** Circle-method partner rotation: every round pairs all players with a new partner. */
-function partnerRounds(ids: string[]): string[][][] {
-  const list = [...ids];
-  if (list.length % 2 === 1) list.push(GHOST);
-  const n = list.length;
-  const fixed = list[0]!;
-  let rest = list.slice(1);
-  const rounds: string[][][] = [];
-
-  for (let r = 0; r < n - 1; r++) {
-    const order = [fixed, ...rest];
-    const pairs: string[][] = [];
-    for (let i = 0; i < n / 2; i++) pairs.push([order[i]!, order[n - 1 - i]!]);
-    rounds.push(pairs);
-    rest = [rest[rest.length - 1]!, ...rest.slice(0, -1)];
-  }
-  return rounds;
+export function suggestedRounds(playerCount: number): number {
+  if (playerCount < 4) return 0;
+  const base = playerCount % 2 === 0 ? playerCount - 1 : playerCount;
+  return Math.min(Math.max(base, 3), 15);
 }
 
 /**
@@ -118,15 +105,15 @@ export function buildAmericano(
       }
     }
 
+    // Shuffle within same count to add variety
+    shuffle(possibleTeams);
+
     // Sort by repeat count (prefer teams that haven't played together)
     possibleTeams.sort((teamA, teamB) => {
       const keyA = [teamA[0], teamA[1]].sort().join("|");
       const keyB = [teamB[0], teamB[1]].sort().join("|");
       return (teamCounts.get(keyA) || 0) - (teamCounts.get(keyB) || 0);
     });
-
-    // Shuffle within same count to add variety
-    shuffle(possibleTeams);
 
     // Select teams greedily (no player appears twice per round)
     const roundTeams: Array<[string, string]> = [];
@@ -163,6 +150,7 @@ export function buildAmericano(
   return out;
 }
 
+// Pair statistics under Standings table //
 export function getPairingStats(
   matches: MatchRow[], 
   players: { id: string; name: string }[]
@@ -224,53 +212,6 @@ export function buildMexicanoRound(
   }
 
   return out;
-}
-
-export function computeStandings(
-  players: { id: string; name: string }[],
-  matches: MatchRow[],
-): StandingRow[] {
-  const table = new Map<string, StandingRow>();
-  for (const p of players) {
-    table.set(p.id, {
-      playerId: p.id,
-      name: p.name,
-      played: 0,
-      points: 0,
-      conceded: 0,
-      diff: 0,
-      wins: 0,
-    });
-  }
-
-  for (const m of matches) {
-    if (!m.completed) continue;
-    const teams: [string[], number, number][] = [
-      [[m.a1, m.a2], m.score_a, m.score_b],
-      [[m.b1, m.b2], m.score_b, m.score_a],
-    ];
-    for (const [ids, scored, against] of teams) {
-      for (const id of ids) {
-        const row = table.get(id);
-        if (!row) continue;
-        row.played += 1;
-        row.points += scored;
-        row.conceded += against;
-        row.diff = row.points - row.conceded;
-        if (scored > against) row.wins += 1;
-      }
-    }
-  }
-
-  return [...table.values()].sort(
-    (a, b) => b.points - a.points || b.diff - a.diff || a.name.localeCompare(b.name),
-  );
-}
-
-export function suggestedRounds(playerCount: number): number {
-  if (playerCount < 4) return 0;
-  const base = playerCount % 2 === 0 ? playerCount - 1 : playerCount;
-  return Math.min(Math.max(base, 3), 15);
 }
 
 // KOTC: King of the Court — winners move up, losers move down. Each court has a "king" team.
@@ -453,6 +394,49 @@ export function buildSwissRound(
   return out;
 }
 
+// Table Standings //
+export function computeStandings(
+  players: { id: string; name: string }[],
+  matches: MatchRow[],
+): StandingRow[] {
+  const table = new Map<string, StandingRow>();
+  for (const p of players) {
+    table.set(p.id, {
+      playerId: p.id,
+      name: p.name,
+      played: 0,
+      points: 0,
+      conceded: 0,
+      diff: 0,
+      wins: 0,
+    });
+  }
+
+  for (const m of matches) {
+    if (!m.completed) continue;
+    const teams: [string[], number, number][] = [
+      [[m.a1, m.a2], m.score_a, m.score_b],
+      [[m.b1, m.b2], m.score_b, m.score_a],
+    ];
+    for (const [ids, scored, against] of teams) {
+      for (const id of ids) {
+        const row = table.get(id);
+        if (!row) continue;
+        row.played += 1;
+        row.points += scored;
+        row.conceded += against;
+        row.diff = row.points - row.conceded;
+        if (scored > against) row.wins += 1;
+      }
+    }
+  }
+
+  return [...table.values()].sort(
+    (a, b) => b.points - a.points || b.diff - a.diff || a.name.localeCompare(b.name),
+  );
+}
+
+// Standings table for Swiss and KotC //
 export function computeTeamStandings(
   players: { id: string; name: string }[],
   individualStandings: StandingRow[] 
@@ -507,19 +491,4 @@ export function getFormatLabel(format: Format): string {
     default:
       return format;
   }
-}
-
-export function validatePlayerCount(format: Format, count: number): { valid: boolean; message?: string } {
-  if (count < 4) {
-    return { valid: false, message: "A minimum of 4 players is required to start." };
-  }
-
-  if ((format === "kotc" || format === "swiss") && count % 4 !== 0) {
-    return { 
-      valid: false, 
-      message: `${getFormatLabel(format)} requires a multiple of 4 players (e.g., 4, 8, 12, 16).` 
-    };
-  }
-
-  return { valid: true };
 }
