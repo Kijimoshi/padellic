@@ -163,7 +163,7 @@ function AdminPanel() {
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="flex h-9 w-[150px] items-center justify-between rounded-md border border-input bg-background text-foreground px-3 py-1 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring"
+                    className="flex h-9 w-37 items-center justify-between rounded-md border border-input bg-background text-foreground px-3 py-1 text-sm shadow-sm ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring"
                   >
                     <option value="all" className="bg-background text-foreground">All Statuses</option>
                     <option value="setup" className="bg-background text-foreground">Setup</option>
