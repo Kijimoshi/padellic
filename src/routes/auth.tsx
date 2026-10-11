@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { verifyTurnstileToken } from "@/server/turnstile"; // Import the server function
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -67,12 +68,19 @@ function AuthPage() {
     setBusy(true);
 
     try {
+      // Step 1: Execute server-side siteverify call via TanStack Start
+      const verification = await verifyTurnstileToken({ data: captchaToken });
+
+      if (!verification.success) {
+        throw new Error(verification.error || "Bot verification failed.");
+      }
+
+      // Step 2: Trigger authentication only after server verification succeeds
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            captchaToken,
             emailRedirectTo: `${window.location.origin}${next ?? "/dashboard"}`,
             data: { display_name: name || email.split("@")[0] },
           },
@@ -87,9 +95,6 @@ function AuthPage() {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
-          options: {
-            captchaToken,
-          },
         });
         if (error) throw error;
         goNext();
@@ -105,8 +110,6 @@ function AuthPage() {
 
   async function handleGoogle() {
     setBusy(true);
-
-    // Ensure valid redirect URI even when 'next' parameter is missing
     const redirectTarget = next ? next : "/dashboard";
     const redirectUri = `${window.location.origin}${redirectTarget}`;
 
