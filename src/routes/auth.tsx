@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
-import { verifyTurnstileToken } from "@/src/lib/turnstile.functions"; // Import the server function
+import { verifyTurnstileToken } from "@/lib/turnstile.functions"; // Import the server function
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
