@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
@@ -34,16 +35,20 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
+  const turnstileRef = useRef<TurnstileInstance>(null);
+
   const goNext = () => {
     if (next) window.location.href = next;
     else navigate({ to: "/dashboard", replace: true });
   };
+
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -53,6 +58,12 @@ function AuthPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (!captchaToken) {
+      toast.error("Please complete the bot verification.");
+      return;
+    }
+
     setBusy(true);
     try {
       if (mode === "signup") {
@@ -61,6 +72,7 @@ function AuthPage() {
           password,
           options: {
             emailRedirectTo: window.location.origin + (next ?? ""),
+            captchaToken,
             data: { display_name: name || email.split("@")[0] },
           },
         });
@@ -71,12 +83,19 @@ function AuthPage() {
         }
         goNext();
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+          options: { captchaToken },
+        });
         if (error) throw error;
         goNext();
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong");
+      // Reset Turnstile token on authentication failure so user can retry
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
     } finally {
       setBusy(false);
     }
@@ -155,7 +174,23 @@ function AuthPage() {
                       autoComplete={mode === "signin" ? "current-password" : "new-password"}
                     />
                   </div>
-                  <Button type="submit" className="w-full" disabled={busy}>
+
+                  {/* Cloudflare Turnstile Widget */}
+                  <div className="flex min-h-16.25 justify-center py-2">
+                    <Turnstile
+                      ref={turnstileRef}
+                      siteKey={import.meta.env["VITE_TURNSTILE_SITE_KEY"]}
+                      onSuccess={(token) => setCaptchaToken(token)}
+                      onExpire={() => setCaptchaToken(null)}
+                      onError={() => setCaptchaToken(null)}
+                      options={{
+                        theme: "auto",
+                        action: mode,
+                      }}
+                    />
+                  </div>
+
+                  <Button type="submit" className="w-full" disabled={busy || !captchaToken}>
                     {mode === "signin" ? "Sign in" : "Create account"}
                   </Button>
                 </form>
@@ -179,7 +214,11 @@ function AuthPage() {
                 <button
                   type="button"
                   className="mt-6 w-full text-sm text-muted-foreground transition-colors hover:text-foreground"
-                  onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+                  onClick={() => {
+                    setMode(mode === "signin" ? "signup" : "signin");
+                    turnstileRef.current?.reset();
+                    setCaptchaToken(null);
+                  }}
                 >
                   {mode === "signin"
                     ? "No account yet? Sign up"

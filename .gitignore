@@ -34,3 +34,4 @@ dist-ssr
 *.sln
 *.sw?
 
+supabase/functions/verify-turnstile/index.ts
