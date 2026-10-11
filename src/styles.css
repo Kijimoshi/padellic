@@ -78,8 +78,8 @@
   --border: oklch(40% 0.05 257);
   --input: oklch(39% 0.035 259);
   --ring: oklch(94% 0.20 119);
-  --surface: oklch(0.22 0.03 263);
-  --surface-strong: oklch(0.20 0.032 258);
+  --surface: oklch(0.25 0.05 263);
+  --surface-strong: oklch(0.22 0.032 258);
   --chart-1: oklch(0.875 0.202 162);
   --chart-2: oklch(0.72 0.15 230);
   --chart-3: oklch(0.8 0.16 90);

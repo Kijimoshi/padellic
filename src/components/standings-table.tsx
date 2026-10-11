@@ -9,7 +9,7 @@ export function StandingsTable({ rows }: { rows: StandingRow[] }) {
   return (
     <div className="overflow-hidden rounded-xl border border-border">
       <table className="w-full text-sm">
-        <thead className="border-b border-border/70 bg-surface-strong/60 text-xs uppercase tracking-wider text-muted-foreground">
+        <thead className="border-b border-border/70 bg-surface-strong/80 text-xs uppercase tracking-wider text-muted-foreground">
           <tr>
             <th className="px-3 py-2 text-left font-medium">#</th>
             <th className="px-3 py-2 text-left font-medium">Player</th>
@@ -21,7 +21,7 @@ export function StandingsTable({ rows }: { rows: StandingRow[] }) {
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr key={row.playerId} className="border-t border-border/70">
+            <tr key={row.playerId} className="border-t border-border/70 bg-surface">
               <td
                 className={cn(
                   "px-3 py-2 tabular text-muted-foreground",

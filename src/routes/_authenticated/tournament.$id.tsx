@@ -408,7 +408,7 @@ function TournamentPage() {
           <div className="mb-2 mt-1 flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" className="text-xs sm:text-sm">
+                <Button variant="outline" className="text-xs sm:text-sm hover:bg-surface-strong/80">
                   <QrCode className="size-4" />
                   Show QR
                 </Button>
@@ -430,7 +430,7 @@ function TournamentPage() {
 
             <Button
               variant="outline"
-              className="text-xs sm:text-sm"
+              className="text-xs sm:text-sm hover:bg-surface-strong/80"
               onClick={() => {
                 navigator.clipboard.writeText(shareUrl);
                 toast.success("Share link copied");
@@ -442,7 +442,7 @@ function TournamentPage() {
 
             <Button
               variant="outline"
-              className="gap-2 text-xs sm:text-sm"
+              className="gap-2 text-xs sm:text-sm hover:bg-surface-strong/80"
               onClick={() => {
                 if (typeof window !== "undefined") {
                   // Open live view in a normal new tab/window (no popup features)
@@ -452,8 +452,8 @@ function TournamentPage() {
             >
               {/* The Pulsing Green Dot */}
               <span className="relative flex size-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex size-2.5 rounded-full bg-emerald-500"></span>
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex size-2.5 rounded-full bg-green-600"></span>
               </span>
               Live view
             </Button>
@@ -569,8 +569,8 @@ function TournamentPage() {
 
                     {/* Resting players section */}
                     {restingPlayers.length > 0 && (
-                      <div className="mt-2 sm:mt-4 rounded-lg border border-border/40 bg-muted/40 p-3 text-sm text-muted-foreground">
-                        <span className="font-medium text-foreground">Resting:</span>{" "}
+                      <div className="mt-2 sm:mt-4 rounded-lg border border-border/40 bg-muted/10 p-3 text-sm text-muted-foreground">
+                        <span className="font-thin text-foreground">Resting:</span>{" "}
                         {restingPlayers.map((p) => p.name).join(", ")}
                       </div>
                     )}
@@ -720,12 +720,12 @@ function TournamentPage() {
                     <div className="overflow-x-auto">
                       <table className="w-full min-w-max text-sm">
                         <thead>
-                          <tr className="border-b border-border/70 bg-surface-strong text-xs uppercase tracking-widest text-muted-foreground">
+                          <tr className="border-b border-border/70 bg-surface text-xs uppercase tracking-widest text-muted-foreground">
                             <th className="sticky left-0 z-10 bg-surface-strong px-3 py-2 text-left font-semibold">
                               Player
                             </th>
                             {rounds.map(([round]) => (
-                              <th key={round} className="px-3 py-2 text-center font-semibold">
+                              <th key={round} className="px-3 bg-surface-strong py-2 text-center font-semibold">
                                 R{round}
                               </th>
                             ))}
@@ -795,10 +795,11 @@ function TournamentPage() {
                 if (name) addPlayer.mutate(name);
               }}
             >
-              <Input
+                            <Input
                 value={newPlayer}
                 onChange={(e) => setNewPlayer(e.target.value)}
                 placeholder="Player name"
+                className="focus:bg-surface-strong/70"
               />
               <Button type="submit" disabled={addPlayer.isPending}>
                 <Plus className="size-4" />
@@ -1187,7 +1188,7 @@ function ScoreRow({
         ) : match.completed || justSaved ? (
           <span
             className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${justSaved
-                ? "bg-green-500/20 text-green-600 dark:text-green-400 font-bold scale-105"
+                ? "bg-green-500/20 text-primary font-bold scale-105"
                 : "text-primary"
               }`}
           >
