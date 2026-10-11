@@ -132,19 +132,19 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
-          is_admin: boolean     
+          is_admin: boolean | null
         }
         Insert: {
           created_at?: string
           display_name?: string | null
           id: string
-          is_admin?: boolean
+          is_admin?: boolean | null
         }
         Update: {
           created_at?: string
           display_name?: string | null
           id?: string
-          is_admin?: boolean
+          is_admin?: boolean | null
         }
         Relationships: []
       }
@@ -185,7 +185,15 @@ export type Database = {
           status?: string
           total_rounds?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "tournaments_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
