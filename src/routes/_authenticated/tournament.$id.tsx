@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus, AlertCircle, ChevronDown, Users } from "lucide-react";
+import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus, List, AlertCircle, ChevronDown, Users } from "lucide-react";
 
 import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/site-header";
@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { matchesQuery, playersQuery, tournamentQuery } from "@/lib/tournament-data";
+import { cn } from "@/lib/utils";
 import {
   buildAmericano,
   getPairingStats,
@@ -108,9 +109,10 @@ function TournamentPage() {
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
 
   const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [isRoundsOpen, setIsRoundsOpen] = useState(false);
   const pairingStats = getPairingStats(matches, players);
 
-  const rounds = useMemo(() => {
+    const rounds = useMemo(() => {
     const map = new Map<number, MatchRow[]>();
     for (const m of matches) {
       const list = map.get(m.round) ?? [];
@@ -119,6 +121,31 @@ function TournamentPage() {
     }
     return [...map.entries()].sort((a, b) => a[0] - b[0]);
   }, [matches]);
+
+  // ROUNDS BREAKDOWN: per-player result (points + W/L/D) for each round
+  const roundResults = useMemo(() => {
+    const result = new Map<string, Map<number, { points: number; outcome: "W" | "L" | "D" }>>();
+    for (const p of players) {
+      const perRound = new Map<number, { points: number; outcome: "W" | "L" | "D" }>();
+      for (const [round, list] of rounds) {
+        for (const m of list) {
+          if (!m.completed) continue;
+          const inA = m.a1 === p.id || m.a2 === p.id;
+          const inB = m.b1 === p.id || m.b2 === p.id;
+          if (!inA && !inB) continue;
+          const scored = inA ? m.score_a : m.score_b;
+          const against = inA ? m.score_b : m.score_a;
+          perRound.set(round, {
+            points: scored,
+            outcome: scored > against ? "W" : scored < against ? "L" : "D",
+          });
+          break;
+        }
+      }
+      result.set(p.id, perRound);
+    }
+    return result;
+  }, [rounds, players]);
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["players", id] });
@@ -633,9 +660,8 @@ function TournamentPage() {
                   <span className="font-thin text-sm sm:text-base">Pairing Statistics</span>
                 </div>
                 <ChevronDown
-                  className={`size-5 text-muted-foreground transition-transform duration-200 ${
-                    isStatsOpen ? "rotate-180" : ""
-                  }`}
+                  className={`size-5 text-muted-foreground transition-transform duration-200 ${isStatsOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -648,8 +674,8 @@ function TournamentPage() {
                   ) : (
                     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                       {pairingStats.map((stat, i) => (
-                        <div 
-                          key={i} 
+                        <div
+                          key={i}
                           className="flex items-center justify-between rounded-lg border bg-background p-3 text-sm transition-colors hover:bg-muted/50"
                         >
                           <span className="font-medium">
@@ -660,6 +686,98 @@ function TournamentPage() {
                           </span>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Collapsible Rounds Breakdown Card */}
+            <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+              <button
+                onClick={() => setIsRoundsOpen(!isRoundsOpen)}
+                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
+                    <List className="size-4 text-primary" />
+                  </div>
+                  <span className="font-thin text-sm sm:text-base">Rounds Breakdown</span>
+                </div>
+                <ChevronDown
+                  className={`size-5 text-muted-foreground transition-transform duration-200 ${isRoundsOpen ? "rotate-180" : ""
+                    }`}
+                />
+              </button>
+
+              {isRoundsOpen && (
+                <div className="border-t p-4 pt-4 animate-in slide-in-from-top-2 fade-in duration-200">
+                  {rounds.length === 0 ? (
+                    <p className="py-6 text-center text-sm text-muted-foreground">
+                      No rounds played yet.
+                    </p>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-max text-sm">
+                        <thead>
+                          <tr className="border-b bg-muted/50 text-xs uppercase tracking-widest text-muted-foreground">
+                            <th className="sticky left-0 z-10 bg-card px-3 py-2 text-left font-semibold">
+                              Player
+                            </th>
+                            {rounds.map(([round]) => (
+                              <th key={round} className="px-3 py-2 text-center font-semibold">
+                                R{round}
+                              </th>
+                            ))}
+                            <th className="sticky right-0 z-10 bg-card px-3 py-2 text-center font-semibold">
+                              Points
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {standings.map((row) => {
+                            const perRound = roundResults.get(row.playerId);
+                            const totalPoints = Array.from(perRound?.values() || []).reduce(
+                              (sum, cell) => sum + cell.points,
+                              0
+                            );
+                            return (
+                              <tr key={row.playerId} className="border-b border-border/70 last:border-b-0">
+                                <td className="sticky left-0 z-10 whitespace-nowrap bg-card px-3 py-2 font-medium">
+                                  {row.name}
+                                </td>
+                                {rounds.map(([round]) => {
+                                  const cell = perRound?.get(round);
+                                  return (
+                                    <td key={round} className="px-3 py-2 text-center align-middle">
+                                      {cell ? (
+                                        <div className="flex flex-col items-center leading-tight">
+                                          <span className="tabular-nums">{cell.points}</span>
+                                          <span
+                                            className={cn(
+                                              "text-xs font-bold",
+                                              cell.outcome === "W" && "text-emerald-500",
+                                              cell.outcome === "L" && "text-red-500",
+                                              cell.outcome === "D" && "text-muted-foreground"
+                                            )}
+                                          >
+                                            {cell.outcome}
+                                          </span>
+                                        </div>
+                                      ) : (
+                                        <span className="text-muted-foreground/30">—</span>
+                                      )}
+                                    </td>
+                                  );
+                                })}
+                                <td className="sticky right-0 z-10 bg-card px-3 py-2 text-center font-display font-bold tabular-nums">
+                                  {totalPoints}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>
