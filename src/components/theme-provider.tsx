@@ -41,8 +41,8 @@ useEffect(() => {
     root.classList.remove("light", "dark");
 
     if (theme === "system") {
+      root.classList.remove("light", "dark");
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
       const applySystemTheme = (e: MediaQueryList | MediaQueryListEvent) => {
         // root.classList.remove("light", "dark");
         if (e.matches) {

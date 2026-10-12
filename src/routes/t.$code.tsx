@@ -60,11 +60,11 @@ function PublicTournament() {
   const { tournament, players, matches } = Route.useLoaderData();
   const router = useRouter();
 
-  // Auto-refresh the live view every 5 seconds
+  // Auto-refresh the live view every 10 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       router.invalidate();
-    }, 5000);
+    }, 10000);
     return () => clearInterval(interval);
   }, [router]);
 
@@ -79,7 +79,7 @@ function PublicTournament() {
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-border/70 bg-background/85 backdrop-blur">
+      <header className="border-b border-border/70 bg-surface-strong/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4">
           
           {/* Left side: Padellic Logo */}
@@ -126,7 +126,7 @@ function PublicTournament() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex size-2 rounded-full bg-emerald-500"></span>
             </span>
-            <span>Live standings auto-update every 5s</span>
+            <span>Live standings auto-update every 10s</span>
           </div>
         </section>
 
