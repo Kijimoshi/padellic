@@ -37,3 +37,4 @@ dist-ssr
 supabase/functions/verify-turnstile/index.ts
 
 .env
+vite.config.ts
