@@ -64,19 +64,25 @@ function AuthPage() {
     try {
       const isDev = import.meta.env.DEV;
 
-      // 1. Handle Turnstile verification (skipped in dev, non-blocking in prod)
-      if (!isDev && captchaToken) {
-        try {
-          const verification = await verifyTurnstileToken({ data: captchaToken });
-          if (!verification.success) {
-            console.warn("Turnstile token rejected by server:", verification.error);
-          }
-        } catch (err) {
-          console.warn("Turnstile verification skipped due to network/server error:", err);
+      // 1. Enforce Turnstile in production
+      if (!isDev) {
+        if (!captchaToken) {
+          toast.error("Please complete the CAPTCHA verification.");
+          setBusy(false);
+          return;
+        }
+
+        const verification = await verifyTurnstileToken({ data: captchaToken });
+        if (!verification.success) {
+          toast.error(verification.error || "CAPTCHA verification failed. Please try again.");
+          turnstileRef.current?.reset();
+          setCaptchaToken(null);
+          setBusy(false);
+          return;
         }
       }
 
-      // 2. Always proceed to Supabase Auth
+      // 2. Proceed to Supabase Auth only after CAPTCHA passes
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
