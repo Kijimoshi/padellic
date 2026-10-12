@@ -7,9 +7,18 @@ export const verifyTurnstileToken = createServerFn({ method: "POST" })
       return { success: false, error: "Missing CAPTCHA token." };
     }
 
-    // Use environment variable or fallback to Cloudflare dummy secret key for testing
-    const secretKey =
-      process.env["TURNSTILE_SECRET_KEY"] || "1x0000000000000000000000000000000AA";
+    // Retrieve key strictly from environment variables
+    const secretKey = process.env['TURNSTILE_SECRET_KEY'];
+
+    if (!secretKey) {
+      console.error(
+        "[Turnstile Verification Error]: TURNSTILE_SECRET_KEY is missing from environment variables."
+      );
+      return {
+        success: false,
+        error: "Server configuration error: missing Turnstile secret key.",
+      };
+    }
 
     try {
       const response = await fetch(
@@ -24,7 +33,11 @@ export const verifyTurnstileToken = createServerFn({ method: "POST" })
         }
       );
 
-      const outcome = await response.json();
+      const outcome = (await response.json()) as {
+        success: boolean;
+        "error-codes"?: string[];
+      };
+
       console.log("[Turnstile Server Verification Result]:", outcome);
 
       if (!outcome.success) {
