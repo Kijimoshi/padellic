@@ -57,21 +57,26 @@ function AuthPage() {
     });
   }, [navigate, next]);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setBusy(true);
 
     try {
-      // Attempt verification if token exists, but don't hard-block if unverified
-      if (captchaToken) {
+      const isDev = import.meta.env.DEV;
+
+      // 1. Handle Turnstile verification (skipped in dev, non-blocking in prod)
+      if (!isDev && captchaToken) {
         try {
-          await verifyTurnstileToken({ data: captchaToken });
+          const verification = await verifyTurnstileToken({ data: captchaToken });
+          if (!verification.success) {
+            console.warn("Turnstile token rejected by server:", verification.error);
+          }
         } catch (err) {
-          console.warn("Turnstile check skipped or failed on server:", err);
+          console.warn("Turnstile verification skipped due to network/server error:", err);
         }
       }
 
-      // Always proceed to Supabase Auth
+      // 2. Always proceed to Supabase Auth
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -97,6 +102,8 @@ function AuthPage() {
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Authentication failed");
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
     } finally {
       setBusy(false);
     }
@@ -152,6 +159,7 @@ function AuthPage() {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="John Doe"
                         autoComplete="name"
+                        className="bg-primary/30"
                       />
                     </div>
                   )}
@@ -165,6 +173,7 @@ function AuthPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       autoComplete="email"
+                      className="bg-primary/30"
                     />
                   </div>
                   <div className="space-y-2">
@@ -177,6 +186,7 @@ function AuthPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                      className="bg-primary/30"
                     />
                   </div>
 
