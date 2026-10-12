@@ -114,9 +114,8 @@ function AuthPage() {
     const redirectTarget = next ? next : "/dashboard";
     const redirectUri = `${window.location.origin}${redirectTarget}`;
 
-    const result = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: redirectUri },
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: redirectUri,
     });
 
     if (result.error) {
@@ -124,7 +123,9 @@ function AuthPage() {
       toast.error("Google sign-in failed. Please try again.");
       return;
     }
-    // Supabase redirects to the OAuth provider when the sign-in succeeds.
+
+    if (result.redirected) return;
+    goNext();
   }
 
   return (
@@ -159,7 +160,7 @@ function AuthPage() {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="John Doe"
                         autoComplete="name"
-                        className="bg-primary/30"
+                        className="bg-surface-strong border"
                       />
                     </div>
                   )}
@@ -173,7 +174,7 @@ function AuthPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       autoComplete="email"
-                      className="bg-primary/30"
+                      className="bg-surface-strong border" 
                     />
                   </div>
                   <div className="space-y-2">
@@ -186,7 +187,7 @@ function AuthPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       autoComplete={mode === "signin" ? "current-password" : "new-password"}
-                      className="bg-primary/30"
+                      className="bg-surface-strong border"
                     />
                   </div>
 
