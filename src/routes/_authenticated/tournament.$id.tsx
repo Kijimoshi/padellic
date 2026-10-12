@@ -841,6 +841,7 @@ function TournamentPage() {
                             index={i * 2}
                             onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p1.id, name })}
                             onRemove={() => removePlayer.mutate(p1.id)}
+                            canRemove={tournament?.status === "setup"} // <-- Add here
                           />
                         )}
                         {p2 && (
@@ -849,6 +850,7 @@ function TournamentPage() {
                             index={i * 2 + 1}
                             onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p2.id, name })}
                             onRemove={() => removePlayer.mutate(p2.id)}
+                            canRemove={tournament?.status === "setup"} // <-- Add here
                           />
                         )}
                       </div>
@@ -865,6 +867,7 @@ function TournamentPage() {
                       index={i}
                       onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p.id, name })}
                       onRemove={() => removePlayer.mutate(p.id)}
+                      canRemove={tournament?.status === "setup"}  
                     />
                   ))}
                 </div>
@@ -888,10 +891,10 @@ function TournamentPage() {
             </div>
 
             {tournament.status !== "setup" && (
-              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-300/80">
+              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-600 dark:text-amber-300/80">
                 <AlertCircle className="mt-0.5 size-4 shrink-0" />
                 <p>
-                  <strong className="font-semibold">Safety warning!</strong>
+                  <strong className="font-semibold">Safety warning! </strong>
                   Players cannot be removed while a tournament is active or finished.
                   To remove someone, temporarily revert the status to <strong>Setup</strong> in the Settings tab. <br />
                   Note: Removing a player mid-tournament will permanently delete any matches they were part of.
@@ -1022,11 +1025,13 @@ function PlayerItem({
   index,
   onUpdate,
   onRemove,
+  canRemove,
 }: {
   player: { id: string; name: string };
   index: number;
   onUpdate: (name: string) => Promise<void>;
   onRemove: () => void;
+  canRemove: boolean;
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(player.name);
@@ -1096,14 +1101,19 @@ function PlayerItem({
             >
               <Pencil className="size-4" />
             </Button>
+
+            {/* 3. Apply the disabled state to the Trash button */}
             <Button
               variant="ghost"
               size="icon"
               onClick={onRemove}
+              disabled={!canRemove}
               aria-label={`Remove ${player.name}`}
+              className={canRemove ? "hover:text-destructive hover:bg-destructive/10" : "text-secondary/60 dark:text-primary/30"}
             >
               <Trash2 className="size-4" />
             </Button>
+
           </div>
         </>
       )}
