@@ -58,7 +58,7 @@ function AdminPanel() {
     queryFn: async () => {
       let query = supabase
         .from("tournaments")
-        .select("id, name, status, created_at, profiles(display_name)")
+        .select("id, name, status, created_at, profiles(display_name, email)")
         .order("created_at", { ascending: false });
 
       if (statusFilter !== "all") {
@@ -77,7 +77,7 @@ function AdminPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, created_at")
+        .select("id, display_name, created_at, email")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -186,6 +186,7 @@ function AdminPanel() {
                 <div className="divide-y divide-border/50">
                   {tournaments.map((t) => {
                     const ownerName = t.profiles?.display_name || "Unknown user";
+                    const ownerEmail = t.profiles?.email || "No email provided";
 
                     return (
                       <div key={t.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 gap-4">
@@ -201,11 +202,13 @@ function AdminPanel() {
                               <User className="size-3" />
                               {ownerName}
                             </span>
+                            <span className="hidden sm:inline text-border">•</span>
+                            <span>Owner Email: {ownerEmail}</span>
                           </div>
                         </div>
 
                         <Button
-                          variant="outline" 
+                          variant="outline"
                           size="sm"
                           onClick={() => {
                             if (window.confirm(`Are you sure you want to delete "${t.name}"?`)) {
@@ -213,7 +216,7 @@ function AdminPanel() {
                             }
                           }}
                           disabled={deleteTournament.isPending}
-                          className="w-full sm:w-auto border-red-900/80 text-red-500 hover-burn" 
+                          className="w-full sm:w-auto border-red-900/80 text-red-500 hover-burn"
                         >
                           <Trash2 className="size-4 sm:mr-2" />
                           <span className="hidden sm:inline">Delete</span>
