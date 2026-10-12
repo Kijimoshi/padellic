@@ -19,7 +19,7 @@ function AdminPanel() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  
+
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
   useEffect(() => {
@@ -49,8 +49,8 @@ function AdminPanel() {
     checkAdminStatus();
   }, []);
 
-  const { 
-    data: tournaments, 
+  const {
+    data: tournaments,
     isLoading: loadingTourneys,
     error: tourneysError
   } = useQuery({
@@ -79,7 +79,7 @@ function AdminPanel() {
         .from("profiles")
         .select("id, display_name, created_at")
         .order("created_at", { ascending: false });
-        
+
       if (error) throw error;
       return data;
     },
@@ -151,13 +151,13 @@ function AdminPanel() {
 
           <TabsContent value="tournaments" className="space-y-4">
             <div className="rounded-lg border border-border/70 bg-surface p-4">
-              
+
               <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2 text-sm text-amber-500">
                   <AlertTriangle className="size-4" />
                   <span>Deleting a tournament permanently removes all associated matches.</span>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Filter className="size-4 text-muted-foreground" />
                   <select
@@ -203,8 +203,9 @@ function AdminPanel() {
                             </span>
                           </div>
                         </div>
+
                         <Button
-                          variant="destructive"
+                          variant="outline" 
                           size="sm"
                           onClick={() => {
                             if (window.confirm(`Are you sure you want to delete "${t.name}"?`)) {
@@ -212,7 +213,7 @@ function AdminPanel() {
                             }
                           }}
                           disabled={deleteTournament.isPending}
-                          className="w-full sm:w-auto"
+                          className="w-full sm:w-auto border-red-900/80 text-red-500 hover-burn" 
                         >
                           <Trash2 className="size-4 sm:mr-2" />
                           <span className="hidden sm:inline">Delete</span>
@@ -225,7 +226,7 @@ function AdminPanel() {
 
             </div>
           </TabsContent>
-          
+
           <TabsContent value="users" className="space-y-4">
             <div className="rounded-lg border border-border/70 bg-surface p-4">
               <div className="mb-4 flex items-center gap-2 text-sm text-amber-500">

@@ -5,8 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 /* @custom-variant light (&:not(.dark *)); */
 /*
- * Court Night design system — dark padel-court energy.
- * Neon mint accent on deep navy. All colors in oklch.
+All colors in oklch.
  */
 
 @theme inline {
@@ -67,7 +66,7 @@
   --popover-foreground: oklch(0.964 0.005 250);
   --primary: oklch(90% 0.20 119);
   --primary-foreground: oklch(0.17 0.04 190);
-  --secondary: oklch(0.35 0.02 260);
+  --secondary: oklch(0.27 0.02 260);
   --secondary-foreground: oklch(0.964 0.005 250);
   --muted: oklch(0.45 0.03 260);
   --muted-foreground: oklch(0.80 0.024 255);
@@ -88,7 +87,7 @@
   --sidebar: oklch(0.205 0.03 262);
   --sidebar-foreground: oklch(0.964 0.005 250);
   --sidebar-primary: oklch(0.875 0.202 162);
-  --sidebar-primary-foreground: oklch(0.17 0.04 190);
+  --sidebar-primary-foreground: oklch(0.17 0.04 260);
   --sidebar-accent: oklch(0.29 0.032 258);
   --sidebar-accent-foreground: oklch(0.964 0.005 250);
   --sidebar-border: oklch(49.286% 0.03946 259.382);
@@ -179,4 +178,46 @@
 
 #lovable-badge {
   display: none !important;
+}
+
+@keyframes fire-flicker {
+  0%, 100% {
+    text-shadow:
+      0 -1px 2px #fefcc9,
+      1px -2px 4px #feec85,
+      -1px -4px 6px #ffae34,
+      1px -7px 10px #ec760c,
+      -1px -10px 15px #ce5937,
+      0 -12px 20px #ef4444;
+    color: #fff;
+  }
+  33% {
+    text-shadow:
+      0 0 2px #fefcc9,
+      -1px -3px 4px #feec85,
+      1px -5px 6px #ffae34,
+      -1px -6px 10px #ec760c,
+      1px -11px 15px #ce5937,
+      0 -14px 20px #ef4444;
+  }
+  66% {
+    text-shadow:
+      0 -1px 2px #fefcc9,
+      1px -2px 4px #feec85,
+      -1px -4px 6px #ffae34,
+      1px -8px 10px #ec760c,
+      -1px -9px 15px #ce5937,
+      0 -13px 20px #ef4444;
+  }
+}
+
+.hover-burn {
+  transition: all 0.2s ease-in-out;
+}
+
+.hover-burn:hover {
+  animation: fire-flicker 0.15s linear infinite alternate;
+  /* Podbicie tła przycisku dla lepszego kontrastu płomieni */
+  background-color: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
 }

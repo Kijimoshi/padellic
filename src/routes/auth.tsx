@@ -174,7 +174,7 @@ function AuthPage() {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
                       autoComplete="email"
-                      className="bg-surface-strong border" 
+                      className="bg-surface-strong border"
                     />
                   </div>
                   <div className="space-y-2">
@@ -206,9 +206,14 @@ function AuthPage() {
                     />
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={busy || !captchaToken}>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={busy || (!import.meta.env.DEV && !captchaToken)}
+                  >
                     {mode === "signin" ? "Sign in" : "Create account"}
                   </Button>
+
                 </form>
 
                 <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground">

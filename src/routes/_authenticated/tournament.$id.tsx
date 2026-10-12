@@ -467,7 +467,7 @@ function TournamentPage() {
             {/* Left Column: Tabs  */}
             <div>
               {/* 2. TABS */}
-              <TabsList className="h-10 sm:h-12 mt-2 px-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto bg-secondary/40">
+              <TabsList className="h-10 sm:h-12 mt-2 px-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto bg-secondary/80">
                 <TabsTrigger value="rounds" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Rounds</TabsTrigger>
                 <TabsTrigger value="standings" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Standings</TabsTrigger>
                 <TabsTrigger value="players" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Players</TabsTrigger>
@@ -650,7 +650,7 @@ function TournamentPage() {
             <div className="panel">
               <button
                 onClick={() => setIsStatsOpen(!isStatsOpen)}
-                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
@@ -695,7 +695,7 @@ function TournamentPage() {
             <div className="panel">
               <button
                 onClick={() => setIsRoundsOpen(!isRoundsOpen)}
-                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex w-full items-center justify-between rounded-xl p-2 sm:p-3 hover:bg-surface-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <div className="flex items-center gap-3">
                   <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
@@ -920,7 +920,7 @@ function TournamentPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  className="border-destructive text-destructive hover:bg-destructive/10 hover:text-bold"
                   onClick={() => setIsDialogOpen(true)}
                   disabled={players.length < 4 || generateSchedule.isPending}
                 >
