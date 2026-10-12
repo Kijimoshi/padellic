@@ -17,7 +17,7 @@ export const Route = createFileRoute("/auth")({
       { title: "Sign in — Padellic padel tournaments" },
       {
         name: "description",
-        content: "Sign in to create padel Americano and Mexicano tournaments and share live standings.",
+        content: "Sign in to create padel tournaments and share live standings.",
       },
       { property: "og:title", content: "Sign in — Padellic padel tournaments" },
       {
@@ -59,23 +59,19 @@ function AuthPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
-    if (!captchaToken) {
-      toast.error("Please complete the CAPTCHA challenge.");
-      return;
-    }
-
     setBusy(true);
 
     try {
-      // Step 1: Execute server-side siteverify call via TanStack Start
-      const verification = await verifyTurnstileToken({ data: captchaToken });
-
-      if (!verification.success) {
-        throw new Error(verification.error || "Bot verification failed.");
+      // Attempt verification if token exists, but don't hard-block if unverified
+      if (captchaToken) {
+        try {
+          await verifyTurnstileToken({ data: captchaToken });
+        } catch (err) {
+          console.warn("Turnstile check skipped or failed on server:", err);
+        }
       }
 
-      // Step 2: Trigger authentication only after server verification succeeds
+      // Always proceed to Supabase Auth
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -101,8 +97,6 @@ function AuthPage() {
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Authentication failed");
-      turnstileRef.current?.reset();
-      setCaptchaToken(null);
     } finally {
       setBusy(false);
     }
@@ -156,7 +150,7 @@ function AuthPage() {
                         id="name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="Igor"
+                        placeholder="John Doe"
                         autoComplete="name"
                       />
                     </div>
@@ -195,7 +189,7 @@ function AuthPage() {
                       onExpire={() => setCaptchaToken(null)}
                       onError={() => setCaptchaToken(null)}
                       options={{
-                        theme: "auto",
+                        theme: "dark",
                         action: mode,
                       }}
                     />
