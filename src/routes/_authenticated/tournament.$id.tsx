@@ -803,13 +803,13 @@ function TournamentPage() {
                 placeholder="Player name"
                 className="focus:bg-surface-strong/70 hover:bg-secondary/20"
               />
-              <Button type="submit" disabled={addPlayer.isPending} className="hover:bg-secondary/40">
+              <Button type="submit" disabled={addPlayer.isPending} className="hover:bg-secondary/80">
                 <Plus className="size-4" />
                 Add
               </Button>
               <Button
                 variant="secondary"
-                className="hover:bg-surface-strong dark:border"
+                className="hover:bg-surface-strong hover:text-primary dark:border"
                 onClick={() => setIsLoadModalOpen(true)}
               >
                 <ListPlus className="mr-2 size-4" />
@@ -1191,7 +1191,7 @@ function ScoreRow({
         ) : match.completed || justSaved ? (
           <span
             className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${justSaved
-              ? "bg-green-900/80 text-primary font-bold scale-105"
+              ? "bg-green-700/80 text-primary font-bold scale-105"
               : "text-primary"
               }`}
           >
