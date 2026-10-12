@@ -16,6 +16,7 @@ import { matchesQuery, playersQuery, tournamentQuery } from "@/lib/tournament-da
 import { cn } from "@/lib/utils";
 import {
   buildAmericano,
+  buildAmericanoRound,
   getPairingStats,
   buildMexicanoRound,
   buildSwissRound,
@@ -289,7 +290,8 @@ function TournamentPage() {
       let plannedMatches;
       switch (tournament.format) {
         case "americano":
-          plannedMatches = buildAmericano(ids, total, tournament.courts);
+          // Only generate round 1 — subsequent rounds are added one by one
+          plannedMatches = buildAmericanoRound(ids, 1, tournament.courts, players, []);
           break;
         case "swiss":
           plannedMatches = buildSwissRound(ids, [], 1, tournament.courts);
@@ -327,6 +329,9 @@ function TournamentPage() {
       let plannedMatches;
 
       switch (tournament.format) {
+        case "americano":
+          plannedMatches = buildAmericanoRound(ids, nextRound, tournament.courts, players, matches);
+          break;
         case "swiss":
           plannedMatches = buildSwissRound(ids, matches, nextRound, tournament.courts);
           break;
@@ -497,9 +502,7 @@ function TournamentPage() {
                   {/* Helper Text / Validation Warning */}
                   <div className="space-y-0.5">
                     <p className="text-sm font-medium text-foreground">
-                      {tournament.format === "americano"
-                        ? "Generates the full tournament with rotating partners."
-                        : "Mexicano, Swiss, and KotC build round-by-round."}
+                      All formats build round-by-round. Generate round 1 to start.
                     </p>
                     {isInvalidPlayerCount && (
                       <p className="text-xs font-semibold text-destructive">
@@ -581,7 +584,7 @@ function TournamentPage() {
                     <Button
                       type="button"
                       variant="outline"
-                      className="hover:bg-surface-strong"
+                      className="bg-secondary/80 hover:bg-surface-strong"
                       onClick={() => setCurrentRoundIndex((prev) => prev - 1)}
                       disabled={currentRoundIndex === 0}
                     >
@@ -590,22 +593,23 @@ function TournamentPage() {
 
                     <div className="text-xs font-medium text-center">
                       <p>Round</p>
-                      <p><b>{currentRoundIndex + 1}</b> / {tournament.format === "americano" ? tournament.total_rounds : rounds.length}</p>
+                      <p><b>{currentRoundIndex + 1}</b> / {rounds.length}</p>
                     </div>
 
                     {currentRoundIndex < rounds.length - 1 ? (
                       <Button
                         type="button"
                         variant="outline"
-                        className="hover:bg-surface-strong"
+                        className="bg-secondary/80 hover:bg-surface-strong"
                         onClick={() => setCurrentRoundIndex((prev) => prev + 1)}
                       >
                         Next round
                       </Button>
-                    ) : tournament.format !== "americano" ? (
+                    ) : (
                       <Button
                         type="button"
                         variant="outline"
+                        className="bg-primary text-primary-foreground hover:bg-surface-strong"
                         onClick={() => {
                           generateNextRound.mutate(undefined, {
                             onSuccess: () => {
@@ -613,19 +617,14 @@ function TournamentPage() {
                             }
                           });
                         }}
-                        disabled={generateNextRound.isPending || matches.some((m) => !m.completed)}
+                        disabled={
+                          generateNextRound.isPending ||
+                          matches.some((m) => !m.completed) ||
+                          (tournament.format === "americano" && rounds.length >= tournament.total_rounds)
+                        }
                       >
                         <Plus className="mr-1 size-4" />
                         Generate next
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="hover:bg-surface-strong"
-                        disabled={true}
-                      >
-                        Next round
                       </Button>
                     )}
                   </div>
@@ -635,9 +634,9 @@ function TournamentPage() {
 
             {/* NEW FOOTER LOCATION */}
             {matches.length > 0 && (
-              <div className="mt-8 border-t border-border/50 pt-6 text-center">
+              <div className="mt-8 border-t border-border/50 pt-10 text-center">
                 <p className="text-xs text-muted-foreground">
-                  Need to rebuild the schedule? Go to the <strong>Settings</strong> tab.
+                  If you need to modify tournament configuration or rebuild the schedule - Go to the <strong>Settings</strong> tab.
                 </p>
               </div>
 
@@ -659,7 +658,7 @@ function TournamentPage() {
                   <div className="flex size-8 items-center justify-center rounded-full bg-primary/10">
                     <Users className="size-4 text-primary" />
                   </div>
-                  <span className="font-thin text-sm sm:text-base">Pairing Statistics</span>
+                  <span className="font-thin text-sm sm:text-base">Pairing Statistics - after {rounds.length} rounds</span>
                 </div>
                 <ChevronDown
                   className={`size-5 text-muted-foreground transition-transform duration-200 ${isStatsOpen ? "rotate-180" : ""
@@ -674,16 +673,16 @@ function TournamentPage() {
                       No matches played yet.
                     </p>
                   ) : (
-                    <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-1 sm:grid-cols-2 lg:grid-cols-3">
                       {pairingStats.map((stat, i) => (
                         <div
                           key={i}
-                          className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/30 p-3 text-sm transition-colors hover:bg-muted/50"
+                          className="flex items-center justify-between rounded border border-border/60 bg-muted/30 p-1 text-xs md:text-sm transition-colors hover:bg-muted/50"
                         >
                           <span className="font-medium">
                             {stat.p1Name} <span className="text-muted-foreground font-normal mx-1">&</span> {stat.p2Name}
                           </span>
-                          <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground">
+                          <span className="rounded bg-secondary px-2.5 py-0.5 text-xs md:text-sm font-semibold text-primary/80">
                             {stat.count} {stat.count === 1 ? "match" : "matches"}
                           </span>
                         </div>

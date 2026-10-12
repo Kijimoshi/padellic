@@ -51,14 +51,13 @@ export function suggestedRounds(playerCount: number): number {
 }
 
 /**
- * Americano: partners rotate every round so everyone plays with (almost) everyone.
- * Players are selected by least-played count, then mixed into 2v2 matches while
- * minimizing repeated team combinations. If not enough unique teams exist,
- * repeats are allowed (prioritizing least-repeated teams).
+ * Americano single-round generation.
+ * Generates exactly ONE round, taking existing matches into account so partners
+ * and opponents are varied as much as possible.
  */
-export function buildAmericano(
+export function buildAmericanoRound(
   playerIds: string[],
-  rounds: number,
+  round: number,
   courts: number,
   players: { id: string; name: string }[] = [],
   matches: MatchRow[] = [],
@@ -66,10 +65,8 @@ export function buildAmericano(
   if (playerIds.length < 4 || courts < 1) return [];
 
   const playersPerRound = courts * 4;
-  const out: PlannedMatch[] = [];
-  const shuffledIds = shuffle(playerIds);
 
-  // Track repeat count for each team pairing
+  // Track repeat count for each team pairing (from history)
   const teamCounts = new Map<string, number>();
   for (const match of matches) {
     const aPair = [match.a1, match.a2].sort().join("|");
@@ -81,68 +78,98 @@ export function buildAmericano(
   const allStandings =
     players.length > 0 && matches.length > 0 ? computeStandings(players, matches) : [];
 
-  for (let r = 0; r < rounds; r++) {
-    let playingIds: string[];
+  let playingIds: string[];
 
-    if (allStandings.length > 0) {
-      const leastPlayed = [...allStandings]
-        .sort((a, b) => a.played - b.played || a.name.localeCompare(b.name))
-        .slice(0, playersPerRound)
-        .map((row) => row.playerId);
+  if (allStandings.length > 0) {
+    const leastPlayed = [...allStandings]
+      .sort((a, b) => a.played - b.played || a.name.localeCompare(b.name))
+      .slice(0, playersPerRound)
+      .map((row) => row.playerId);
 
-      playingIds = shuffle(leastPlayed);
-    } else {
-      const offset = (r * playersPerRound) % shuffledIds.length;
-      const rotatedIds = [...shuffledIds.slice(offset), ...shuffledIds.slice(0, offset)];
-      playingIds = rotatedIds.slice(0, playersPerRound);
+    playingIds = shuffle(leastPlayed);
+  } else {
+    playingIds = shuffle([...playerIds]).slice(0, playersPerRound);
+  }
+
+  // Generate all possible team combinations from available players
+  const possibleTeams: Array<[string, string]> = [];
+  for (let i = 0; i < playingIds.length; i++) {
+    for (let j = i + 1; j < playingIds.length; j++) {
+      possibleTeams.push([playingIds[i]!, playingIds[j]!]);
     }
+  }
 
-    // Generate all possible team combinations from available players
-    const possibleTeams: Array<[string, string]> = [];
-    for (let i = 0; i < playingIds.length; i++) {
-      for (let j = i + 1; j < playingIds.length; j++) {
-        possibleTeams.push([playingIds[i]!, playingIds[j]!]);
-      }
-    }
+  // Shuffle within same count to add variety
+  shuffle(possibleTeams);
 
-    // Shuffle within same count to add variety
-    shuffle(possibleTeams);
+  // Sort by repeat count (prefer teams that haven't played together)
+  possibleTeams.sort((teamA, teamB) => {
+    const keyA = [teamA[0], teamA[1]].sort().join("|");
+    const keyB = [teamB[0], teamB[1]].sort().join("|");
+    return (teamCounts.get(keyA) || 0) - (teamCounts.get(keyB) || 0);
+  });
 
-    // Sort by repeat count (prefer teams that haven't played together)
-    possibleTeams.sort((teamA, teamB) => {
-      const keyA = [teamA[0], teamA[1]].sort().join("|");
-      const keyB = [teamB[0], teamB[1]].sort().join("|");
-      return (teamCounts.get(keyA) || 0) - (teamCounts.get(keyB) || 0);
+  // Select teams greedily (no player appears twice per round)
+  const roundTeams: Array<[string, string]> = [];
+  const usedPlayers = new Set<string>();
+
+  for (const team of possibleTeams) {
+    const [a, b] = team;
+    if (usedPlayers.has(a) || usedPlayers.has(b)) continue;
+    roundTeams.push(team);
+    usedPlayers.add(a);
+    usedPlayers.add(b);
+    if (roundTeams.length === courts * 2) break;
+  }
+
+  // Create matches from selected teams
+  const out: PlannedMatch[] = [];
+  for (let court = 0; court < courts; court++) {
+    const aTeam = roundTeams[court * 2];
+    const bTeam = roundTeams[court * 2 + 1];
+    if (!aTeam || !bTeam) break;
+
+    out.push({
+      round,
+      court: court + 1,
+      a1: aTeam[0]!,
+      a2: aTeam[1]!,
+      b1: bTeam[0]!,
+      b2: bTeam[1]!,
     });
+  }
 
-    // Select teams greedily (no player appears twice per round)
-    const roundTeams: Array<[string, string]> = [];
-    const usedPlayers = new Set<string>();
+  return out;
+}
 
-    for (const team of possibleTeams) {
-      const [a, b] = team;
-      if (usedPlayers.has(a) || usedPlayers.has(b)) continue;
-      roundTeams.push(team);
-      usedPlayers.add(a);
-      usedPlayers.add(b);
-      const key = [a, b].sort().join("|");
-      teamCounts.set(key, (teamCounts.get(key) || 0) + 1);
-      if (roundTeams.length === courts * 2) break;
-    }
+/**
+ * Americano: partners rotate every round so everyone plays with (almost) everyone.
+ * Builds all rounds at once (used for pre-generating or seeding purposes).
+ * @deprecated Prefer calling buildAmericanoRound() incrementally.
+ */
+export function buildAmericano(
+  playerIds: string[],
+  rounds: number,
+  courts: number,
+  players: { id: string; name: string }[] = [],
+  matches: MatchRow[] = [],
+): PlannedMatch[] {
+  if (playerIds.length < 4 || courts < 1) return [];
 
-    // Create matches from selected teams
-    for (let court = 0; court < courts; court++) {
-      const aTeam = roundTeams[court * 2];
-      const bTeam = roundTeams[court * 2 + 1];
-      if (!aTeam || !bTeam) break;
+  const accumulatedMatches: MatchRow[] = [...matches];
+  const out: PlannedMatch[] = [];
 
-      out.push({
-        round: r + 1,
-        court: court + 1,
-        a1: aTeam[0]!,
-        a2: aTeam[1]!,
-        b1: bTeam[0]!,
-        b2: bTeam[1]!,
+  for (let r = 0; r < rounds; r++) {
+    const roundMatches = buildAmericanoRound(playerIds, r + 1, courts, players, accumulatedMatches);
+    out.push(...roundMatches);
+    // Feed generated matches back so subsequent rounds avoid repeats
+    for (const m of roundMatches) {
+      accumulatedMatches.push({
+        id: `planned-${r}-${m.court}`,
+        round: m.round,
+        court: m.court,
+        a1: m.a1, a2: m.a2, b1: m.b1, b2: m.b2,
+        score_a: 0, score_b: 0, completed: false,
       });
     }
   }
