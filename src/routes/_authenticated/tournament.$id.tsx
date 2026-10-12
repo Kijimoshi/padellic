@@ -787,7 +787,7 @@ function TournamentPage() {
             </div>
           </TabsContent>
 
-          {/* Players Tab     */}
+          {/* PLAYERS TAB */}
           <TabsContent value="players" className="mt-6 space-y-4 max-w-2xl mx-auto">
             <form
               className="flex gap-2"
@@ -886,6 +886,18 @@ function TournamentPage() {
                 to cancel.
               </p>
             </div>
+
+            {tournament.status !== "setup" && (
+              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-300/80">
+                <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                <p>
+                  <strong className="font-semibold">Safety warning!</strong>
+                  Players cannot be removed while a tournament is active or finished.
+                  To remove someone, temporarily revert the status to <strong>Setup</strong> in the Settings tab. <br />
+                  Note: Removing a player mid-tournament will permanently delete any matches they were part of.
+                </p>
+              </div>
+            )}
 
           </TabsContent>
 
