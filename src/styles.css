@@ -107,7 +107,7 @@ All colors in oklch.
   --secondary-foreground: oklch(1 0 0);
   --muted: oklch(90% 0.01 263);
   --muted-foreground: oklch(40% 0.01 260);
-  --accent: oklch(0.93 0.005 185);
+  --accent: oklch(0.90 0.01 220);
   --accent-foreground: oklch(0.18 0.033 264);
   --destructive: oklch(0.62 0.21 22);
   --destructive-foreground: oklch(0.98 0.005 250);
@@ -217,7 +217,6 @@ All colors in oklch.
 
 .hover-burn:hover {
   animation: fire-flicker 0.15s linear infinite alternate;
-  /* Podbicie tła przycisku dla lepszego kontrastu płomieni */
   background-color: rgba(239, 68, 68, 0.15);
   border-color: #ef4444;
 }

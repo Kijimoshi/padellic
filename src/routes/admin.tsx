@@ -203,7 +203,7 @@ function AdminPanel() {
                               {ownerName}
                             </span>
                             <span className="hidden sm:inline text-border">•</span>
-                            <span>Owner Email: {ownerEmail}</span>
+                            <span>{ownerEmail}</span>
                           </div>
                         </div>
 

@@ -467,7 +467,7 @@ function TournamentPage() {
             {/* Left Column: Tabs  */}
             <div>
               {/* 2. TABS */}
-              <TabsList className="h-10 sm:h-12 mt-2 px-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto bg-secondary/80">
+              <TabsList className="h-10 sm:h-12 mt-2 px-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto bg-secondary/10 border dark:bg-surface/90">
                 <TabsTrigger value="rounds" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Rounds</TabsTrigger>
                 <TabsTrigger value="standings" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Standings</TabsTrigger>
                 <TabsTrigger value="players" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Players</TabsTrigger>
@@ -568,7 +568,7 @@ function TournamentPage() {
 
                     {/* Resting players section */}
                     {restingPlayers.length > 0 && (
-                      <div className="mt-2 sm:mt-4 rounded-lg border border-border/40 bg-muted/30 p-3 text-sm text-muted-foreground">
+                      <div className="mt-2 sm:mt-4 rounded-lg border border-border/40 bg-muted/20 p-3 text-sm text-muted-foreground">
                         <span className="font-thin text-foreground">Resting:</span>{" "}
                         {restingPlayers.map((p) => p.name).join(", ")}
                       </div>
@@ -581,6 +581,7 @@ function TournamentPage() {
                     <Button
                       type="button"
                       variant="outline"
+                      className="hover:bg-surface-strong"
                       onClick={() => setCurrentRoundIndex((prev) => prev - 1)}
                       disabled={currentRoundIndex === 0}
                     >
@@ -596,6 +597,7 @@ function TournamentPage() {
                       <Button
                         type="button"
                         variant="outline"
+                        className="hover:bg-surface-strong"
                         onClick={() => setCurrentRoundIndex((prev) => prev + 1)}
                       >
                         Next round
@@ -620,6 +622,7 @@ function TournamentPage() {
                       <Button
                         type="button"
                         variant="outline"
+                        className="hover:bg-surface-strong"
                         disabled={true}
                       >
                         Next round
@@ -785,7 +788,7 @@ function TournamentPage() {
           </TabsContent>
 
           {/* Players Tab     */}
-          <TabsContent value="players" className="mt-6 space-y-4">
+          <TabsContent value="players" className="mt-6 space-y-4 max-w-2xl mx-auto">
             <form
               className="flex gap-2"
               onSubmit={(e) => {
@@ -798,14 +801,15 @@ function TournamentPage() {
                 value={newPlayer}
                 onChange={(e) => setNewPlayer(e.target.value)}
                 placeholder="Player name"
-                className="focus:bg-surface-strong/70"
+                className="focus:bg-surface-strong/70 hover:bg-secondary/20"
               />
-              <Button type="submit" disabled={addPlayer.isPending}>
+              <Button type="submit" disabled={addPlayer.isPending} className="hover:bg-secondary/40">
                 <Plus className="size-4" />
                 Add
               </Button>
               <Button
                 variant="secondary"
+                className="hover:bg-surface-strong dark:border"
                 onClick={() => setIsLoadModalOpen(true)}
               >
                 <ListPlus className="mr-2 size-4" />
@@ -886,7 +890,7 @@ function TournamentPage() {
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6 space-y-6">
-            <div className="panel max-w-lg p-5">
+            <div className="panel max-w-lg p-5  mx-auto">
               <h2 className="mb-6 text-sm font-medium">Tournament Status</h2>
               <TournamentStatusBar
                 currentStatus={tournament.status}
@@ -902,7 +906,7 @@ function TournamentPage() {
             />
 
             {tournament.status !== "setup" && (
-              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-400">
+              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-300/80">
                 <AlertCircle className="mt-0.5 size-4 shrink-0" />
                 <p>
                   <strong className="font-semibold">Safety check!</strong> You cannot edit parameters while a tournament is active or finished. Temporarily change the status back to <strong>Setup</strong> in the panel above to make changes.
@@ -920,7 +924,7 @@ function TournamentPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="border-destructive text-destructive hover:bg-destructive/10 hover:text-bold"
+                  className="border-destructive text-destructive hover-burn"
                   onClick={() => setIsDialogOpen(true)}
                   disabled={players.length < 4 || generateSchedule.isPending}
                 >
@@ -1179,7 +1183,7 @@ function ScoreRow({
   }, [justSaved]);
 
   return (
-    <div className="rounded-lg border border-border/60 bg-muted/50 p-2 md:p-3">
+    <div className="rounded-lg border border-border/60 bg-muted/30 p-2 md:p-3">
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>Court {match.court}</span>
         {hasError ? (
@@ -1187,7 +1191,7 @@ function ScoreRow({
         ) : match.completed || justSaved ? (
           <span
             className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${justSaved
-              ? "bg-green-300/60 text-primary font-bold scale-105"
+              ? "bg-green-900/80 text-primary font-bold scale-105"
               : "text-primary"
               }`}
           >
@@ -1296,7 +1300,7 @@ function SettingsForm({
   ) || [tournament.format];
 
   return (
-    <div className="panel max-w-lg space-y-5 p-5">
+    <div className="panel max-w-lg space-y-5 p-5 mx-auto">
       <div className="space-y-2">
         <label className="text-sm font-medium">Tournament Name</label>
         <Input
@@ -1394,8 +1398,8 @@ function TournamentStatusBar({
                 className={`flex h-10 w-10 items-center justify-center rounded-full border-2 bg-background transition-all duration-200 ${isCurrent
                   ? "border-primary bg-primary text-primary-foreground shadow-md ring-4 ring-primary/20"
                   : isPast
-                    ? "border-primary bg-primary/10 text-primary hover:bg-primary/20"
-                    : "border-muted text-muted-foreground hover:border-primary/50 hover:text-primary/70"
+                    ? "border-primary bg-primary-foreground/80 text-primary hover:bg-primary/30"
+                    : "border-muted text-muted-foreground hover:border-primary/70 hover:text-primary/70"
                   }`}
               >
                 <Icon className="size-4" />
@@ -1425,16 +1429,27 @@ function MatchClock() {
   const hours = time.getHours().toString().padStart(2, "0");
   const minutes = time.getMinutes().toString().padStart(2, "0");
   const seconds = time.getSeconds().toString().padStart(2, "0");
-
+  const shortTimeZone = new Date().toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ')[2];
   return (
-    <div className="relative flex items-center justify-center rounded-lg border border-primary/30 bg-transparent px-5 py-3 shadow-[2px_2px_0px_0px_hsl(var(--primary))] backdrop-blur-sm dark:shadow-[2px_2px_0px_0px_hsl(var(--primary)/0.3)]">
-      <div className="flex items-baseline font-mono text-5xl font-black leading-none tracking-tighter text-foreground tabular-nums">
+    <div className="relative flex items-start justify-end rounded-xl border bg-card/30 px-6 py-4 pt-4 shadow-sm">
+
+      {/* Time zone tag absolutely positioned in the top right */}
+      <div className="absolute right-2 top-2">
+        <span className="rounded-full bg-surface-strong/80 px-2 py-0.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
+          {/* {timeZone.replace("_", " ")} */}
+          {shortTimeZone}
+        </span>
+      </div>
+
+      {/* Clock layout */}
+      <div className="flex items-baseline font-mono text-5xl font-black leading-none tracking-tighter text-foreground/80 tabular-nums">
         <span>{hours}</span>
-        <span className="mx-1 animate-[pulse_1s_ease-in-out_infinite] text-primary/40 pb-0.5">:</span>
+        <span className="mx-1 animate-[pulse_1s_ease-in-out_infinite] text-primary/60 pb-0.5">:</span>
         <span>{minutes}</span>
         <span className="text-3xl mx-1 text-muted-foreground/40 pb-0.5">:</span>
         <span className="text-3xl text-muted-foreground/70">{seconds}</span>
       </div>
+
     </div>
   );
 }
