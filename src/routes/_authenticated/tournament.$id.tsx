@@ -467,7 +467,7 @@ function TournamentPage() {
             {/* Left Column: Tabs  */}
             <div>
               {/* 2. TABS */}
-              <TabsList className="sm:h-10 mt-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto bg-secondary">
+              <TabsList className="h-10 sm:h-12 mt-2 px-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto bg-secondary/60">
                 <TabsTrigger value="rounds" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Rounds</TabsTrigger>
                 <TabsTrigger value="standings" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Standings</TabsTrigger>
                 <TabsTrigger value="players" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Players</TabsTrigger>
@@ -1187,7 +1187,7 @@ function ScoreRow({
         ) : match.completed || justSaved ? (
           <span
             className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${justSaved
-              ? "bg-green-500/20 text-primary font-bold scale-105"
+              ? "bg-green-300/60 text-primary font-bold scale-105"
               : "text-primary"
               }`}
           >
