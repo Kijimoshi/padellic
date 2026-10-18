@@ -598,19 +598,19 @@ function TournamentPage() {
                   </div>
 
                   {/* BOTTOM: Round Navigation Only */}
-                  <div className="mt-8 flex items-center justify-between gap-2">
+                  <div className="relative mt-8 flex items-center justify-between gap-2">
 
                     <Button
                       type="button"
                       variant="outline"
-                      className="bg-secondary/80 hover:bg-surface-strong"
+                      className="bg-secondary/60 hover:bg-surface-strong dark:bg-secondary/90"
                       onClick={() => setCurrentRoundIndex((prev) => prev - 1)}
                       disabled={currentRoundIndex === 0}
                     >
                       Prev round
                     </Button>
 
-                    <div className="text-xs font-medium text-center">
+                    <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-xs font-medium">
                       <p>Round</p>
                       <p><b>{currentRoundIndex + 1}</b> / {rounds.length}</p>
                     </div>
