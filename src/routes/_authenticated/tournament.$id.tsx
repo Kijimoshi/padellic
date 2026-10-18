@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus, List, AlertCircle, ChevronDown, Users, AlertTriangle } from "lucide-react";
 
 import { Textarea } from "@/components/ui/textarea";
+import { CodeEditorTextarea } from "@/components/ui/code-editor-textarea";
 import { SiteHeader } from "@/components/site-header";
 import { StandingsTable } from "@/components/standings-table";
 import { Button } from "@/components/ui/button";
@@ -213,7 +214,7 @@ function TournamentPage() {
       return;
     }
 
-    // 48 Player Limit Check 
+    // 48 Player Limit Check
     if (players.length + newNames.length > 48) {
       const remainingSlots = 48 - players.length;
       toast.error(`Limit 48 players exceeded! You can only add ${remainingSlots} more players.`);
@@ -618,7 +619,7 @@ function TournamentPage() {
                       <Button
                         type="button"
                         variant="outline"
-                        className="bg-secondary/80 hover:bg-surface-strong"
+                        className="bg-secondary/60 hover:bg-surface-strong dark:bg-secondary/90"
                         onClick={() => setCurrentRoundIndex((prev) => prev + 1)}
                       >
                         Next round
@@ -1027,9 +1028,8 @@ function TournamentPage() {
           </DialogHeader>
 
           <div className="py-4">
-            <Textarea
+            <CodeEditorTextarea
               placeholder={`Halina\nZbyszek\nJadzia\nGrażyna`}
-              className="min-h-50 resize-y font-mono text-sm"
               value={bulkText}
               onChange={(e) => setBulkText(e.target.value)}
             />
