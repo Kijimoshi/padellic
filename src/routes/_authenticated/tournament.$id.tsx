@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus, List, AlertCircle, ChevronDown, Users } from "lucide-react";
+import { Check, Copy, Pencil, Plus, Shuffle, Trash2, X, QrCode, Settings2, Play, Trophy, Archive, ListPlus, List, AlertCircle, ChevronDown, Users, AlertTriangle } from "lucide-react";
 
 import { Textarea } from "@/components/ui/textarea";
 import { SiteHeader } from "@/components/site-header";
@@ -27,7 +27,8 @@ import {
   type Format,
   type MatchRow,
   type PlannedMatch,
-  getFormatLabel
+  getFormatLabel,
+  checkForDuplicatePlayers
 } from "@/lib/padel";
 
 import {
@@ -89,6 +90,10 @@ function TournamentPage() {
 
   const [newPlayer, setNewPlayer] = useState("");
 
+  const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
+  const [duplicateNames, setDuplicateNames] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<string>("rounds");
+
   // STANDINGS CALCULATION
   // 1. Keep the individual standings (Mexicano needs this for seeding anyway)
   const standings = useMemo(
@@ -105,7 +110,7 @@ function TournamentPage() {
   const displayStandings = isTeamFormat ? teamStandings : standings;
 
   const nameOf = (pid: string) => players.find((p) => p.id === pid)?.name ?? "—";
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isRebuildDialogOpen, setIsRebuildDialogOpen] = useState(false);
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0);
 
   const [isStatsOpen, setIsStatsOpen] = useState(false);
@@ -396,15 +401,16 @@ function TournamentPage() {
             <h1 className="text-3xl font-bold">{tournament.name}</h1>
 
             {/* INFO BAR */}
-            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
               <Badge variant="secondary" className="bg-secondary">
                 {getFormatLabel(tournament.format)}
               </Badge>
               <span>
                 {tournament.courts} court{tournament.courts > 1 ? "s" : ""}
               </span>
-              <span>· {tournament.points_per_match} points per match</span>
+              <span>· {tournament.points_per_match} points</span>
               <span>· {players.length} players</span>
+              <span>· Status: {tournament.status} </span>
             </div>
           </div>
 
@@ -465,7 +471,7 @@ function TournamentPage() {
         </div>
 
         {/* 3. The Tabs wrapper now contains the Info Row + Tabs on the left, Clock on the right */}
-        <Tabs defaultValue="rounds">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
 
           {/* Grid Container: Left column ( Tabs), Right column (Clock) */}
           <div className="grid grid-cols-1 items-end gap-4 sm:grid-cols-[1fr_auto]">
@@ -473,10 +479,10 @@ function TournamentPage() {
             <div>
               {/* 2. TABS */}
               <TabsList className="h-10 sm:h-12 mt-2 px-2 grid w-full grid-cols-4 sm:inline-flex sm:w-auto bg-secondary/10 border dark:bg-surface/90">
-                <TabsTrigger value="rounds" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Rounds</TabsTrigger>
-                <TabsTrigger value="standings" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Standings</TabsTrigger>
-                <TabsTrigger value="players" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Players</TabsTrigger>
-                <TabsTrigger value="settings" className="text-sm sm:text-base hover:bg-primary/80 hover:text-primary-foreground">Settings</TabsTrigger>
+                <TabsTrigger value="rounds" className="text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground">Rounds</TabsTrigger>
+                <TabsTrigger value="standings" className="text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground">Standings</TabsTrigger>
+                <TabsTrigger value="players" className="text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground">Players</TabsTrigger>
+                <TabsTrigger value="settings" className="text-sm sm:text-base hover:bg-primary/90 hover:text-primary-foreground">Settings</TabsTrigger>
               </TabsList>
             </div>
 
@@ -502,7 +508,7 @@ function TournamentPage() {
                   {/* Helper Text / Validation Warning */}
                   <div className="space-y-0.5">
                     <p className="text-sm font-medium text-foreground">
-                      All formats build round-by-round. Generate round 1 to start.
+                      All formats build schedule round-by-round. Generate round  nr 1 to start.
                     </p>
                     {isInvalidPlayerCount && (
                       <p className="text-xs font-semibold text-destructive">
@@ -518,15 +524,27 @@ function TournamentPage() {
                     )}
                   </div>
 
-                  {/* Generate Schedule Button */}
+                  {/* Generate Schedule Button with Inline Verification */}
                   <Button
-                    onClick={() => generateSchedule.mutate()}
+                    onClick={() => {
+                      // 1. Perform duplicate verification right here
+                      const { hasDuplicates, duplicateNames } = checkForDuplicatePlayers(players);
+                      if (hasDuplicates) {
+                      // 2. Stop execution and open the dialog overlay
+                        setDuplicateNames(duplicateNames);
+                        setIsDuplicateDialogOpen(true);
+                        return;
+                      }
+                      // 3. Continue with schedule generation if no duplicates
+                      generateSchedule.mutate();
+                    }}
                     disabled={isInvalidPlayerCount || generateSchedule.isPending}
                     className="w-full sm:w-auto"
                   >
                     <Shuffle className="size-4" />
-                    Generate schedule
+                    Generate 1st round
                   </Button>
+
                 </div>
               );
             })()}
@@ -866,7 +884,7 @@ function TournamentPage() {
                       index={i}
                       onUpdate={(name) => updatePlayer.mutateAsync({ playerId: p.id, name })}
                       onRemove={() => removePlayer.mutate(p.id)}
-                      canRemove={tournament?.status === "setup"}  
+                      canRemove={tournament?.status === "setup"}
                     />
                   ))}
                 </div>
@@ -890,7 +908,7 @@ function TournamentPage() {
             </div>
 
             {tournament.status !== "setup" && (
-              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-600 dark:text-amber-300/80">
+              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-600 dark:text-amber-300/90">
                 <AlertCircle className="mt-0.5 size-4 shrink-0" />
                 <p>
                   <strong className="font-semibold">Safety warning! </strong>
@@ -904,26 +922,32 @@ function TournamentPage() {
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6 space-y-6">
-            <div className="panel max-w-lg p-5  mx-auto">
-              <h2 className="mb-6 text-sm font-medium">Tournament Status</h2>
-              <TournamentStatusBar
-                currentStatus={tournament.status}
-                onStatusChange={(newStatus) => updateStatus.mutate(newStatus)}
-                isPending={updateStatus.isPending}
-              />
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:items-start max-w-lg md:max-w-none md:mx-0 mx-auto">
+
+              <div className="panel p-5 space-y-5 order-1 md:order-2">
+                <h2 className="mb-6 text-sm font-medium">Tournament Status</h2>
+                <TournamentStatusBar
+                  currentStatus={tournament.status}
+                  onStatusChange={(newStatus) => updateStatus.mutate(newStatus)}
+                  isPending={updateStatus.isPending}
+                />
+              </div>
+
+              <div className="order-2 md:order-1">
+                <SettingsForm
+                  tournament={tournament}
+                  onSave={(updates) => updateTournament.mutate(updates)}
+                  isPending={updateTournament.isPending}
+                />
+              </div>
+
             </div>
 
-            <SettingsForm
-              tournament={tournament}
-              onSave={(updates) => updateTournament.mutate(updates)}
-              isPending={updateTournament.isPending}
-            />
-
             {tournament.status !== "setup" && (
-              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-300/80">
+              <div className="mb-6 flex items-start gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-600 dark:text-amber-300/90">
                 <AlertCircle className="mt-0.5 size-4 shrink-0" />
                 <p>
-                  <strong className="font-semibold">Safety check!</strong> You cannot edit parameters while a tournament is active or finished. Temporarily change the status back to <strong>Setup</strong> in the panel above to make changes.
+                  <strong className="font-semibold">Safety check!</strong> You cannot edit parameters while a tournament is active or finished. To make changes, temporarily change the status back to <strong>Setup</strong>.
                 </p>
               </div>
             )}
@@ -939,14 +963,26 @@ function TournamentPage() {
                   type="button"
                   variant="outline"
                   className="border-destructive text-destructive hover-burn"
-                  onClick={() => setIsDialogOpen(true)}
                   disabled={players.length < 4 || generateSchedule.isPending}
+                  onClick={() => {
+                    // check player names duplicates before opening the "Are you sure?" dialog
+                    const currentPlayers = players || [];
+                    const { hasDuplicates, duplicateNames: foundDuplicates } = checkForDuplicatePlayers(currentPlayers);
+                    if (hasDuplicates) {
+                      // 2a. If duplicates exist, show the error overlay directly
+                      setDuplicateNames(foundDuplicates);
+                      setIsDuplicateDialogOpen(true);
+                    } else {
+                      // 2b. If the list is clean, open the "Are you sure?" dialog
+                      setIsRebuildDialogOpen(true);
+                    }
+                  }}
                 >
                   <Shuffle className="size-4" />
                   Rebuild schedule
                 </Button>
 
-                <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <AlertDialog open={isRebuildDialogOpen} onOpenChange={setIsRebuildDialogOpen}>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Are you sure you want to rebuild the schedule?</AlertDialogTitle>
@@ -955,12 +991,16 @@ function TournamentPage() {
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel onClick={() => setIsDialogOpen(false)}>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel onClick={() => setIsRebuildDialogOpen(false)}>
+                        Cancel
+                      </AlertDialogCancel>
+
+                      {/* We can safely go back to using AlertDialogAction here */}
                       <AlertDialogAction
                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         onClick={() => {
                           generateSchedule.mutate();
-                          setIsDialogOpen(false);
+                          setIsRebuildDialogOpen(false);
                         }}
                       >
                         Yes, rebuild schedule
@@ -1010,6 +1050,50 @@ function TournamentPage() {
               disabled={addMultiplePlayers.isPending}
             >
               {addMultiplePlayers.isPending ? "Saving..." : "Import list"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* DUPLICATE NAMES ERROR DIALOG */}
+      <Dialog open={isDuplicateDialogOpen} onOpenChange={setIsDuplicateDialogOpen}>
+        <DialogContent className="sm:max-w-md text-center flex flex-col items-center justify-center p-6">
+          <DialogHeader className="flex flex-col items-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 mb-3">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
+            </div>
+            <DialogTitle className="text-xl font-semibold text-center">
+              Duplicate Players Detected
+            </DialogTitle>
+            <DialogDescription className="text-center mt-2 text-muted-foreground">
+              Schedule generation stopped. The following player names appear more than once in this tournament:
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* List of duplicates */}
+          <div className="my-4 w-full bg-muted/50 rounded-lg p-3 max-h-36 overflow-y-auto">
+            <ul className="text-sm font-medium text-destructive space-y-1">
+              {duplicateNames.map((name, index) => (
+                <li key={index}>• {name}</li>
+              ))}
+            </ul>
+          </div>
+
+          <DialogFooter className="flex sm:justify-center gap-2 w-full mt-2">
+            <Button variant="outline" onClick={() => setIsDuplicateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => {
+                // Close dialog and switch to players tab
+                setIsDuplicateDialogOpen(false);
+                setActiveTab("players");
+              }}
+              className="gap-2"
+            >
+              <Users className="size-4" />
+              Go to Players Tab
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -1205,8 +1289,8 @@ function ScoreRow({
 
   return (
     <div className="rounded-lg border border-border/60 bg-muted/30 p-2 md:p-3">
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>Court {match.court}</span>
+      <div className="flex items-center justify-between text-xs md:text-sm text-muted-foreground">
+        <span>Court <b>{match.court}</b></span>
         {hasError ? (
           <span className="font-bold text-destructive">Error</span>
         ) : match.completed || justSaved ? (
@@ -1321,7 +1405,7 @@ function SettingsForm({
   ) || [tournament.format];
 
   return (
-    <div className="panel max-w-lg space-y-5 p-5 mx-auto">
+    <div className="panel space-y-5 p-5">
       <div className="space-y-2">
         <label className="text-sm font-medium">Tournament Name</label>
         <Input
@@ -1407,7 +1491,7 @@ function TournamentStatusBar({
         const isCurrent = index === safeIndex;
 
         return (
-          <div key={status.id} className="relative z-10 flex flex-col items-center">
+          <div key={status.id} className="relative z-10 flex flex-col items-center ">
             <button
               type="button"
               onClick={() => onStatusChange(status.id)}
@@ -1465,7 +1549,7 @@ function MatchClock() {
       {/* Clock layout */}
       <div className="flex items-baseline font-mono text-5xl font-black leading-none tracking-tighter text-foreground/80 tabular-nums">
         <span>{hours}</span>
-        <span className="mx-1 animate-[pulse_1s_ease-in-out_infinite] text-primary/60 pb-0.5">:</span>
+        <span className="mx-1 animate-[pulse_1s_ease-in-out_infinite] text-primary/80 pb-0.5">:</span>
         <span>{minutes}</span>
         <span className="text-3xl mx-1 text-muted-foreground/40 pb-0.5">:</span>
         <span className="text-3xl text-muted-foreground/70">{seconds}</span>

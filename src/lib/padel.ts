@@ -50,6 +50,33 @@ export function suggestedRounds(playerCount: number): number {
   return Math.min(Math.max(base, 3), 15);
 }
 
+// Player Duplicates
+export interface DuplicatePlayerError {
+  hasDuplicates: boolean;
+  duplicateNames: string[];
+}
+
+export function checkForDuplicatePlayers(
+  players: Array<{ id: string; name: string }>
+): DuplicatePlayerError {
+  const seen = new Set<string>();
+  const duplicates = new Set<string>();
+
+  for (const player of players) {
+    const normalizedName = player.name.trim().toLowerCase();
+    if (seen.has(normalizedName)) {
+      duplicates.add(player.name.trim());
+    } else {
+      seen.add(normalizedName);
+    }
+  }
+
+  return {
+    hasDuplicates: duplicates.size > 0,
+    duplicateNames: Array.from(duplicates),
+  };
+}
+
 /**
  * Americano single-round generation.
  * Generates exactly ONE round, taking existing matches into account so partners
