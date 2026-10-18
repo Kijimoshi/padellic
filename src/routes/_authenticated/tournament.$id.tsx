@@ -288,6 +288,14 @@ function TournamentPage() {
       if (!tournament) return;
       const ids = players.map((p) => p.id);
 
+      // Duplicate names check — block round generation if any player names repeat
+      const { hasDuplicates, duplicateNames: foundDuplicates } = checkForDuplicatePlayers(players);
+      if (hasDuplicates) {
+        setDuplicateNames(foundDuplicates);
+        setIsDuplicateDialogOpen(true);
+        throw new Error("Duplicate player names detected");
+      }
+
       // Clear existing matches
       await supabase.from("matches").delete().eq("tournament_id", id);
       const total = suggestedRounds(ids.length);
@@ -320,15 +328,23 @@ function TournamentPage() {
     },
     onSuccess: () => {
       invalidate();
-      toast.success("Schedule ready");
+      toast.success("Schedule for 1st round is ready");
       setCurrentRoundIndex(0);
     },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not build the schedule"),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not build the schedule for 1st round"),
   });
 
   const generateNextRound = useMutation({
     mutationFn: async () => {
       if (!tournament) return;
+
+      // Duplicate names check — block round generation if any player names repeat
+      const { hasDuplicates, duplicateNames: foundDuplicates } = checkForDuplicatePlayers(players);
+      if (hasDuplicates) {
+        setDuplicateNames(foundDuplicates);
+        setIsDuplicateDialogOpen(true);
+        throw new Error("Duplicate player names detected");
+      }
 
       const nextRound = (rounds.at(-1)?.[0] ?? 0) + 1;
       const ids = players.map((p) => p.id);
@@ -528,15 +544,6 @@ function TournamentPage() {
                   {/* Generate Schedule Button with Inline Verification */}
                   <Button
                     onClick={() => {
-                      // 1. Perform duplicate verification right here
-                      const { hasDuplicates, duplicateNames } = checkForDuplicatePlayers(players);
-                      if (hasDuplicates) {
-                      // 2. Stop execution and open the dialog overlay
-                        setDuplicateNames(duplicateNames);
-                        setIsDuplicateDialogOpen(true);
-                        return;
-                      }
-                      // 3. Continue with schedule generation if no duplicates
                       generateSchedule.mutate();
                     }}
                     disabled={isInvalidPlayerCount || generateSchedule.isPending}
@@ -551,8 +558,8 @@ function TournamentPage() {
             })()}
 
             {players.length < 4 && (
-              <p className="text-sm ml-2 text-muted-foreground">
-                Add at least 4 players to build a schedule.
+              <p className="text-sm mt-6 ml-2 text-muted-foreground">
+                Go to tab <b>Players</b> and add at least 4 players to build a schedule.
               </p>
             )}
 
@@ -680,7 +687,7 @@ function TournamentPage() {
                   <span className="font-thin text-sm sm:text-base">Pairing Statistics - after {rounds.length} rounds</span>
                 </div>
                 <ChevronDown
-                  className={`size-5 text-muted-foreground transition-transform duration-200 ${isStatsOpen ? "rotate-180" : ""
+                  className={`size-5 text-muted-foreground transition-transform duration-1000 ${isStatsOpen ? "rotate-180" : ""
                     }`}
                 />
               </button>
@@ -701,7 +708,7 @@ function TournamentPage() {
                           <span className="font-medium">
                             {stat.p1Name} <span className="text-muted-foreground font-normal mx-1">&</span> {stat.p2Name}
                           </span>
-                          <span className="rounded bg-secondary px-2.5 py-0.5 text-xs md:text-sm font-semibold text-primary/80">
+                          <span className="rounded bg-secondary/60 px-2.5 py-0.5 text-xs md:text-sm font-semibold text-primary/80">
                             {stat.count} {stat.count === 1 ? "match" : "matches"}
                           </span>
                         </div>
@@ -966,17 +973,7 @@ function TournamentPage() {
                   className="border-destructive text-destructive hover-burn"
                   disabled={players.length < 4 || generateSchedule.isPending}
                   onClick={() => {
-                    // check player names duplicates before opening the "Are you sure?" dialog
-                    const currentPlayers = players || [];
-                    const { hasDuplicates, duplicateNames: foundDuplicates } = checkForDuplicatePlayers(currentPlayers);
-                    if (hasDuplicates) {
-                      // 2a. If duplicates exist, show the error overlay directly
-                      setDuplicateNames(foundDuplicates);
-                      setIsDuplicateDialogOpen(true);
-                    } else {
-                      // 2b. If the list is clean, open the "Are you sure?" dialog
                       setIsRebuildDialogOpen(true);
-                    }
                   }}
                 >
                   <Shuffle className="size-4" />
@@ -1296,7 +1293,7 @@ function ScoreRow({
         ) : match.completed || justSaved ? (
           <span
             className={`flex items-center gap-1 px-2 py-1 rounded-md transition-all duration-500 ${justSaved
-              ? "bg-green-700/80 text-primary font-bold scale-105"
+              ? "bg-green-600/80 text-primary font-bold"
               : "text-primary"
               }`}
           >
