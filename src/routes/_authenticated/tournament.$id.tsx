@@ -686,7 +686,7 @@ function TournamentPage() {
               </button>
 
               {isStatsOpen && (
-                <div className="border-t border-border/70 p-4 pt-4 animate-in slide-in-from-top-2 fade-in duration-200">
+                <div className="border-t border-border/70 p-4 pt-4 animate-in slide-in-from-top-2 fade-in duration-1000">
                   {pairingStats.length === 0 ? (
                     <p className="py-6 text-center text-sm text-muted-foreground">
                       No matches played yet.

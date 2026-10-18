@@ -206,7 +206,7 @@ export function buildAmericano(
 
 // Pair statistics under Standings table //
 export function getPairingStats(
-  matches: MatchRow[], 
+  matches: MatchRow[],
   players: { id: string; name: string }[]
 ) {
   const teamCounts = new Map<string, number>();
@@ -215,7 +215,7 @@ export function getPairingStats(
   for (const match of matches) {
     const aPair = [match.a1, match.a2].sort().join("|");
     const bPair = [match.b1, match.b2].sort().join("|");
-    
+
     teamCounts.set(aPair, (teamCounts.get(aPair) || 0) + 1);
     teamCounts.set(bPair, (teamCounts.get(bPair) || 0) + 1);
   }
@@ -226,11 +226,19 @@ export function getPairingStats(
   // 3. Transform the Map into an array of UI-friendly objects
   const statsArray = Array.from(teamCounts.entries()).map(([key, count]) => {
     const [p1Id, p2Id] = key.split("|");
+
+    // Fetch names from the lookup map
+    const name1 = playerLookup.get(p1Id!) || "Unknown";
+    const name2 = playerLookup.get(p2Id!) || "Unknown";
+
+    // Sort the two names alphabetically before returning the object
+    const [sortedP1Name, sortedP2Name] = [name1, name2].sort((a, b) => a.localeCompare(b));
+
     return {
       p1Id,
       p2Id,
-      p1Name: playerLookup.get(p1Id!) || "Unknown",
-      p2Name: playerLookup.get(p2Id!) || "Unknown",
+      p1Name: sortedP1Name,
+      p2Name: sortedP2Name,
       count
     };
   });
@@ -302,9 +310,9 @@ export function buildKotcRound(
 
     const teamA: [string, string] = [m.a1, m.a2];
     const teamB: [string, string] = [m.b1, m.b2];
-    
+
     // Tie-breaker: If points are tied, Team A stays/moves up by default
-    const teamAWon = m.score_a >= m.score_b; 
+    const teamAWon = m.score_a >= m.score_b;
     const winner = teamAWon ? teamA : teamB;
     const loser = teamAWon ? teamB : teamA;
 
@@ -346,7 +354,7 @@ export function buildSwissRound(
   courts: number
 ): PlannedMatch[] {
   const out: PlannedMatch[] = [];
-  
+
   // Fallback: Round 1 (Sequential fixed pairings)
   if (matches.length === 0) {
     for (let i = 0; i < courts * 4 && i + 3 < playerIds.length; i += 4) {
@@ -365,7 +373,7 @@ export function buildSwissRound(
   // Reconstruct fixed teams and stats
   type TeamData = { id: string; p1: string; p2: string; points: number; diff: number; played: Set<string> };
   const teamMap = new Map<string, TeamData>();
-  
+
   const getTeamId = (p1: string, p2: string) => [p1, p2].sort().join('|');
 
   // 1. Initialize ALL possible teams so players on a bye don't disappear
@@ -409,7 +417,7 @@ export function buildSwissRound(
     if (assigned.has(teamA.id)) continue;
 
     let opponentIndex = -1;
-    
+
     // Priority 1: Find closest opponent they haven't played yet
     for (let j = i + 1; j < sortedTeams.length; j++) {
       const candidate = sortedTeams[j]!;
@@ -418,7 +426,7 @@ export function buildSwissRound(
         break;
       }
     }
-    
+
     // Priority 2 (Fallback): Find closest opponent regardless of history if no unique matchups remain
     if (opponentIndex === -1) {
       for (let j = i + 1; j < sortedTeams.length; j++) {
@@ -493,7 +501,7 @@ export function computeStandings(
 // Standings table for Swiss and KotC //
 export function computeTeamStandings(
   players: { id: string; name: string }[],
-  individualStandings: StandingRow[] 
+  individualStandings: StandingRow[]
 ): StandingRow[] {
   const teams: StandingRow[] = [];
 
